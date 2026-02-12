@@ -209,6 +209,30 @@
             <div class="card-body">
                 <form id="settings-form">
                     <div class="form-group">
+                        <label for="creation_date">Creation Date</label>
+                        <input type="date" id="creation_date">
+                        <div class="form-help">The date this document was originally created.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_revision_date">Last Revision Date</label>
+                        <input type="date" id="last_revision_date">
+                        <div class="form-help">The date of the most recent revision.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edition">Edition / Version</label>
+                        <input type="text" id="edition" placeholder="e.g., 1.0, 2.1">
+                        <div class="form-help">The current edition or version number of this document.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company_name">Reference (Company Name)</label>
+                        <input type="text" id="company_name" placeholder="e.g., GMRL Group">
+                        <div class="form-help">The company name or reference for this document.</div>
+                    </div>
+                    
+                    <div class="form-group">
                         <label for="branches">Branches</label>
                         <textarea id="branches" rows="3" placeholder="e.g., Main Kitchen, Satellite Kitchen, Bakery"></textarea>
                         <div class="form-help">Enter branch names separated by commas. These will appear in the verification form dropdown.</div>
@@ -241,6 +265,10 @@
                 });
                 const settings = await res.json();
                 
+                document.getElementById('creation_date').value = settings.creation_date || '';
+                document.getElementById('last_revision_date').value = settings.last_revision_date || '';
+                document.getElementById('edition').value = settings.edition || '';
+                document.getElementById('company_name').value = settings.company_name || '';
                 document.getElementById('branches').value = settings.branches || '';
             } catch (e) {
                 console.error('Error loading settings:', e);
@@ -256,6 +284,10 @@
             saveBtn.innerHTML = 'Saving...';
             
             const data = {
+                creation_date: document.getElementById('creation_date').value,
+                last_revision_date: document.getElementById('last_revision_date').value,
+                edition: document.getElementById('edition').value,
+                company_name: document.getElementById('company_name').value,
                 branches: document.getElementById('branches').value
             };
             

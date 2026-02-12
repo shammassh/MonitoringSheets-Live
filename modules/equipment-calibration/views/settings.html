@@ -238,6 +238,12 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="company_name">Reference (Company Name)</label>
+                        <input type="text" id="company_name" placeholder="e.g., GMRL Group">
+                        <div class="form-help">The company name or reference for this document.</div>
+                    </div>
+                    
+                    <div class="form-group">
                         <label for="branches">Branches</label>
                         <textarea id="branches" rows="3" placeholder="e.g., Main Kitchen, Satellite Kitchen, Bakery"></textarea>
                         <div class="form-help">Enter branch names separated by commas. These will appear in the calibration form dropdown.</div>
@@ -272,8 +278,9 @@
                 
                 document.getElementById('document_prefix').value = settings.document_prefix || 'CAL';
                 document.getElementById('creation_date').value = settings.creation_date || '';
-                document.getElementById('revision_date').value = settings.revision_date || '';
+                document.getElementById('revision_date').value = settings.revision_date || settings.last_revision_date || '';
                 document.getElementById('edition').value = settings.edition || '1';
+                document.getElementById('company_name').value = settings.company_name || '';
                 document.getElementById('branches').value = settings.branches || '';
             } catch (e) {
                 console.error('Error loading settings:', e);
@@ -292,7 +299,9 @@
                 document_prefix: document.getElementById('document_prefix').value,
                 creation_date: document.getElementById('creation_date').value,
                 revision_date: document.getElementById('revision_date').value,
+                last_revision_date: document.getElementById('revision_date').value,
                 edition: document.getElementById('edition').value,
+                company_name: document.getElementById('company_name').value,
                 branches: document.getElementById('branches').value
             };
             

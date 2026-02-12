@@ -5,7 +5,7 @@ const path = require('path');
 
 const dbConfig = {
     server: 'localhost',
-    database: 'FSMonitoringDB_UAT',
+    database: 'FSMonitoringDB',
     user: 'sa',
     password: 'Kokowawa123@@',
     options: {

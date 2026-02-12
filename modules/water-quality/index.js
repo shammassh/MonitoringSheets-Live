@@ -30,6 +30,10 @@ router.get('/sections', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'sections.html'));
 });
 
+router.get('/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'settings.html'));
+});
+
 // API: Get settings
 router.get('/api/settings', async (req, res) => {
     try {

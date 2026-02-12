@@ -5,7 +5,7 @@ const path = require('path');
 
 const dbConfig = {
     server: 'localhost',
-    database: 'FSMonitoringDB_UAT',
+    database: 'FSMonitoringDB',
     user: 'sa',
     password: 'Kokowawa123@@',
     options: {
@@ -35,6 +35,10 @@ router.get('/branches', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'branches.html'));
 });
 
+router.get('/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'settings.html'));
+});
+
 // API: Get settings
 router.get('/api/settings', async (req, res) => {
     try {
@@ -56,7 +60,7 @@ router.get('/api/settings', async (req, res) => {
 // API: Update settings
 router.put('/api/settings', async (req, res) => {
     try {
-        const { temp_max, humidity_max, branch } = req.body;
+        const { temp_max, humidity_max, branch, creation_date, last_revision_date, edition, company_name } = req.body;
         const pool = await sql.connect(dbConfig);
         
         if (temp_max !== undefined) {
@@ -73,6 +77,26 @@ router.put('/api/settings', async (req, res) => {
             await pool.request()
                 .input('value', sql.NVarChar, branch)
                 .query("UPDATE DryStoreSettings SET setting_value = @value, updated_at = GETDATE() WHERE setting_key = 'branch'");
+        }
+        if (creation_date !== undefined) {
+            await pool.request()
+                .input('value', sql.NVarChar, creation_date)
+                .query("UPDATE DryStoreSettings SET setting_value = @value, updated_at = GETDATE() WHERE setting_key = 'creation_date'");
+        }
+        if (last_revision_date !== undefined) {
+            await pool.request()
+                .input('value', sql.NVarChar, last_revision_date)
+                .query("UPDATE DryStoreSettings SET setting_value = @value, updated_at = GETDATE() WHERE setting_key = 'last_revision_date'");
+        }
+        if (edition !== undefined) {
+            await pool.request()
+                .input('value', sql.NVarChar, edition)
+                .query("UPDATE DryStoreSettings SET setting_value = @value, updated_at = GETDATE() WHERE setting_key = 'edition'");
+        }
+        if (company_name !== undefined) {
+            await pool.request()
+                .input('value', sql.NVarChar, company_name)
+                .query("UPDATE DryStoreSettings SET setting_value = @value, updated_at = GETDATE() WHERE setting_key = 'company_name'");
         }
         
         res.json({ success: true });

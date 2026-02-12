@@ -7,7 +7,7 @@ const multer = require('multer');
 
 const dbConfig = {
     server: 'localhost',
-    database: 'FSMonitoringDB_UAT',
+    database: 'FSMonitoringDB',
     user: 'sa',
     password: 'Kokowawa123@@',
     options: {

@@ -500,8 +500,9 @@
                 let url = `${API_BASE}/documents?`;
                 if (fromDate) url += `fromDate=${fromDate}&`;
                 if (toDate) url += `toDate=${toDate}&`;
+                url += `_=${Date.now()}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, { cache: 'no-store' });
                 documents = await response.json();
                 renderDocuments();
             } catch (err) {

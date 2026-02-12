@@ -13,7 +13,7 @@ const dbConfig = {
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || 'Kokowawa123@@',
     server: process.env.DB_SERVER || 'localhost',
-    database: process.env.DB_NAME || 'FSMonitoringDB_UAT',
+    database: process.env.DB_NAME || 'FSMonitoringDB',
     options: {
         encrypt: false,
         trustServerCertificate: true
