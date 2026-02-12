@@ -187,6 +187,20 @@
             .container { padding: 1rem; }
             .form-row { grid-template-columns: 1fr; }
         }
+        
+        /* Icon Picker */
+        .icon-picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; margin-top: 0.75rem; }
+        .icon-option { width: 100%; aspect-ratio: 1; border: 2px solid #e5e7eb; border-radius: 12px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding: 0.75rem; }
+        .icon-option:hover { border-color: #3b82f6; background: #eff6ff; }
+        .icon-option.selected { border-color: #3b82f6; background: #dbeafe; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        .icon-option svg { width: 32px; height: 32px; color: #374151; }
+        .icon-option.selected svg { color: #1e40af; }
+        .icon-preview { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 10px; margin-top: 1rem; }
+        .icon-preview-box { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); display: flex; align-items: center; justify-content: center; }
+        .icon-preview-box svg { width: 28px; height: 28px; color: white; }
+        .icon-preview-text { font-size: 0.875rem; color: #6b7280; }
+        .icon-preview-text strong { color: #1f2937; display: block; margin-bottom: 0.25rem; }
+        @media (max-width: 640px) { .icon-picker { grid-template-columns: repeat(4, 1fr); } }
     </style>
 </head>
 <body>
@@ -203,6 +217,37 @@
     </header>
     
     <div class="container">
+        <!-- Dashboard Icon Settings -->
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Dashboard Icon
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Select Icon</label>
+                    <div class="icon-picker" id="icon-picker"></div>
+                    <div class="icon-preview" id="icon-preview">
+                        <div class="icon-preview-box" id="icon-preview-box">
+                            <svg id="icon-preview-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                            </svg>
+                        </div>
+                        <div class="icon-preview-text">
+                            <strong>Dashboard Preview</strong>
+                            This is how the icon will appear on the main dashboard
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="card">
             <div class="card-header">
                 <h2>
@@ -265,9 +310,63 @@
     <div class="toast" id="toast"></div>
     
     <script>
+        // Available icons for the icon picker
+        const availableIcons = [
+            { id: 'checklist', name: 'Checklist', svg: '<path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>' },
+            { id: 'clipboard', name: 'Clipboard', svg: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>' },
+            { id: 'user-check', name: 'User Check', svg: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline>' },
+            { id: 'shield', name: 'Shield', svg: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>' },
+            { id: 'heart', name: 'Heart', svg: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>' },
+            { id: 'activity', name: 'Activity', svg: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>' },
+            { id: 'thermometer', name: 'Thermometer', svg: '<path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>' },
+            { id: 'droplet', name: 'Droplet', svg: '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>' },
+            { id: 'sun', name: 'Sun', svg: '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>' },
+            { id: 'calendar', name: 'Calendar', svg: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>' },
+            { id: 'package', name: 'Package', svg: '<line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>' },
+            { id: 'tool', name: 'Tool', svg: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>' },
+            { id: 'zap', name: 'Zap', svg: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>' },
+            { id: 'coffee', name: 'Coffee', svg: '<path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line>' },
+            { id: 'award', name: 'Award', svg: '<circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>' },
+            { id: 'star', name: 'Star', svg: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>' },
+            { id: 'check-circle', name: 'Check Circle', svg: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>' },
+            { id: 'alert-triangle', name: 'Alert', svg: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>' },
+            { id: 'file-text', name: 'File Text', svg: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>' },
+            { id: 'settings', name: 'Settings', svg: '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>' },
+            { id: 'truck', name: 'Truck', svg: '<rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>' },
+            { id: 'box', name: 'Box', svg: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>' },
+            { id: 'archive', name: 'Archive', svg: '<polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line>' },
+            { id: 'clipboard-list', name: 'Clipboard List', svg: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="8" y1="10" x2="8" y2="10.01"></line><line x1="12" y1="10" x2="16" y2="10"></line><line x1="8" y1="14" x2="8" y2="14.01"></line><line x1="12" y1="14" x2="16" y2="14"></line><line x1="8" y1="18" x2="8" y2="18.01"></line><line x1="12" y1="18" x2="16" y2="18"></line>' }
+        ];
+        
+        let selectedIcon = 'tool';
+        
         document.addEventListener('DOMContentLoaded', () => {
+            renderIconPicker();
             loadSettings();
         });
+        
+        function renderIconPicker() {
+            const picker = document.getElementById('icon-picker');
+            picker.innerHTML = availableIcons.map(icon => `
+                <button type="button" class="icon-option ${icon.id === selectedIcon ? 'selected' : ''}" 
+                        data-icon="${icon.id}" title="${icon.name}" onclick="selectIcon('${icon.id}')">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        ${icon.svg}
+                    </svg>
+                </button>
+            `).join('');
+        }
+        
+        function selectIcon(iconId) {
+            selectedIcon = iconId;
+            document.querySelectorAll('.icon-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.icon === iconId);
+            });
+            const icon = availableIcons.find(i => i.id === iconId);
+            if (icon) {
+                document.getElementById('icon-preview-svg').innerHTML = icon.svg;
+            }
+        }
         
         async function loadSettings() {
             try {
@@ -282,6 +381,9 @@
                 document.getElementById('edition').value = settings.edition || '1';
                 document.getElementById('company_name').value = settings.company_name || '';
                 document.getElementById('branches').value = settings.branches || '';
+                if (settings.dashboard_icon) {
+                    selectIcon(settings.dashboard_icon);
+                }
             } catch (e) {
                 console.error('Error loading settings:', e);
                 showToast('Failed to load settings', 'error');
@@ -302,7 +404,8 @@
                 last_revision_date: document.getElementById('revision_date').value,
                 edition: document.getElementById('edition').value,
                 company_name: document.getElementById('company_name').value,
-                branches: document.getElementById('branches').value
+                branches: document.getElementById('branches').value,
+                dashboard_icon: selectedIcon
             };
             
             try {
