@@ -584,7 +584,7 @@
         function canEdit() {
             if (!currentUser) return false;
             const role = currentUser.role || '';
-            return role === 'Admin' || role === 'Super Auditor';
+            return role === 'Admin' || role === 'SuperAuditor';
         }
         
         async function loadHistory() {

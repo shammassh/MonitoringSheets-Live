@@ -369,8 +369,8 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await loadCurrentUser();
             
-            // Check access - Allow Admin and Super Auditor
-            if (currentUser.role !== 'Admin' && currentUser.role !== 'Super Auditor') {
+            // Check access - Allow Admin and SuperAuditor
+            if (currentUser.role !== 'Admin' && currentUser.role !== 'SuperAuditor') {
                 document.getElementById('branchesContent').style.display = 'none';
                 document.getElementById('sectionsContent').style.display = 'none';
                 return;

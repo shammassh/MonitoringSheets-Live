@@ -607,16 +607,16 @@
                 
                 const canEdit = !r.is_verified && (
                     currentUser?.role === 'Admin' || 
-                    currentUser?.role === 'Super Auditor' ||
+                    currentUser?.role === 'SuperAuditor' ||
                     r.filled_by === currentUser?.name
                 );
                 
                 const canVerify = !r.is_verified && (
                     currentUser?.role === 'Admin' || 
-                    currentUser?.role === 'Super Auditor'
+                    currentUser?.role === 'SuperAuditor'
                 );
                 
-                const canDelete = currentUser?.role === 'Admin' || currentUser?.role === 'Super Auditor';
+                const canDelete = currentUser?.role === 'Admin' || currentUser?.role === 'SuperAuditor';
                 
                 return `
                     <div class="reading-card">

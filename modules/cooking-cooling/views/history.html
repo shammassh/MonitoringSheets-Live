@@ -509,13 +509,13 @@
 
         function canEdit(reading) {
             if (reading.verified_by) return false;
-            if (['Admin', 'Super Auditor'].includes(currentUser.role)) return true;
+            if (['Admin', 'SuperAuditor'].includes(currentUser.role)) return true;
             return reading.filled_by === currentUser.name;
         }
 
         function canVerify(reading) {
             if (reading.verified_by) return false;
-            return ['Admin', 'Super Auditor'].includes(currentUser.role);
+            return ['Admin', 'SuperAuditor'].includes(currentUser.role);
         }
 
         function canDelete(reading) {

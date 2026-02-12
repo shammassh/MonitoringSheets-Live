@@ -593,8 +593,8 @@
             // Can't edit if verified
             if (reading.verified_by) return false;
             
-            // Admins and Super Auditors can edit any
-            if (['Admin', 'Super Auditor'].includes(currentUser.role)) return true;
+            // Admins and SuperAuditors can edit any
+            if (['Admin', 'SuperAuditor'].includes(currentUser.role)) return true;
             
             // Others can only edit their own
             return reading.filled_by === currentUser.name;
@@ -604,8 +604,8 @@
             // Already verified
             if (reading.verified_by) return false;
             
-            // Only Admins and Super Auditors can verify
-            return ['Admin', 'Super Auditor'].includes(currentUser.role);
+            // Only Admins and SuperAuditors can verify
+            return ['Admin', 'SuperAuditor'].includes(currentUser.role);
         }
 
         function canDelete(reading) {

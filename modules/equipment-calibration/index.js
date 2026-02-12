@@ -432,10 +432,10 @@ router.put('/api/calibrations/:id', async (req, res) => {
             return res.status(401).json({ error: 'Not authenticated' });
         }
         
-        // Check role - only Admin and Super Auditor can edit
+        // Check role - only Admin and SuperAuditor can edit
         const role = user.role || '';
-        if (role !== 'Admin' && role !== 'Super Auditor') {
-            return res.status(403).json({ error: 'Only Admin and Super Auditor can edit calibration records' });
+        if (role !== 'Admin' && role !== 'SuperAuditor') {
+            return res.status(403).json({ error: 'Only Admin and SuperAuditor can edit calibration records' });
         }
         
         const { calibration_date, record } = req.body;

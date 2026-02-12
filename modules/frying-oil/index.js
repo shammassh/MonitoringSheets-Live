@@ -419,8 +419,8 @@ router.put('/api/tests/:id', async (req, res) => {
         }
         
         const role = user.role || '';
-        if (role !== 'Admin' && role !== 'Super Auditor') {
-            return res.status(403).json({ error: 'Only Admin and Super Auditor can edit records' });
+        if (role !== 'Admin' && role !== 'SuperAuditor') {
+            return res.status(403).json({ error: 'Only Admin and SuperAuditor can edit records' });
         }
         
         const { test_date, record } = req.body;

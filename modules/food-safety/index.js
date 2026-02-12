@@ -411,8 +411,8 @@ router.put('/api/verifications/:id/verify', async (req, res) => {
 router.put('/api/verifications/:id', async (req, res) => {
     try {
         const userRole = req.currentUser?.role || '';
-        if (userRole !== 'Admin' && userRole !== 'Super Auditor') {
-            return res.status(403).json({ error: 'Only Admin and Super Auditor can edit verified records' });
+        if (userRole !== 'Admin' && userRole !== 'SuperAuditor') {
+            return res.status(403).json({ error: 'Only Admin and SuperAuditor can edit verified records' });
         }
         
         const { verification_date, record } = req.body;

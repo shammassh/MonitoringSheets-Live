@@ -609,8 +609,8 @@
             
             emptyState.style.display = 'none';
             
-            const canEdit = ['Admin', 'Super Auditor'].includes(currentUser.role);
-            const canVerify = ['Admin', 'Super Auditor'].includes(currentUser.role);
+            const canEdit = ['Admin', 'SuperAuditor'].includes(currentUser.role);
+            const canVerify = ['Admin', 'SuperAuditor'].includes(currentUser.role);
             const canDelete = currentUser.role === 'Admin';
             
             tbody.innerHTML = readings.map(r => `

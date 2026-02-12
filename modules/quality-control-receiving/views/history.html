@@ -604,7 +604,7 @@
                         
                         // Role-based permissions
                         const isAdmin = currentUser?.role === 'Admin';
-                        const isSuperAuditor = currentUser?.role === 'Super Auditor';
+                        const isSuperAuditor = currentUser?.role === 'SuperAuditor';
                         const isOwner = doc.filled_by === currentUser?.name;
                         
                         // Admin and Super Auditor can always edit, others can only edit unverified docs they own
