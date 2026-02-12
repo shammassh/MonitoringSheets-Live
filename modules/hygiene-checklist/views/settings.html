@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <title>System Settings - Hygiene Checklist</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .card-header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .card-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .card-header p {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-group .hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .form-group input:disabled {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        /* Document Preview */
+        .preview-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 2px solid #10b981;
+        }
+        
+        .preview-header {
+            text-align: center;
+            padding: 1.5rem;
+            border-bottom: 2px dashed #10b981;
+        }
+        
+        .preview-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 0.5rem;
+        }
+        
+        .preview-doc-number {
+            font-family: monospace;
+            font-size: 1rem;
+            color: #374151;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+        
+        .preview-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            text-align: center;
+        }
+        
+        .preview-meta-item {
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .preview-meta-label {
+            font-size: 0.7rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .preview-meta-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-top: 0.25rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+        }
+        
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .actions-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 1rem;
+            background: #1f2937;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            z-index: 300;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification.success { background: #059669; }
+        .notification.error { background: #dc2626; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .preview-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Shifts Preview */
+        .shifts-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        
+        .shift-tag {
+            background: #ecfdf5;
+            color: #059669;
+            padding: 0.375rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        
+        .shift-tag svg {
+            width: 14px;
+            height: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <button class="back-btn" onclick="window.location.href='/hygiene-checklist'">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <h1 class="header-title">System Settings</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Document Preview -->
+        <div class="settings-card preview-card">
+            <div class="preview-header">
+                <div class="preview-title" id="preview-title">Employee Health and Hygiene Checklist</div>
+                <div>Document Number Format:</div>
+                <div class="preview-doc-number" id="preview-doc-format">HYG-20260115-001</div>
+            </div>
+            <div class="preview-meta">
+                <div class="preview-meta-item">
+                    <div class="preview-meta-label">Creation Date</div>
+                    <div class="preview-meta-value" id="preview-creation">-</div>
+                </div>
+                <div class="preview-meta-item">
+                    <div class="preview-meta-label">Last Revision</div>
+                    <div class="preview-meta-value" id="preview-revision">-</div>
+                </div>
+                <div class="preview-meta-item">
+                    <div class="preview-meta-label">Edition</div>
+                    <div class="preview-meta-value" id="preview-edition">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Document Settings -->
+        <div class="settings-card">
+            <div class="card-header">
+                <div class="card-header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <h2>Document Information</h2>
+                    <p>Configure document numbering and metadata</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="document_title">Document Title</label>
+                    <input type="text" id="document_title" placeholder="Enter document title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="document_prefix">Document Number Prefix</label>
+                    <input type="text" id="document_prefix" placeholder="HYG" maxlength="20">
+                    <div class="hint">The prefix used for document numbers (e.g., HYG-20260115-001)</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="creation_date">Creation Date</label>
+                        <input type="date" id="creation_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_revision_date">Last Revision Date</label>
+                        <input type="date" id="last_revision_date">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edition">Edition / Version</label>
+                        <input type="text" id="edition" placeholder="1.0">
+                    </div>
+                    <div class="form-group">
+                        <label for="company_name">Company Name</label>
+                        <input type="text" id="company_name" placeholder="GMRL Group">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shifts Settings -->
+        <div class="settings-card">
+            <div class="card-header">
+                <div class="card-header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <h2>Shift Configuration</h2>
+                    <p>Define available work shifts for the checklist</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="shifts">Available Shifts</label>
+                    <input type="text" id="shifts" placeholder="Morning, Afternoon, Night">
+                    <div class="hint">Enter shift names separated by commas (e.g., Morning, Afternoon, Night)</div>
+                </div>
+                <div class="shifts-preview" id="shifts-preview"></div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="actions-bar">
+            <button class="btn btn-secondary" onclick="loadSettings()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                Reset
+            </button>
+            <button class="btn btn-primary" id="save-btn" onclick="saveSettings()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Save Settings
+            </button>
+        </div>
+    </div>
+    
+    <div id="notifications"></div>
+    
+    <script>
+        const fields = ['document_title', 'document_prefix', 'creation_date', 'last_revision_date', 'edition', 'company_name', 'shifts'];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadSettings();
+            
+            // Add live preview listeners
+            fields.forEach(field => {
+                document.getElementById(field).addEventListener('input', updatePreview);
+            });
+            
+            // Add shifts preview listener
+            document.getElementById('shifts').addEventListener('input', updateShiftsPreview);
+        });
+        
+        async function loadSettings() {
+            try {
+                const res = await fetch('/hygiene-checklist/api/settings');
+                const settings = await res.json();
+                
+                // Populate fields
+                fields.forEach(field => {
+                    const input = document.getElementById(field);
+                    if (settings[field]) {
+                        input.value = settings[field];
+                    }
+                });
+                
+                updatePreview();
+                updateShiftsPreview();
+            } catch (e) {
+                console.error('Failed to load settings:', e);
+                showNotification('Failed to load settings', 'error');
+            }
+        }
+        
+        function updatePreview() {
+            const title = document.getElementById('document_title').value || 'Employee Health and Hygiene Checklist';
+            const prefix = document.getElementById('document_prefix').value || 'HYG';
+            const creation = document.getElementById('creation_date').value;
+            const revision = document.getElementById('last_revision_date').value;
+            const edition = document.getElementById('edition').value || '1.0';
+            
+            // Update preview
+            document.getElementById('preview-title').textContent = title;
+            
+            // Generate sample document number
+            const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+            document.getElementById('preview-doc-format').textContent = `${prefix}-${today}-001`;
+            
+            document.getElementById('preview-creation').textContent = creation ? formatDate(creation) : '-';
+            document.getElementById('preview-revision').textContent = revision ? formatDate(revision) : '-';
+            document.getElementById('preview-edition').textContent = edition;
+        }
+        
+        function updateShiftsPreview() {
+            const shiftsInput = document.getElementById('shifts').value;
+            const preview = document.getElementById('shifts-preview');
+            
+            if (!shiftsInput.trim()) {
+                preview.innerHTML = '<span style="color: #6b7280; font-size: 0.8rem;">Using default shifts: Morning, Afternoon, Night</span>';
+                return;
+            }
+            
+            const shifts = shiftsInput.split(',').map(s => s.trim()).filter(s => s);
+            
+            if (shifts.length === 0) {
+                preview.innerHTML = '<span style="color: #6b7280; font-size: 0.8rem;">Using default shifts: Morning, Afternoon, Night</span>';
+                return;
+            }
+            
+            preview.innerHTML = shifts.map(shift => `
+                <span class="shift-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    ${shift}
+                </span>
+            `).join('');
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        
+        async function saveSettings() {
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `
+                <div class="loading-spinner" style="width: 18px; height: 18px; margin: 0;"></div>
+                Saving...
+            `;
+            
+            try {
+                const settings = {};
+                fields.forEach(field => {
+                    settings[field] = document.getElementById(field).value;
+                });
+                
+                const res = await fetch('/hygiene-checklist/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                
+                if (res.ok) {
+                    showNotification('Settings saved successfully', 'success');
+                } else {
+                    const data = await res.json();
+                    showNotification(data.error || 'Failed to save settings', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to save settings:', e);
+                showNotification('Failed to save settings', 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Save Settings
+                `;
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

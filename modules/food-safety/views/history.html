@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#059669">
+    <title>Verification History - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .filters-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .filter-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-filter {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            align-self: flex-end;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        .stat-card.pass .stat-value { color: #059669; }
+        .stat-card.fail .stat-value { color: #dc2626; }
+        .stat-card.pending .stat-value { color: #f59e0b; }
+        
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .history-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        
+        .history-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .doc-number {
+            font-weight: 600;
+            color: #1f2937;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+        
+        .history-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .history-content {
+            padding: 1rem;
+        }
+        
+        .test-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .summary-item {
+            padding: 0.25rem 0.75rem;
+            background: #f3f4f6;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .summary-item.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .summary-item.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .verified-by-text {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        .history-footer {
+            padding: 0.75rem 1rem;
+            background: #f9fafb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .verified-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+        
+        .verified-badge.yes {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .verified-badge.no {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-view {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-view:hover {
+            background: #d1d5db;
+        }
+        
+        .btn-verify {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-verify:hover {
+            transform: scale(1.02);
+        }
+        
+        .btn-edit {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            transform: scale(1.02);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: #6b7280;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 1rem;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: #6b7280;
+        }
+        
+        .modal-body {
+            padding: 1.25rem;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .detail-label {
+            color: #6b7280;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-badge.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .corrective-action-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .corrective-action-box h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .corrective-action-box p {
+            color: #78350f;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background: #059669;
+        }
+        
+        .toast.error {
+            background: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .filters { flex-direction: column; }
+            .history-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .history-footer { flex-direction: column; gap: 0.75rem; }
+            .history-actions { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/food-safety" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">📜 Verification History</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Filters -->
+        <div class="filters-card">
+            <div class="filters">
+                <div class="filter-group">
+                    <label>From Date</label>
+                    <input type="date" id="filter-from">
+                </div>
+                <div class="filter-group">
+                    <label>To Date</label>
+                    <input type="date" id="filter-to">
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filter-status">
+                        <option value="">All</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Verified</label>
+                    <select id="filter-verified">
+                        <option value="">All</option>
+                        <option value="1">Verified</option>
+                        <option value="0">Pending</option>
+                    </select>
+                </div>
+                <button class="btn-filter" onclick="loadHistory()">Apply</button>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-label">Total Verifications</div>
+            </div>
+            <div class="stat-card pass">
+                <div class="stat-value" id="stat-pass">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-card fail">
+                <div class="stat-value" id="stat-fail">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-value" id="stat-pending">0</div>
+                <div class="stat-label">Pending Verification</div>
+            </div>
+        </div>
+        
+        <!-- History List -->
+        <div id="history-list" class="history-list">
+            <!-- Populated by JS -->
+        </div>
+        
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <h3>No Verification Records</h3>
+            <p>Start recording verifications to see history here.</p>
+        </div>
+    </div>
+    
+    <!-- View Details Modal -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="detail-doc-number">Verification Details</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="detail-content">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let currentUser = null;
+        let verifications = [];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set default date range (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            document.getElementById('filter-to').valueAsDate = today;
+            document.getElementById('filter-from').valueAsDate = thirtyDaysAgo;
+            
+            await loadCurrentUser();
+            await loadHistory();
+        });
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/food-safety/api/me?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                if (res.ok) {
+                    currentUser = await res.json();
+                }
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        function canEdit() {
+            if (!currentUser) return false;
+            const role = currentUser.role || '';
+            return role === 'Admin' || role === 'Super Auditor';
+        }
+        
+        async function loadHistory() {
+            const params = new URLSearchParams();
+            
+            const fromDate = document.getElementById('filter-from').value;
+            const toDate = document.getElementById('filter-to').value;
+            const status = document.getElementById('filter-status').value;
+            const verified = document.getElementById('filter-verified').value;
+            
+            if (fromDate) params.append('from', fromDate);
+            if (toDate) params.append('to', toDate);
+            if (status) params.append('status', status);
+            if (verified) params.append('verified', verified);
+            
+            params.append('_', Date.now());
+            
+            try {
+                const res = await fetch(`/food-safety/api/verifications?${params.toString()}`, {
+                    cache: 'no-store'
+                });
+                verifications = await res.json();
+                
+                renderStats();
+                renderHistory();
+            } catch (e) {
+                console.error('Error loading history:', e);
+                showToast('Failed to load history', 'error');
+            }
+        }
+        
+        function renderStats() {
+            const total = verifications.length;
+            let passCount = 0;
+            let failCount = 0;
+            let pendingCount = 0;
+            
+            verifications.forEach(v => {
+                if (v.has_failures) failCount++;
+                else passCount++;
+                
+                if (!v.verified) pendingCount++;
+            });
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-pass').textContent = passCount;
+            document.getElementById('stat-fail').textContent = failCount;
+            document.getElementById('stat-pending').textContent = pendingCount;
+        }
+        
+        function renderHistory() {
+            const container = document.getElementById('history-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (verifications.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            container.innerHTML = verifications.map(v => {
+                const verDate = new Date(v.verification_date);
+                const dateStr = verDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                const statusClass = v.has_failures ? 'fail' : 'pass';
+                const statusText = v.has_failures ? 'Has Failures' : 'All Passed';
+                
+                const editBtn = canEdit() && v.verified ? `
+                    <button class="btn btn-edit" onclick="editVerification(${v.id})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Edit
+                    </button>
+                ` : '';
+                
+                return `
+                    <div class="history-card">
+                        <div class="history-header">
+                            <span class="doc-number">${v.document_number}</span>
+                            ${v.procedures ? `<span style="font-size: 0.875rem; color: #6b7280;">- ${v.procedures}</span>` : ''}
+                            <span class="history-date">${dateStr}</span>
+                        </div>
+                        <div class="history-content">
+                            <div class="test-summary">
+                                <span class="summary-item ${statusClass}">${statusText}</span>
+                                <span class="summary-item">${v.record_count} record(s)</span>
+                            </div>
+                            <div class="verified-by-text">Verified by: ${v.verified_by || 'Unknown'}</div>
+                        </div>
+                        <div class="history-footer">
+                            <span class="verified-badge ${v.verified ? 'yes' : 'no'}">
+                                ${v.verified ? '✓ Approved by ' + (v.verified_by_user || '') : '⏳ Pending Approval'}
+                            </span>
+                            <div class="history-actions">
+                                <button class="btn btn-view" onclick="viewDetails(${v.id})">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    View
+                                </button>
+                                ${!v.verified ? `
+                                    <button class="btn btn-verify" onclick="verifyRecord(${v.id})">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                        Approve
+                                    </button>
+                                ` : editBtn}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function viewDetails(sessionId) {
+            try {
+                const res = await fetch(`/food-safety/api/verifications/${sessionId}?_=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const data = await res.json();
+                
+                document.getElementById('detail-doc-number').textContent = data.session.document_number;
+                
+                const verDate = new Date(data.session.verification_date);
+                const dateStr = verDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                let content = `
+                    <div class="detail-row">
+                        <span class="detail-label">Verification Date</span>
+                        <span class="detail-value">${dateStr}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Verified By</span>
+                        <span class="detail-value">${data.session.verified_by || 'Unknown'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Approval</span>
+                        <span class="detail-value">${data.session.verified ? 'Approved by ' + data.session.verified_by_user : 'Pending'}</span>
+                    </div>
+                    <hr style="margin: 1rem 0; border: none; border-top: 1px solid #e5e7eb;">
+                `;
+                
+                data.records.forEach(record => {
+                    content += `
+                        <div style="background: #f9fafb; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">${record.procedure_name}</div>
+                            ${record.item_name ? `
+                                <div class="detail-row" style="border-bottom: none; padding: 0.25rem 0;">
+                                    <span class="detail-label">Item</span>
+                                    <span class="detail-value">${record.item_name}</span>
+                                </div>
+                            ` : ''}
+                            <div class="detail-row" style="border-bottom: none; padding: 0.25rem 0;">
+                                <span class="detail-label">Test Value</span>
+                                <span class="detail-value">${record.test_value || '-'} ${record.unit_of_measurement || ''}</span>
+                            </div>
+                            <div class="detail-row" style="border-bottom: none; padding: 0.25rem 0;">
+                                <span class="detail-label">Reference Value</span>
+                                <span class="detail-value">${record.reference_value || '-'}</span>
+                            </div>
+                            <div class="detail-row" style="border-bottom: none; padding: 0.25rem 0;">
+                                <span class="detail-label">Difference</span>
+                                <span class="detail-value">${record.difference || '-'}</span>
+                            </div>
+                            <div class="detail-row" style="border-bottom: none; padding: 0.25rem 0;">
+                                <span class="detail-label">Status</span>
+                                <span class="status-badge ${record.status === 'Pass' ? 'pass' : 'fail'}">${record.status}</span>
+                            </div>
+                            ${record.comments ? `
+                                <div class="detail-row" style="border-bottom: none; padding: 0.25rem 0;">
+                                    <span class="detail-label">Comments</span>
+                                    <span class="detail-value">${record.comments}</span>
+                                </div>
+                            ` : ''}
+                            ${record.corrective_action ? `
+                                <div class="corrective-action-box">
+                                    <h4>⚠️ Corrective Action</h4>
+                                    <p>${record.corrective_action}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('detail-content').innerHTML = content;
+                document.getElementById('detail-modal').classList.add('active');
+            } catch (e) {
+                console.error('Error loading details:', e);
+                showToast('Failed to load details', 'error');
+            }
+        }
+        
+        async function verifyRecord(sessionId) {
+            if (!confirm('Approve this verification record?')) return;
+            
+            try {
+                const res = await fetch(`/food-safety/api/verifications/${sessionId}/verify`, {
+                    method: 'PUT'
+                });
+                
+                if (res.ok) {
+                    showToast('Verification approved', 'success');
+                    await loadHistory();
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Approval failed', 'error');
+                }
+            } catch (e) {
+                console.error('Verify error:', e);
+                showToast('Network error', 'error');
+            }
+        }
+        
+        function editVerification(sessionId) {
+            window.location.href = `/food-safety/form?edit=${sessionId}`;
+        }
+        
+        function closeModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // Close modal on outside click
+        document.getElementById('detail-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('detail-modal')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

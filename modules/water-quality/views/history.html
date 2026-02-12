@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0891b2">
+    <title>History - Water Quality Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #0891b2;
+        }
+        
+        .btn-filter {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .readings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .reading-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .reading-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: #f0fdfa;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .reading-header.has-fail {
+            background: #fef2f2;
+        }
+        
+        .reading-header.verified {
+            background: #d1fae5;
+        }
+        
+        .reading-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .reading-date {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .reading-section {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        .reading-meta {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.pass { background: #d1fae5; color: #065f46; }
+        .status-badge.fail { background: #fee2e2; color: #dc2626; }
+        .status-badge.verified { background: #dbeafe; color: #1d4ed8; }
+        
+        .reading-body {
+            padding: 1rem 1.5rem;
+        }
+        
+        .readings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .reading-value {
+            text-align: center;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .reading-value.fail {
+            background: #fef2f2;
+        }
+        
+        .reading-value-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .reading-value-num {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .reading-value.fail .reading-value-num {
+            color: #dc2626;
+        }
+        
+        .reading-value-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+        
+        .reading-value-status.pass { color: #059669; }
+        .reading-value-status.fail { color: #dc2626; }
+        
+        .corrective-action {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: #fef2f2;
+            border-radius: 8px;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .corrective-action-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #dc2626;
+            margin-bottom: 0.25rem;
+        }
+        
+        .corrective-action-text {
+            font-size: 0.9rem;
+            color: #7f1d1d;
+        }
+        
+        .reading-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .filled-by {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .btn-edit:hover {
+            background: #bfdbfe;
+        }
+        
+        .btn-verify {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .btn-verify:hover {
+            background: #a7f3d0;
+        }
+        
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal h3 {
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .modal p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .modal-buttons button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .modal-buttons .btn-cancel {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .modal-buttons .btn-confirm-delete {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .modal-buttons .btn-confirm-verify {
+            background: #059669;
+            color: white;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+        
+        .doc-number {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .filters { flex-direction: column; }
+            .reading-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .readings-grid { grid-template-columns: repeat(2, 1fr); }
+            .reading-footer { flex-direction: column; gap: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/water-quality" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">💧 History</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label>From Date</label>
+                <input type="date" id="filter-from">
+            </div>
+            <div class="filter-group">
+                <label>To Date</label>
+                <input type="date" id="filter-to">
+            </div>
+            <div class="filter-group">
+                <label>Section</label>
+                <select id="filter-section">
+                    <option value="">All Sections</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="filter-status">
+                    <option value="">All Status</option>
+                    <option value="pass">Pass Only</option>
+                    <option value="fail">Has Failures</option>
+                </select>
+            </div>
+            <button class="btn-filter" onclick="loadReadings()">Apply Filters</button>
+        </div>
+        
+        <div class="readings-list" id="readings-list">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p>Loading readings...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal">
+            <h3>🗑️ Delete Reading</h3>
+            <p>Are you sure you want to delete this reading? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+                <button class="btn-confirm-delete" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="verify-modal">
+        <div class="modal">
+            <h3>✅ Verify Reading</h3>
+            <p>Verify this reading? Verified readings cannot be edited.</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+                <button class="btn-confirm-verify" onclick="confirmVerify()">Verify</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let currentUser = null;
+        let readings = [];
+        let selectedId = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set default date range (last 30 days)
+            const today = new Date();
+            const monthAgo = new Date();
+            monthAgo.setDate(monthAgo.getDate() - 30);
+            
+            document.getElementById('filter-to').value = today.toISOString().split('T')[0];
+            document.getElementById('filter-from').value = monthAgo.toISOString().split('T')[0];
+            
+            await loadCurrentUser();
+            await loadSections();
+            await loadReadings();
+        });
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/water-quality/api/current-user');
+                currentUser = await res.json();
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        async function loadSections() {
+            try {
+                const res = await fetch('/water-quality/api/sections');
+                const sections = await res.json();
+                
+                const select = document.getElementById('filter-section');
+                sections.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s.name;
+                    option.textContent = s.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading sections:', e);
+            }
+        }
+        
+        async function loadReadings() {
+            try {
+                const from = document.getElementById('filter-from').value;
+                const to = document.getElementById('filter-to').value;
+                const section = document.getElementById('filter-section').value;
+                const status = document.getElementById('filter-status').value;
+                
+                let url = `/water-quality/api/readings?from=${from}&to=${to}`;
+                if (section) url += `&section=${encodeURIComponent(section)}`;
+                
+                const res = await fetch(url);
+                readings = await res.json();
+                
+                // Client-side status filter
+                if (status === 'pass') {
+                    readings = readings.filter(r => !hasFail(r));
+                } else if (status === 'fail') {
+                    readings = readings.filter(r => hasFail(r));
+                }
+                
+                renderReadings();
+            } catch (e) {
+                console.error('Error loading readings:', e);
+                document.getElementById('readings-list').innerHTML = `
+                    <div class="empty-state">
+                        <p>Failed to load readings</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function hasFail(r) {
+            return r.th_status === 'Fail' || 
+                   r.tds_status === 'Fail' || 
+                   r.salt_status === 'Fail' || 
+                   r.ph_status === 'Fail' || 
+                   r.chlorine_30min_status === 'Fail' || 
+                   r.chlorine_point_of_use_status === 'Fail';
+        }
+        
+        function renderReadings() {
+            const list = document.getElementById('readings-list');
+            
+            if (readings.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                        </svg>
+                        <p>No readings found for the selected filters</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = readings.map(r => {
+                const hasFails = hasFail(r);
+                const dateStr = new Date(r.reading_date).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                const canEdit = !r.is_verified && (
+                    currentUser?.role === 'Admin' || 
+                    currentUser?.role === 'Super Auditor' ||
+                    r.filled_by === currentUser?.name
+                );
+                
+                const canVerify = !r.is_verified && (
+                    currentUser?.role === 'Admin' || 
+                    currentUser?.role === 'Super Auditor'
+                );
+                
+                const canDelete = currentUser?.role === 'Admin' || currentUser?.role === 'Super Auditor';
+                
+                return `
+                    <div class="reading-card">
+                        <div class="reading-header ${r.is_verified ? 'verified' : (hasFails ? 'has-fail' : '')}">
+                            <div class="reading-info">
+                                <span class="reading-date">${dateStr}</span>
+                                <span class="reading-section">${r.section}</span>
+                                <span class="doc-number">${r.document_number || ''}</span>
+                            </div>
+                            <div class="reading-meta">
+                                ${r.is_verified ? '<span class="status-badge verified">✓ Verified</span>' : ''}
+                                ${hasFails ? '<span class="status-badge fail">Has Failures</span>' : '<span class="status-badge pass">All Pass</span>'}
+                            </div>
+                        </div>
+                        <div class="reading-body">
+                            <div class="readings-grid">
+                                <div class="reading-value ${r.th_status === 'Fail' ? 'fail' : ''}">
+                                    <div class="reading-value-label">TH (mg/L)</div>
+                                    <div class="reading-value-num">${r.th_value != null ? r.th_value : '-'}</div>
+                                    <div class="reading-value-status ${r.th_status?.toLowerCase() || 'pass'}">${r.th_status || 'Pass'}</div>
+                                </div>
+                                <div class="reading-value ${r.tds_status === 'Fail' ? 'fail' : ''}">
+                                    <div class="reading-value-label">TDS (mg/L)</div>
+                                    <div class="reading-value-num">${r.tds_value != null ? r.tds_value : '-'}</div>
+                                    <div class="reading-value-status ${r.tds_status?.toLowerCase() || 'pass'}">${r.tds_status || 'Pass'}</div>
+                                </div>
+                                <div class="reading-value ${r.salt_status === 'Fail' ? 'fail' : ''}">
+                                    <div class="reading-value-label">Salt</div>
+                                    <div class="reading-value-num">${r.salt_ok ? '✓ OK' : '⚠ Refill'}</div>
+                                    <div class="reading-value-status ${r.salt_status?.toLowerCase() || 'pass'}">${r.salt_status || 'Pass'}</div>
+                                </div>
+                                <div class="reading-value ${r.ph_status === 'Fail' ? 'fail' : ''}">
+                                    <div class="reading-value-label">pH</div>
+                                    <div class="reading-value-num">${r.ph_value != null ? r.ph_value : '-'}</div>
+                                    <div class="reading-value-status ${r.ph_status?.toLowerCase() || 'pass'}">${r.ph_status || 'Pass'}</div>
+                                </div>
+                                <div class="reading-value ${r.chlorine_30min_status === 'Fail' ? 'fail' : ''}">
+                                    <div class="reading-value-label">Cl₂ 30min (mg/L)</div>
+                                    <div class="reading-value-num">${r.chlorine_30min != null ? r.chlorine_30min : '-'}</div>
+                                    <div class="reading-value-status ${r.chlorine_30min_status?.toLowerCase() || 'pass'}">${r.chlorine_30min_status || 'Pass'}</div>
+                                </div>
+                                <div class="reading-value ${r.chlorine_point_of_use_status === 'Fail' ? 'fail' : ''}">
+                                    <div class="reading-value-label">Cl₂ POU (mg/L)</div>
+                                    <div class="reading-value-num">${r.chlorine_point_of_use != null ? r.chlorine_point_of_use : '-'}</div>
+                                    <div class="reading-value-status ${r.chlorine_point_of_use_status?.toLowerCase() || 'pass'}">${r.chlorine_point_of_use_status || 'Pass'}</div>
+                                </div>
+                            </div>
+                            ${r.corrective_action ? `
+                                <div class="corrective-action">
+                                    <div class="corrective-action-label">Corrective Action</div>
+                                    <div class="corrective-action-text">${r.corrective_action}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="reading-footer">
+                            <span class="filled-by">Filled by: ${r.filled_by || 'Unknown'}</span>
+                            <div class="action-buttons">
+                                ${canEdit ? `<button class="btn-action btn-edit" onclick="editReading(${r.id})">✏️ Edit</button>` : ''}
+                                ${canVerify ? `<button class="btn-action btn-verify" onclick="showVerifyModal(${r.id})">✓ Verify</button>` : ''}
+                                ${canDelete ? `<button class="btn-action btn-delete" onclick="showDeleteModal(${r.id})">🗑️ Delete</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function editReading(id) {
+            window.location.href = `/water-quality/form?edit=${id}`;
+        }
+        
+        function showDeleteModal(id) {
+            selectedId = id;
+            document.getElementById('delete-modal').classList.add('show');
+        }
+        
+        function showVerifyModal(id) {
+            selectedId = id;
+            document.getElementById('verify-modal').classList.add('show');
+        }
+        
+        function closeModals() {
+            document.getElementById('delete-modal').classList.remove('show');
+            document.getElementById('verify-modal').classList.remove('show');
+            selectedId = null;
+        }
+        
+        async function confirmDelete() {
+            if (!selectedId) return;
+            
+            try {
+                const res = await fetch(`/water-quality/api/readings/${selectedId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (res.ok) {
+                    showToast('Reading deleted', 'success');
+                    closeModals();
+                    loadReadings();
+                } else {
+                    throw new Error('Failed to delete');
+                }
+            } catch (e) {
+                showToast('Failed to delete reading', 'error');
+            }
+        }
+        
+        async function confirmVerify() {
+            if (!selectedId) return;
+            
+            try {
+                const res = await fetch(`/water-quality/api/readings/${selectedId}/verify`, {
+                    method: 'POST'
+                });
+                
+                if (res.ok) {
+                    showToast('Reading verified', 'success');
+                    closeModals();
+                    loadReadings();
+                } else {
+                    throw new Error('Failed to verify');
+                }
+            } catch (e) {
+                showToast('Failed to verify reading', 'error');
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

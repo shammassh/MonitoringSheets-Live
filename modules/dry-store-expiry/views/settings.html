@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products Expiry Settings - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #be185d 0%, #db2777 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(190, 24, 93, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            color: #be185d;
+        }
+
+        .card-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-form input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-form input:focus {
+            outline: none;
+            border-color: #be185d;
+            box-shadow: 0 0 0 4px rgba(190, 24, 93, 0.1);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #be185d 0%, #db2777 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(190, 24, 93, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(190, 24, 93, 0.4);
+        }
+
+        .sections-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .section-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+
+        .section-item:hover {
+            border-color: #be185d;
+            background: #fdf2f8;
+        }
+
+        .section-name {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .section-name i {
+            color: #be185d;
+        }
+
+        .btn-delete {
+            padding: 0.5rem 0.75rem;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        .access-denied {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .access-denied i {
+            font-size: 4rem;
+            color: #dc2626;
+            margin-bottom: 1rem;
+        }
+
+        .access-denied h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .access-denied p {
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .add-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-cog"></i> Expiry Check Settings</h1>
+            <a href="/dry-store-expiry" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Products Expiry
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Document Information -->
+        <div class="settings-card">
+            <h2 class="card-title">
+                <i class="fas fa-file-alt"></i>
+                Document Information
+            </h2>
+            <p class="card-subtitle">Configure document metadata</p>
+
+            <div id="documentContent">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Creation Date</label>
+                    <input type="date" id="creation_date" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Last Revision Date</label>
+                    <input type="date" id="last_revision_date" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Edition</label>
+                    <input type="text" id="edition" placeholder="e.g., 1.0" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Reference (Company Name)</label>
+                    <input type="text" id="company_name" placeholder="e.g., GMRL Group" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem;">
+                </div>
+                <button class="btn btn-primary" onclick="saveDocumentInfo()" style="margin-bottom: 2rem;">
+                    <i class="fas fa-save"></i>
+                    Save Document Info
+                </button>
+            </div>
+        </div>
+        
+        <div class="settings-card" style="margin-top: 1.5rem;">
+            <h2 class="card-title">
+                <i class="fas fa-building"></i>
+                Manage Branches
+            </h2>
+            <p class="card-subtitle">Add or remove branch locations</p>
+
+            <div id="branchesContent">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Branches (one per line)</label>
+                    <textarea id="branchesTextarea" rows="6" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; font-family: inherit;"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="saveBranches()" style="margin-bottom: 2rem;">
+                    <i class="fas fa-save"></i>
+                    Save Branches
+                </button>
+            </div>
+        </div>
+
+        <!-- Sections Management -->
+        <div class="settings-card" style="margin-top: 1.5rem;">
+            <h2 class="card-title">
+                <i class="fas fa-layer-group"></i>
+                Manage Sections
+            </h2>
+            <p class="card-subtitle">Add or remove section locations for dry store expiry checks</p>
+
+            <div id="sectionsContent">
+                <div class="add-form">
+                    <input type="text" id="newSectionInput" placeholder="Enter section name...">
+                    <button class="btn btn-primary" onclick="addSection()">
+                        <i class="fas fa-plus"></i>
+                        Add Section
+                    </button>
+                </div>
+
+                <div class="sections-list" id="sectionsList">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading sections...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        let currentUser = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCurrentUser();
+            
+            // Check access - Allow Admin and Super Auditor
+            if (currentUser.role !== 'Admin' && currentUser.role !== 'Super Auditor') {
+                document.getElementById('branchesContent').style.display = 'none';
+                document.getElementById('sectionsContent').style.display = 'none';
+                return;
+            }
+            
+            await loadDocumentInfo();
+            await loadBranches();
+            await loadSections();
+        });
+
+        async function loadDocumentInfo() {
+            try {
+                const response = await fetch('/dry-store-expiry/api/settings');
+                const settings = await response.json();
+                document.getElementById('creation_date').value = settings.creation_date || '';
+                document.getElementById('last_revision_date').value = settings.last_revision_date || '';
+                document.getElementById('edition').value = settings.edition || '';
+                document.getElementById('company_name').value = settings.company_name || '';
+            } catch (error) {
+                console.error('Error loading document info:', error);
+            }
+        }
+
+        async function saveDocumentInfo() {
+            try {
+                const data = {
+                    creation_date: document.getElementById('creation_date').value,
+                    last_revision_date: document.getElementById('last_revision_date').value,
+                    edition: document.getElementById('edition').value,
+                    company_name: document.getElementById('company_name').value
+                };
+                const response = await fetch('/dry-store-expiry/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error('Failed to save');
+                showToast('Document info saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving document info:', error);
+                showToast('Failed to save document info', 'error');
+            }
+        }
+
+        async function loadBranches() {
+            try {
+                const response = await fetch('/dry-store-expiry/api/settings');
+                const settings = await response.json();
+                document.getElementById('branchesTextarea').value = settings.branches || '';
+            } catch (error) {
+                console.error('Error loading branches:', error);
+            }
+        }
+
+        async function saveBranches() {
+            try {
+                const branches = document.getElementById('branchesTextarea').value;
+                const response = await fetch('/dry-store-expiry/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ branches })
+                });
+                if (!response.ok) throw new Error('Failed to save');
+                showToast('Branches saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving branches:', error);
+                showToast('Failed to save branches', 'error');
+            }
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/dry-store-expiry/api/current-user');
+                currentUser = await response.json();
+            } catch (error) {
+                console.error('Error loading current user:', error);
+            }
+        }
+
+        async function loadSections() {
+            try {
+                const response = await fetch('/dry-store-expiry/api/sections');
+                const sections = await response.json();
+                renderSections(sections);
+            } catch (error) {
+                console.error('Error loading sections:', error);
+                document.getElementById('sectionsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Failed to load sections</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderSections(sections) {
+            const container = document.getElementById('sectionsList');
+            
+            if (sections.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-layer-group"></i>
+                        <p>No sections added yet. Add your first section above.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = sections.map(section => `
+                <div class="section-item">
+                    <span class="section-name">
+                        <i class="fas fa-folder"></i>
+                        ${section.name}
+                    </span>
+                    <button class="btn-delete" onclick="deleteSection(${section.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function addSection() {
+            const input = document.getElementById('newSectionInput');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showToast('Please enter a section name', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/dry-store-expiry/api/sections', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                
+                if (!response.ok) throw new Error('Failed to add section');
+                
+                input.value = '';
+                showToast('Section added successfully!', 'success');
+                await loadSections();
+            } catch (error) {
+                console.error('Error adding section:', error);
+                showToast('Failed to add section', 'error');
+            }
+        }
+
+        async function deleteSection(id) {
+            if (!confirm('Are you sure you want to delete this section?')) return;
+            
+            try {
+                const response = await fetch(`/dry-store-expiry/api/sections/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete section');
+                
+                showToast('Section deleted successfully!', 'success');
+                await loadSections();
+            } catch (error) {
+                console.error('Error deleting section:', error);
+                showToast('Failed to delete section', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

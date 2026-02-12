@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>QC Receiving History - Form 13 - FS Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #059669;
+        }
+        
+        .btn-primary:hover {
+            background: #ecfdf5;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+        
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .document-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .document-card:hover {
+            border-color: #059669;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+        }
+        
+        .document-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .document-number {
+            font-weight: 600;
+            color: #059669;
+            font-size: 0.875rem;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-verified {
+            background: #a7f3d0;
+            color: #047857;
+        }
+        
+        .document-date {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .document-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .document-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .btn-action {
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-view {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        
+        .btn-view:hover {
+            background: #e0e7ff;
+        }
+        
+        .btn-edit {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .btn-edit:hover {
+            background: #fde68a;
+        }
+        
+        .btn-verify {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .btn-verify:hover {
+            background: #a7f3d0;
+        }
+        
+        .btn-delete {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+        
+        .btn-delete:hover {
+            background: #fee2e2;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #374151;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .detail-modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 95vw;
+            width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .toast.show {
+            display: block;
+        }
+        
+        .toast.success {
+            background: #10b981;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .form-group {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <h1>📊 QC Receiving History</h1>
+            </div>
+            <div class="header-actions">
+                <a href="/quality-control-receiving/form" class="btn btn-primary">📝 New Entry</a>
+                <a href="/quality-control-receiving" class="btn btn-secondary">← Back</a>
+                <a href="/dashboard" class="btn btn-secondary">🏠 Dashboard</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Filter Card -->
+        <div class="card">
+            <div class="filter-bar">
+                <div class="form-group">
+                    <label for="startDate">From Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">To Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status">
+                        <option value="">All</option>
+                        <option value="Active">Active</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="loadDocuments()">🔍 Search</button>
+                <button class="btn btn-secondary" onclick="resetFilters()">↺ Reset</button>
+            </div>
+        </div>
+        
+        <!-- Documents Grid -->
+        <div class="card">
+            <h2 style="margin-bottom: 1rem; font-size: 1.125rem;">📋 Documents</h2>
+            <div id="documentsContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📄</div>
+                    <p>No documents found. Adjust your filters or create a new entry.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Document Detail Modal -->
+    <div class="detail-modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalDocNumber">Document Details</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div id="modalContent">
+                <!-- Document details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Verify Confirmation Modal -->
+    <div class="detail-modal" id="verifyModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>✓ Verify Document</h3>
+                <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
+            </div>
+            <div style="padding: 1rem 0;">
+                <p style="color: #374151; margin-bottom: 1rem;">Are you sure you want to verify this document?</p>
+                <p style="font-size: 0.875rem; color: #6b7280;">Once verified, this document cannot be edited.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-secondary" style="background: #f3f4f6; color: #374151;" onclick="closeVerifyModal()">Cancel</button>
+                <button class="btn btn-primary" style="background: #059669; color: white;" onclick="confirmVerify()">Verify</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="detail-modal" id="deleteModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>🗑️ Delete Document</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div style="padding: 1rem 0;">
+                <p style="color: #374151; margin-bottom: 1rem;">Are you sure you want to delete this document?</p>
+                <p style="font-size: 0.875rem; color: #ef4444;">This action cannot be undone. All entries in this document will also be deleted.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-secondary" style="background: #f3f4f6; color: #374151;" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-primary" style="background: #ef4444; color: white;" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        let documents = [];
+        let currentUser = null;
+        let selectedDocId = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Fetch current user first
+            await loadCurrentUser();
+            
+            // Set default date range (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            
+            loadDocuments();
+        });
+        
+        // Load current user
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/quality-control-receiving/api/current-user?_t=' + Date.now());
+                currentUser = await response.json();
+                console.log('Current user:', currentUser);
+            } catch (err) {
+                console.error('Error loading current user:', err);
+                currentUser = { name: 'Unknown', role: 'User' };
+            }
+        }
+        
+        // Load documents
+        async function loadDocuments() {
+            const container = document.getElementById('documentsContainer');
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><p>Loading documents...</p></div>';
+            
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const status = document.getElementById('status').value;
+            
+            try {
+                let url = '/quality-control-receiving/api/documents?_t=' + Date.now() + '&';
+                if (startDate && endDate) {
+                    url += `startDate=${startDate}&endDate=${endDate}&`;
+                }
+                if (status) {
+                    url += `status=${status}&`;
+                }
+                
+                console.log('Loading documents from:', url);
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
+                
+                documents = await response.json();
+                console.log('Documents loaded:', documents);
+                
+                renderDocuments();
+            } catch (err) {
+                console.error('Error loading documents:', err);
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><p>Failed to load documents. Please refresh.</p></div>';
+            }
+        }
+        
+        // Render documents grid
+        function renderDocuments() {
+            const container = document.getElementById('documentsContainer');
+            
+            if (documents.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📄</div>
+                        <p>No documents found. Adjust your filters or create a new entry.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="documents-grid">
+                    ${documents.map(doc => {
+                        const date = new Date(doc.log_date).toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                        
+                        // Role-based permissions
+                        const isAdmin = currentUser?.role === 'Admin';
+                        const isSuperAuditor = currentUser?.role === 'Super Auditor';
+                        const isOwner = doc.filled_by === currentUser?.name;
+                        
+                        // Admin and Super Auditor can always edit, others can only edit unverified docs they own
+                        const canEdit = (isAdmin || isSuperAuditor) || (!doc.is_verified && isOwner);
+                        const canVerify = !doc.is_verified && (isAdmin || isSuperAuditor);
+                        const canDelete = isAdmin || isSuperAuditor;
+                        
+                        return `
+                            <div class="document-card">
+                                <div class="document-card-header">
+                                    <span class="document-number">${doc.document_number}</span>
+                                    <div>
+                                        ${doc.is_verified ? '<span class="status-badge status-verified">✓ Verified</span>' : ''}
+                                        <span class="status-badge status-${doc.status.toLowerCase()}">${doc.status}</span>
+                                    </div>
+                                </div>
+                                <div class="document-date" onclick="viewDocument(${doc.id})" style="cursor: pointer;">${date}</div>
+                                <div class="document-meta">
+                                    <p>Filled by: ${doc.filled_by}</p>
+                                    ${doc.is_verified ? `<p style="color: #059669; font-size: 0.8rem;">Verified by: ${doc.verified_by}</p>` : ''}
+                                </div>
+                                <div class="document-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-value">${doc.entry_count || 0}</span>
+                                        <span class="stat-label">Entries</span>
+                                    </div>
+                                </div>
+                                <div class="document-actions">
+                                    <button class="btn-action btn-view" onclick="viewDocument(${doc.id})">👁️ View</button>
+                                    ${canEdit ? `<button class="btn-action btn-edit" onclick="editDocument(${doc.id})">✏️ Edit</button>` : ''}
+                                    ${canVerify ? `<button class="btn-action btn-verify" onclick="showVerifyModal(${doc.id})">✓ Verify</button>` : ''}
+                                    ${canDelete ? `<button class="btn-action btn-delete" onclick="showDeleteModal(${doc.id})">🗑️ Delete</button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        // View document details
+        async function viewDocument(id) {
+            try {
+                const response = await fetch(`/quality-control-receiving/api/documents/${id}`);
+                const data = await response.json();
+                
+                document.getElementById('modalDocNumber').textContent = `📋 ${data.document.document_number}`;
+                
+                const date = new Date(data.document.log_date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                let entriesHtml = '';
+                if (data.entries.length === 0) {
+                    entriesHtml = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No entries in this document.</p>';
+                } else {
+                    entriesHtml = `
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product</th>
+                                        <th>Supplier</th>
+                                        <th>Receiving Time</th>
+                                        <th>Receiving Temp</th>
+                                        <th>Storage Time</th>
+                                        <th>Duration</th>
+                                        <th>Status</th>
+                                        <th>Signature</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.entries.map((entry, i) => `
+                                        <tr>
+                                            <td>${i + 1}</td>
+                                            <td>
+                                                <strong>${entry.product_name}</strong><br>
+                                                <small>Exp: ${entry.product_expiry_date ? new Date(entry.product_expiry_date).toLocaleDateString() : '-'}</small>
+                                            </td>
+                                            <td>${entry.supplier_display_name || entry.supplier_name || '-'}</td>
+                                            <td>${entry.receiving_time ? entry.receiving_time.substring(0, 5) : '-'}</td>
+                                            <td>${entry.receiving_temp !== null ? entry.receiving_temp + '°C' : '-'}</td>
+                                            <td>${entry.storage_time ? entry.storage_time.substring(0, 5) : '-'}</td>
+                                            <td>${entry.duration_minutes !== null ? entry.duration_minutes + ' min' : '-'}</td>
+                                            <td>
+                                                <span class="status-badge ${entry.overall_status === 'Pass' ? 'status-active' : 'status-completed'}">
+                                                    ${entry.overall_status}
+                                                </span>
+                                            </td>
+                                            <td>${entry.quality_controller_signature || '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('modalContent').innerHTML = `
+                    <div style="margin-bottom: 1.5rem;">
+                        <p><strong>Date:</strong> ${date}</p>
+                        <p><strong>Filled By:</strong> ${data.document.filled_by}</p>
+                        <p><strong>Status:</strong> ${data.document.status}</p>
+                    </div>
+                    <h4 style="margin-bottom: 1rem;">Entries (${data.entries.length})</h4>
+                    ${entriesHtml}
+                `;
+                
+                document.getElementById('detailModal').classList.add('active');
+            } catch (err) {
+                console.error('Error loading document:', err);
+            }
+        }
+        
+        // Close detail modal
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+        
+        // Edit document - redirect to form page
+        function editDocument(id) {
+            window.location.href = `/quality-control-receiving/form?doc=${id}`;
+        }
+        
+        // Show verify modal
+        function showVerifyModal(id) {
+            selectedDocId = id;
+            document.getElementById('verifyModal').classList.add('active');
+        }
+        
+        // Close verify modal
+        function closeVerifyModal() {
+            selectedDocId = null;
+            document.getElementById('verifyModal').classList.remove('active');
+        }
+        
+        // Confirm verify
+        async function confirmVerify() {
+            if (!selectedDocId) return;
+            
+            try {
+                const response = await fetch(`/quality-control-receiving/api/documents/${selectedDocId}/verify`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    showToast('Document verified successfully', 'success');
+                    closeVerifyModal();
+                    loadDocuments();
+                } else {
+                    throw new Error('Failed to verify');
+                }
+            } catch (err) {
+                console.error('Error verifying document:', err);
+                showToast('Failed to verify document', 'error');
+            }
+        }
+        
+        // Show delete modal
+        function showDeleteModal(id) {
+            selectedDocId = id;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+        
+        // Close delete modal
+        function closeDeleteModal() {
+            selectedDocId = null;
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+        
+        // Confirm delete
+        async function confirmDelete() {
+            if (!selectedDocId) return;
+            
+            try {
+                const response = await fetch(`/quality-control-receiving/api/documents/${selectedDocId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showToast('Document deleted successfully', 'success');
+                    closeDeleteModal();
+                    loadDocuments();
+                } else {
+                    throw new Error('Failed to delete');
+                }
+            } catch (err) {
+                console.error('Error deleting document:', err);
+                showToast('Failed to delete document', 'error');
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('status').value = '';
+            
+            loadDocuments();
+        }
+        
+        // Close modal on outside click
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('detailModal')) {
+                closeDetailModal();
+            }
+        });
+        
+        document.getElementById('verifyModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('verifyModal')) {
+                closeVerifyModal();
+            }
+        });
+        
+        document.getElementById('deleteModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('deleteModal')) {
+                closeDeleteModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fridge Settings - FS Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .card h2 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .temp-range {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: monospace;
+        }
+        
+        .temp-range .min { color: #2563eb; }
+        .temp-range .max { color: #dc2626; }
+        
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon.edit {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        
+        .btn-icon.edit:hover {
+            background: #e0e7ff;
+        }
+        
+        .btn-icon.delete {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+        
+        .btn-icon.delete:hover {
+            background: #fee2e2;
+        }
+        
+        .section-badge {
+            background: #eef2ff;
+            color: #4f46e5;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1001;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>⚙️ Fridge Settings</h1>
+            <a href="/fridge-temp" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Document Information -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <path d="M14 2v6h6M16 13H8M16 17H8"/>
+                </svg>
+                Document Information
+            </h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Creation Date</label>
+                    <input type="date" id="creation_date">
+                </div>
+                <div class="form-group">
+                    <label>Last Revision Date</label>
+                    <input type="date" id="last_revision_date">
+                </div>
+                <div class="form-group">
+                    <label>Edition</label>
+                    <input type="text" id="edition" placeholder="e.g., 1.0">
+                </div>
+                <div class="form-group">
+                    <label>Reference (Company)</label>
+                    <input type="text" id="company_name" placeholder="e.g., SSFC">
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="saveDocumentInfo()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Save Document Info
+            </button>
+        </div>
+
+        <!-- Add New Fridge -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Add New Fridge
+            </h2>
+            <form id="add-fridge-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fridge Name *</label>
+                        <input type="text" id="fridge-name" placeholder="e.g., Freezer 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Section *</label>
+                        <input type="text" id="section" placeholder="e.g., Kitchen" required list="section-list">
+                        <datalist id="section-list"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Min Temp (°C) *</label>
+                        <input type="number" id="min-temp" step="0.1" value="-22" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Max Temp (°C) *</label>
+                        <input type="number" id="max-temp" step="0.1" value="-18" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Add Fridge
+                </button>
+            </form>
+        </div>
+
+        <!-- Fridges List -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="4" y1="10" x2="20" y2="10"/>
+                </svg>
+                Registered Fridges
+            </h2>
+            <div id="fridges-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fridge Name</th>
+                            <th>Section</th>
+                            <th>Temp Range</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fridges-list">
+                        <tr>
+                            <td colspan="4" class="empty-state">Loading fridges...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Time Slots Configuration -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Time Slots Configuration
+            </h2>
+            <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.875rem;">
+                Configure the time slots for temperature recording. You can edit labels and enable/disable time slots.
+            </p>
+            <div id="time-slots-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Slot Key</th>
+                            <th>Display Label</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="time-slots-list">
+                        <tr>
+                            <td colspan="5" class="empty-state">Loading time slots...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal">
+            <h3>Edit Fridge</h3>
+            <form id="edit-fridge-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Fridge Name *</label>
+                    <input type="text" id="edit-fridge-name" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Section *</label>
+                    <input type="text" id="edit-section" required>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Min Temp (°C) *</label>
+                        <input type="number" id="edit-min-temp" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Max Temp (°C) *</label>
+                        <input type="number" id="edit-max-temp" step="0.1" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Time Slot Modal -->
+    <div class="modal-overlay" id="edit-slot-modal">
+        <div class="modal">
+            <h3>Edit Time Slot</h3>
+            <form id="edit-slot-form">
+                <input type="hidden" id="edit-slot-id">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Slot Key (read-only)</label>
+                    <input type="text" id="edit-slot-key" readonly style="background: #f3f4f6;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Display Label *</label>
+                    <input type="text" id="edit-slot-label" required placeholder="e.g., 7:00 AM">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditSlotModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_BASE = '/fridge-temp/api';
+        let fridges = [];
+        let timeSlots = [];
+        
+        // Show toast
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // Load sections for datalist
+        async function loadSections() {
+            try {
+                const response = await fetch(`${API_BASE}/sections?_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const sections = await response.json();
+                const datalist = document.getElementById('section-list');
+                datalist.innerHTML = sections.map(s => `<option value="${s}">`).join('');
+            } catch (err) {
+                console.error('Error loading sections:', err);
+            }
+        }
+        
+        // Load fridges
+        async function loadFridges() {
+            try {
+                const response = await fetch(`${API_BASE}/fridges?_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                fridges = await response.json();
+                renderFridges();
+            } catch (err) {
+                console.error('Error loading fridges:', err);
+                showToast('Failed to load fridges', true);
+            }
+        }
+        
+        // Render fridges table
+        function renderFridges() {
+            const tbody = document.getElementById('fridges-list');
+            
+            if (fridges.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No fridges registered. Add your first fridge above.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = fridges.map(f => `
+                <tr>
+                    <td><strong>${escapeHtml(f.fridge_name)}</strong></td>
+                    <td><span class="section-badge">${escapeHtml(f.section)}</span></td>
+                    <td>
+                        <div class="temp-range">
+                            <span class="min">${f.min_temp}°C</span>
+                            <span>to</span>
+                            <span class="max">${f.max_temp}°C</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-icon edit" onclick="editFridge(${f.id})" title="Edit">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete" onclick="deleteFridge(${f.id})" title="Delete">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Add fridge
+        document.getElementById('add-fridge-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                fridge_name: document.getElementById('fridge-name').value.trim(),
+                section: document.getElementById('section').value.trim(),
+                min_temp: parseFloat(document.getElementById('min-temp').value),
+                max_temp: parseFloat(document.getElementById('max-temp').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/fridges`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showToast('Fridge added successfully');
+                    document.getElementById('add-fridge-form').reset();
+                    loadFridges();
+                    loadSections();
+                } else {
+                    throw new Error('Failed to add fridge');
+                }
+            } catch (err) {
+                console.error('Error adding fridge:', err);
+                showToast('Failed to add fridge', true);
+            }
+        });
+        
+        // Edit fridge
+        function editFridge(id) {
+            const fridge = fridges.find(f => f.id === id);
+            if (!fridge) return;
+            
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-fridge-name').value = fridge.fridge_name;
+            document.getElementById('edit-section').value = fridge.section;
+            document.getElementById('edit-min-temp').value = fridge.min_temp;
+            document.getElementById('edit-max-temp').value = fridge.max_temp;
+            
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+        
+        document.getElementById('edit-fridge-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('edit-id').value;
+            const data = {
+                fridge_name: document.getElementById('edit-fridge-name').value.trim(),
+                section: document.getElementById('edit-section').value.trim(),
+                min_temp: parseFloat(document.getElementById('edit-min-temp').value),
+                max_temp: parseFloat(document.getElementById('edit-max-temp').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/fridges/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showToast('Fridge updated successfully');
+                    closeEditModal();
+                    loadFridges();
+                    loadSections();
+                } else {
+                    throw new Error(result.error || 'Failed to update fridge');
+                }
+            } catch (err) {
+                console.error('Error updating fridge:', err);
+                showToast(err.message || 'Failed to update fridge', true);
+            }
+        });
+        
+        // Delete fridge
+        async function deleteFridge(id) {
+            if (!confirm('Are you sure you want to delete this fridge?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/fridges/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showToast('Fridge deleted successfully');
+                    loadFridges();
+                } else {
+                    throw new Error(result.error || 'Failed to delete fridge');
+                }
+            } catch (err) {
+                console.error('Error deleting fridge:', err);
+                showToast(err.message || 'Failed to delete fridge', true);
+            }
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Close modal on overlay click
+        document.getElementById('edit-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeEditModal();
+        });
+
+        // ==========================================
+        // Time Slots Management
+        // ==========================================
+
+        // Load time slots
+        async function loadTimeSlots() {
+            try {
+                const response = await fetch(`${API_BASE}/time-slots?_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+                timeSlots = data.records || [];
+                renderTimeSlots();
+            } catch (err) {
+                console.error('Error loading time slots:', err);
+                showToast('Failed to load time slots', true);
+            }
+        }
+
+        // Render time slots table
+        function renderTimeSlots() {
+            const tbody = document.getElementById('time-slots-list');
+            
+            if (timeSlots.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No time slots configured.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = timeSlots.map(slot => `
+                <tr style="${!slot.is_active ? 'opacity: 0.5;' : ''}">
+                    <td><strong>${slot.display_order}</strong></td>
+                    <td><code style="background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px;">${escapeHtml(slot.slot_key)}</code></td>
+                    <td><strong>${escapeHtml(slot.slot_label)}</strong></td>
+                    <td>
+                        <span class="section-badge" style="background: ${slot.is_active ? '#d1fae5' : '#fee2e2'}; color: ${slot.is_active ? '#059669' : '#dc2626'};">
+                            ${slot.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-icon edit" onclick="editTimeSlot(${slot.id})" title="Edit Label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon ${slot.is_active ? 'delete' : 'edit'}" onclick="toggleTimeSlot(${slot.id})" title="${slot.is_active ? 'Disable' : 'Enable'}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    ${slot.is_active ? 
+                                        '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>' :
+                                        '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+                                    }
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Edit time slot
+        function editTimeSlot(id) {
+            const slot = timeSlots.find(s => s.id === id);
+            if (!slot) return;
+            
+            document.getElementById('edit-slot-id').value = id;
+            document.getElementById('edit-slot-key').value = slot.slot_key;
+            document.getElementById('edit-slot-label').value = slot.slot_label;
+            
+            document.getElementById('edit-slot-modal').classList.add('active');
+        }
+
+        function closeEditSlotModal() {
+            document.getElementById('edit-slot-modal').classList.remove('active');
+        }
+
+        document.getElementById('edit-slot-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('edit-slot-id').value;
+            const data = {
+                slot_label: document.getElementById('edit-slot-label').value.trim()
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/time-slots/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showToast('Time slot updated successfully');
+                    closeEditSlotModal();
+                    loadTimeSlots();
+                } else {
+                    throw new Error(result.error || 'Failed to update time slot');
+                }
+            } catch (err) {
+                console.error('Error updating time slot:', err);
+                showToast(err.message || 'Failed to update time slot', true);
+            }
+        });
+
+        // Toggle time slot active status
+        async function toggleTimeSlot(id) {
+            const slot = timeSlots.find(s => s.id === id);
+            const action = slot && slot.is_active ? 'disable' : 'enable';
+            
+            if (!confirm(`Are you sure you want to ${action} this time slot?`)) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/time-slots/${id}/toggle`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showToast(`Time slot ${action}d successfully`);
+                    loadTimeSlots();
+                } else {
+                    throw new Error(result.error || `Failed to ${action} time slot`);
+                }
+            } catch (err) {
+                console.error('Error toggling time slot:', err);
+                showToast(err.message || `Failed to ${action} time slot`, true);
+            }
+        }
+
+        // Close edit slot modal on overlay click
+        document.getElementById('edit-slot-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeEditSlotModal();
+        });
+
+        // Document Info functions
+        async function loadDocumentInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/settings`, {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                const settings = await response.json();
+                document.getElementById('creation_date').value = settings.creation_date || '';
+                document.getElementById('last_revision_date').value = settings.last_revision_date || '';
+                document.getElementById('edition').value = settings.edition || '';
+                document.getElementById('company_name').value = settings.company_name || '';
+            } catch (error) {
+                console.error('Error loading document info:', error);
+            }
+        }
+
+        async function saveDocumentInfo() {
+            try {
+                const data = {
+                    creation_date: document.getElementById('creation_date').value,
+                    last_revision_date: document.getElementById('last_revision_date').value,
+                    edition: document.getElementById('edition').value,
+                    company_name: document.getElementById('company_name').value
+                };
+                const response = await fetch(`${API_BASE}/settings`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error('Failed to save');
+                showToast('Document info saved successfully!');
+            } catch (error) {
+                console.error('Error saving document info:', error);
+                showToast('Failed to save document info', true);
+            }
+        }
+        
+        // Initialize
+        loadDocumentInfo();
+        loadFridges();
+        loadSections();
+        loadTimeSlots();
+    </script>
+</body>
+</html>

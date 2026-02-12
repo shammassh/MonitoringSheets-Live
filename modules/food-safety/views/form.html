@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#059669">
+    <title>New Verification - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .required {
+            color: #ef4444;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #059669;
+        }
+        
+        .form-group input[readonly] {
+            background: #f9fafb;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .status-selector {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .status-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .status-option:hover {
+            border-color: #059669;
+        }
+        
+        .status-option.selected.pass {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .status-option.selected.fail {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .status-option .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-option .label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .auto-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .auto-status.pass {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .auto-status.fail {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+        
+        .corrective-action-group {
+            display: none;
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .corrective-action-group.show {
+            display: block;
+        }
+        
+        .corrective-action-group label {
+            color: #92400e;
+        }
+        
+        .reference-note {
+            background: #ecfdf5;
+            border: 1px solid #6ee7b7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .reference-note-title {
+            font-weight: 600;
+            color: #047857;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reference-note-content {
+            color: #065f46;
+            font-size: 0.95rem;
+        }
+        
+        .submit-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        
+        .success-overlay.active {
+            display: flex;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+        
+        .success-title {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-doc {
+            background: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .success-message {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state a {
+            color: #059669;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .diff-indicator {
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        .diff-indicator.within {
+            color: #059669;
+        }
+        
+        .diff-indicator.outside {
+            color: #dc2626;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.error {
+            background: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            .submit-bar { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/food-safety" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">🔬 New Verification</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Branch & Procedure Selection -->
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    Select Branch & Procedure
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="branch">Branch <span class="required">*</span></label>
+                        <select id="branch" required onchange="validateForm()">
+                            <option value="">-- Select Branch --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="procedure-select">Procedure <span class="required">*</span></label>
+                        <select id="procedure-select" onchange="onProcedureChange()">
+                            <option value="">-- Select Procedure --</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Verification Form (hidden until procedure selected) -->
+        <div id="verification-form-card" class="card" style="display: none;">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Verification Details
+                </h2>
+            </div>
+            <div class="card-body">
+                <form id="verification-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="procedure-name">Procedure</label>
+                            <input type="text" id="procedure-name" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="log-date">Log Date <span class="required">*</span></label>
+                            <input type="date" id="log-date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="item-name">Item Name / Number</label>
+                        <input type="text" id="item-name" placeholder="e.g., Fridge 1, Truck #123, Chicken breast">
+                    </div>
+                    
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label for="unit-of-measurement">Unit of Measurement</label>
+                            <input type="text" id="unit-of-measurement" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="reference-value">Reference Value <span id="ref-manual-hint" style="display: none; font-size: 0.75rem; color: #f59e0b;">(manual entry)</span></label>
+                            <input type="text" id="reference-value" placeholder="Enter reference value" oninput="calculateDifference()">
+                        </div>
+                        <div class="form-group">
+                            <label for="accept-error">Acceptable Error</label>
+                            <input type="text" id="accept-error" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="test-value">Test Value <span class="required">*</span></label>
+                            <input type="text" id="test-value" placeholder="Enter measured value" required oninput="calculateDifference()">
+                        </div>
+                        <div class="form-group">
+                            <label for="difference">Difference</label>
+                            <input type="text" id="difference" readonly>
+                            <div class="diff-indicator" id="diff-indicator"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div id="auto-status-display" class="auto-status" style="display: none;">
+                            <span id="auto-status-icon"></span>
+                            <span id="auto-status-text"></span>
+                        </div>
+                        <div id="status-pending" style="color: #6b7280; font-style: italic;">Enter test value to calculate status</div>
+                        <input type="hidden" id="status">
+                    </div>
+                    
+                    <div class="corrective-action-group" id="corrective-action-group">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="corrective-action">⚠️ Corrective Action Required <span class="required">*</span></label>
+                            <textarea id="corrective-action" rows="3" placeholder="What action was taken?" oninput="validateForm()"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label for="filled-by">Filled By <span class="required">*</span></label>
+                            <input type="text" id="filled-by" required oninput="validateForm()">
+                        </div>
+                        <div class="form-group">
+                            <label for="next-due-date">Next Due Date</label>
+                            <input type="date" id="next-due-date" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comments">Comments (Optional)</label>
+                        <textarea id="comments" rows="2" placeholder="Any additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="reference-note" id="reference-note" style="display: none;">
+                        <div class="reference-note-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            Reference Value & Method
+                        </div>
+                        <div class="reference-note-content" id="reference-note-content"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="card" style="display: none;">
+            <div class="card-body">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <h3>No Procedures Available</h3>
+                    <p>Add verification procedures first.</p>
+                    <a href="/food-safety/references">Add Procedures →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="submit-bar" id="submit-bar">
+        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+            </svg>
+            Reset
+        </button>
+        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitVerification()" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Submit Verification
+        </button>
+    </div>
+    
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-modal">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Verification Recorded!</h2>
+            <div class="success-doc" id="success-doc-number">FSV-20260116-001</div>
+            <p class="success-message" id="success-message">Food safety verification has been recorded.</p>
+            <div class="success-buttons">
+                <button class="btn btn-secondary" onclick="goHome()">Home</button>
+                <button class="btn btn-primary" onclick="newVerification()">New Verification</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let references = [];
+        let selectedReference = null;
+        let currentUser = null;
+        let selectedStatus = null;
+        let editMode = false;
+        let editSessionId = null;
+        let editData = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('log-date').min = today;
+            await loadCurrentUser();
+            await loadBranches();
+            await loadReferences();
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            editSessionId = urlParams.get('edit');
+            if (editSessionId) {
+                await loadEditData();
+            }
+        });
+        
+        async function loadBranches() {
+            try {
+                const res = await fetch('/food-safety/api/settings?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                const settings = await res.json();
+                
+                const branchSelect = document.getElementById('branch');
+                const branchesStr = settings.branches || '';
+                
+                if (branchesStr) {
+                    const branches = branchesStr.split(',').map(b => b.trim()).filter(b => b);
+                    branches.forEach(branch => {
+                        const option = document.createElement('option');
+                        option.value = branch;
+                        option.textContent = branch;
+                        branchSelect.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.error('Error loading branches:', e);
+            }
+        }
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/food-safety/api/me?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                if (res.ok) {
+                    currentUser = await res.json();
+                    document.getElementById('filled-by').value = currentUser?.displayName || currentUser?.name || '';
+                }
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        function canEdit() {
+            if (!currentUser) return false;
+            const role = currentUser.role || '';
+            return role === 'Admin' || role === 'Super Auditor';
+        }
+        
+        async function loadEditData() {
+            if (!canEdit()) {
+                alert('Only Admin and Super Auditor can edit records');
+                window.location.href = '/food-safety/history';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/food-safety/api/verifications/${editSessionId}?_=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                if (!res.ok) {
+                    alert('Failed to load verification data');
+                    window.location.href = '/food-safety/history';
+                    return;
+                }
+                
+                editData = await res.json();
+                editMode = true;
+                
+                document.querySelector('.header-title').textContent = '✏️ Edit Verification';
+                document.getElementById('submit-btn').innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Update Verification
+                `;
+                
+                const record = editData.records[0];
+                document.getElementById('procedure-select').value = record.reference_id;
+                
+                onProcedureChange();
+                
+                setTimeout(() => {
+                    const verDate = new Date(editData.session.verification_date);
+                    document.getElementById('log-date').value = verDate.toISOString().split('T')[0];
+                    document.getElementById('item-name').value = record.item_name || '';
+                    document.getElementById('test-value').value = record.test_value || '';
+                    document.getElementById('comments').value = record.comments || '';
+                    document.getElementById('corrective-action').value = record.corrective_action || '';
+                    
+                    // Set branch if exists
+                    if (editData.session.branch) {
+                        document.getElementById('branch').value = editData.session.branch;
+                    }
+                    
+                    // Recalculate difference which will auto-set status
+                    calculateDifference();
+                    validateForm();
+                }, 100);
+            } catch (e) {
+                console.error('Error loading edit data:', e);
+                alert('Failed to load verification data');
+                window.location.href = '/food-safety/history';
+            }
+        }
+        
+        async function loadReferences() {
+            try {
+                const res = await fetch('/food-safety/api/references?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                references = await res.json();
+                
+                const select = document.getElementById('procedure-select');
+                
+                if (references.length === 0) {
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+                
+                references.forEach(ref => {
+                    const option = document.createElement('option');
+                    option.value = ref.id;
+                    option.textContent = `${ref.name} (${ref.frequency})`;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading references:', e);
+                showToast('Failed to load procedures', 'error');
+            }
+        }
+        
+        function onProcedureChange() {
+            const select = document.getElementById('procedure-select');
+            const refId = parseInt(select.value);
+            
+            if (!refId) {
+                document.getElementById('verification-form-card').style.display = 'none';
+                document.getElementById('submit-bar').style.display = 'none';
+                selectedReference = null;
+                return;
+            }
+            
+            selectedReference = references.find(r => r.id === refId);
+            
+            if (!selectedReference) return;
+            
+            document.getElementById('procedure-name').value = selectedReference.name;
+            document.getElementById('unit-of-measurement').value = selectedReference.unit_of_measurement || '';
+            document.getElementById('accept-error').value = selectedReference.accept_error || '';
+            
+            // Use reference_value field directly
+            const refValueInput = document.getElementById('reference-value');
+            const refManualHint = document.getElementById('ref-manual-hint');
+            
+            if (selectedReference.reference_value) {
+                refValueInput.value = selectedReference.reference_value;
+                refValueInput.readOnly = true;
+                refValueInput.style.backgroundColor = '#f3f4f6';
+                refManualHint.style.display = 'none';
+            } else {
+                refValueInput.value = '';
+                refValueInput.readOnly = false;
+                refValueInput.style.backgroundColor = '#fff';
+                refManualHint.style.display = 'inline';
+            }
+            
+            // Calculate next due date based on frequency
+            const logDate = new Date(document.getElementById('log-date').value);
+            const nextDueDate = calculateNextDueDate(logDate, selectedReference.frequency);
+            document.getElementById('next-due-date').value = nextDueDate.toISOString().split('T')[0];
+            
+            // Show reference note
+            if (selectedReference.reference_value_method) {
+                document.getElementById('reference-note-content').textContent = selectedReference.reference_value_method;
+                document.getElementById('reference-note').style.display = 'block';
+            } else {
+                document.getElementById('reference-note').style.display = 'none';
+            }
+            
+            document.getElementById('verification-form-card').style.display = 'block';
+            document.getElementById('submit-bar').style.display = 'flex';
+            
+            // Reset status
+            selectedStatus = null;
+            document.querySelectorAll('.status-option').forEach(opt => {
+                opt.classList.remove('selected', 'pass', 'fail');
+            });
+            document.getElementById('status').value = '';
+            document.getElementById('corrective-action-group').classList.remove('show');
+            
+            validateForm();
+        }
+        
+        function calculateNextDueDate(fromDate, frequency) {
+            const date = new Date(fromDate);
+            
+            switch (frequency) {
+                case 'Daily':
+                    date.setDate(date.getDate() + 1);
+                    break;
+                case 'Every Shift':
+                case 'Twice Daily':
+                    date.setDate(date.getDate() + 1);
+                    break;
+                case 'Weekly':
+                    date.setDate(date.getDate() + 7);
+                    break;
+                case 'Monthly':
+                    date.setMonth(date.getMonth() + 1);
+                    break;
+                case 'Quarterly':
+                    date.setMonth(date.getMonth() + 3);
+                    break;
+                default:
+                    date.setDate(date.getDate() + 1);
+            }
+            
+            return date;
+        }
+        
+        function calculateDifference() {
+            const testValue = document.getElementById('test-value').value;
+            const refValue = document.getElementById('reference-value').value;
+            const acceptError = document.getElementById('accept-error').value;
+            const procedureName = selectedReference ? selectedReference.name.toLowerCase() : '';
+            
+            // Try to parse numeric values
+            const testNum = parseFloat(testValue);
+            const refNum = parseFloat(refValue);
+            
+            const statusDisplay = document.getElementById('auto-status-display');
+            const statusPending = document.getElementById('status-pending');
+            const statusIcon = document.getElementById('auto-status-icon');
+            const statusText = document.getElementById('auto-status-text');
+            const correctiveGroup = document.getElementById('corrective-action-group');
+            
+            if (!isNaN(testNum) && !isNaN(refNum)) {
+                const diff = testNum - refNum;
+                const diffStr = Math.abs(diff).toFixed(1);
+                document.getElementById('difference').value = diffStr;
+                
+                // Check if within acceptable error and auto-set status
+                const errorMatch = acceptError.match(/[±+-]?\s*(\d+\.?\d*)/);
+                const indicator = document.getElementById('diff-indicator');
+                
+                let isPass = true;
+                let indicatorMessage = '';
+                
+                // Special handling for Cooking and Cooling procedures
+                if (procedureName.includes('cooking')) {
+                    // Cooking should be ≥ reference value (e.g., ≥ 75°C)
+                    isPass = testNum >= refNum;
+                    if (isPass) {
+                        indicatorMessage = '✓ Temperature is sufficient (≥ ' + refNum + '°C)';
+                        indicator.className = 'diff-indicator within';
+                    } else {
+                        indicatorMessage = '✗ Temperature too low (must be ≥ ' + refNum + '°C)';
+                        indicator.className = 'diff-indicator outside';
+                    }
+                } else if (procedureName.includes('cooling')) {
+                    // Cooling should be ≤ reference value (e.g., ≤ 20°C)
+                    isPass = testNum <= refNum;
+                    if (isPass) {
+                        indicatorMessage = '✓ Temperature is acceptable (≤ ' + refNum + '°C)';
+                        indicator.className = 'diff-indicator within';
+                    } else {
+                        indicatorMessage = '✗ Temperature too high (must be ≤ ' + refNum + '°C)';
+                        indicator.className = 'diff-indicator outside';
+                    }
+                } else if (errorMatch) {
+                    const errorVal = parseFloat(errorMatch[1]);
+                    isPass = Math.abs(diff) <= errorVal;
+                    
+                    if (isPass) {
+                        indicatorMessage = '✓ Within acceptable range';
+                        indicator.className = 'diff-indicator within';
+                    } else {
+                        indicatorMessage = '✗ Outside acceptable range';
+                        indicator.className = 'diff-indicator outside';
+                    }
+                }
+                
+                indicator.textContent = indicatorMessage;
+                
+                // Auto-set status
+                selectedStatus = isPass ? 'Pass' : 'Fail';
+                document.getElementById('status').value = selectedStatus;
+                
+                statusPending.style.display = 'none';
+                statusDisplay.style.display = 'flex';
+                statusDisplay.className = 'auto-status ' + (isPass ? 'pass' : 'fail');
+                statusIcon.textContent = isPass ? '✅' : '❌';
+                statusText.textContent = isPass ? 'Pass' : 'Fail';
+                
+                // Show/hide corrective action
+                if (isPass) {
+                    correctiveGroup.classList.remove('show');
+                } else {
+                    correctiveGroup.classList.add('show');
+                }
+            } else {
+                document.getElementById('difference').value = '';
+                document.getElementById('diff-indicator').textContent = '';
+                
+                // Reset status
+                selectedStatus = null;
+                document.getElementById('status').value = '';
+                statusPending.style.display = 'block';
+                statusDisplay.style.display = 'none';
+                correctiveGroup.classList.remove('show');
+            }
+            
+            validateForm();
+        }
+        
+        function selectStatus(status) {
+            selectedStatus = status;
+            document.getElementById('status').value = status;
+            
+            document.querySelectorAll('.status-option').forEach(opt => {
+                opt.classList.remove('selected', 'pass', 'fail');
+            });
+            
+            const options = document.querySelectorAll('.status-option');
+            if (status === 'Pass') {
+                options[0].classList.add('selected', 'pass');
+                document.getElementById('corrective-action-group').classList.remove('show');
+            } else {
+                options[1].classList.add('selected', 'fail');
+                document.getElementById('corrective-action-group').classList.add('show');
+            }
+            
+            validateForm();
+        }
+        
+        function validateForm() {
+            const branch = document.getElementById('branch').value;
+            const logDate = document.getElementById('log-date').value;
+            const testValue = document.getElementById('test-value').value;
+            const refValue = document.getElementById('reference-value').value;
+            const filledBy = document.getElementById('filled-by').value;
+            const correctiveAction = document.getElementById('corrective-action').value;
+            
+            const isFailing = selectedStatus === 'Fail';
+            const correctiveActionValid = !isFailing || (isFailing && correctiveAction.trim() !== '');
+            
+            // Status is auto-calculated, so just need test value and reference value
+            const isValid = selectedReference && branch && logDate && testValue && refValue && selectedStatus && filledBy && correctiveActionValid;
+            document.getElementById('submit-btn').disabled = !isValid;
+        }
+        
+        document.getElementById('log-date').addEventListener('change', () => {
+            if (selectedReference) {
+                const logDate = new Date(document.getElementById('log-date').value);
+                const nextDueDate = calculateNextDueDate(logDate, selectedReference.frequency);
+                document.getElementById('next-due-date').value = nextDueDate.toISOString().split('T')[0];
+            }
+            validateForm();
+        });
+        
+        async function submitVerification() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = editMode ? 'Updating...' : 'Submitting...';
+            
+            try {
+                let res, result;
+                
+                if (editMode) {
+                    const updateData = {
+                        verification_date: document.getElementById('log-date').value,
+                        record: {
+                            item_name: document.getElementById('item-name').value,
+                            test_value: document.getElementById('test-value').value,
+                            reference_value: document.getElementById('reference-value').value,
+                            difference: document.getElementById('difference').value,
+                            status: selectedStatus,
+                            comments: document.getElementById('comments').value,
+                            corrective_action: document.getElementById('corrective-action').value
+                        }
+                    };
+                    
+                    res = await fetch(`/food-safety/api/verifications/${editSessionId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    result = await res.json();
+                    
+                    if (res.ok) {
+                        document.getElementById('success-doc-number').textContent = editData.session.document_number;
+                        document.getElementById('success-message').textContent = 
+                            `${selectedReference.name} verification updated. Status: ${selectedStatus}`;
+                        document.getElementById('success-overlay').classList.add('active');
+                        
+                        document.querySelector('.success-buttons').innerHTML = `
+                            <button class="btn btn-primary" onclick="goToHistory()">Back to History</button>
+                        `;
+                    } else {
+                        showToast(result.error || 'Failed to update', 'error');
+                        resetSubmitBtn();
+                    }
+                } else {
+                    const data = {
+                        verification_date: document.getElementById('log-date').value,
+                        branch: document.getElementById('branch').value,
+                        records: [{
+                            reference_id: selectedReference.id,
+                            procedure_name: selectedReference.name,
+                            unit_of_measurement: document.getElementById('unit-of-measurement').value,
+                            item_name: document.getElementById('item-name').value,
+                            test_value: document.getElementById('test-value').value,
+                            reference_value: document.getElementById('reference-value').value,
+                            difference: document.getElementById('difference').value,
+                            status: selectedStatus,
+                            corrective_action: document.getElementById('corrective-action').value,
+                            next_due_date: document.getElementById('next-due-date').value,
+                            comments: document.getElementById('comments').value
+                        }]
+                    };
+                    
+                    res = await fetch('/food-safety/api/verifications/batch', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    result = await res.json();
+                    
+                    if (res.ok) {
+                        document.getElementById('success-doc-number').textContent = result.document_number;
+                        document.getElementById('success-message').textContent = 
+                            `${selectedReference.name} verification recorded. Status: ${selectedStatus}`;
+                        document.getElementById('success-overlay').classList.add('active');
+                    } else {
+                        showToast(result.error || 'Failed to submit', 'error');
+                        resetSubmitBtn();
+                    }
+                }
+            } catch (e) {
+                console.error('Submit error:', e);
+                showToast('Network error. Please try again.', 'error');
+                resetSubmitBtn();
+            }
+        }
+        
+        function goToHistory() {
+            window.location.href = '/food-safety/history';
+        }
+        
+        function resetSubmitBtn() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = false;
+            const btnText = editMode ? 'Update Verification' : 'Submit Verification';
+            submitBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                ${btnText}
+            `;
+        }
+        
+        function resetForm() {
+            document.getElementById('branch').value = '';
+            document.getElementById('procedure-select').value = '';
+            document.getElementById('verification-form-card').style.display = 'none';
+            document.getElementById('submit-bar').style.display = 'none';
+            document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('test-value').value = '';
+            document.getElementById('difference').value = '';
+            document.getElementById('diff-indicator').textContent = '';
+            document.getElementById('comments').value = '';
+            document.getElementById('corrective-action').value = '';
+            document.getElementById('corrective-action-group').classList.remove('show');
+            document.getElementById('filled-by').value = currentUser?.displayName || currentUser?.name || '';
+            selectedReference = null;
+            selectedStatus = null;
+            document.querySelectorAll('.status-option').forEach(opt => {
+                opt.classList.remove('selected', 'pass', 'fail');
+            });
+        }
+        
+        function newVerification() {
+            document.getElementById('success-overlay').classList.remove('active');
+            resetForm();
+            resetSubmitBtn();
+        }
+        
+        function goHome() {
+            window.location.href = '/food-safety';
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

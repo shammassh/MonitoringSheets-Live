@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Employee Hygiene Checklist</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        /* Top Controls */
+        .controls-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        /* Checklist Table */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-scroll {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 280px);
+        }
+        
+        .checklist-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        .checklist-table th {
+            background: #f9fafb;
+            padding: 0.75rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .checklist-table th.employee-col {
+            text-align: left;
+            padding-left: 1rem;
+            min-width: 180px;
+        }
+        
+        .checklist-table th.item-col {
+            min-width: 80px;
+            max-width: 100px;
+            font-size: 0.7rem;
+            line-height: 1.3;
+            vertical-align: bottom;
+            padding-bottom: 0.5rem;
+        }
+        
+        .checklist-table th.action-col {
+            min-width: 80px;
+        }
+        
+        .checklist-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .checklist-table td.employee-cell {
+            text-align: left;
+            padding-left: 1rem;
+        }
+        
+        .checklist-table tr:hover {
+            background: #f9fafb;
+        }
+        
+        .checklist-table tr.absent-row {
+            background: #fef3c7;
+            opacity: 0.7;
+        }
+        
+        .checklist-table tr.absent-row .item-cell {
+            pointer-events: none;
+        }
+        
+        /* Employee Info */
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .employee-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .employee-avatar.male { background: #3b82f6; }
+        .employee-avatar.female { background: #ec4899; }
+        
+        .employee-details {
+            min-width: 0;
+        }
+        
+        .employee-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1f2937;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .employee-position {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        /* Checkbox Styling */
+        .item-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #10b981;
+        }
+        
+        .item-cell {
+            position: relative;
+        }
+        
+        .item-cell.has-error::after {
+            content: '!';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .na-cell {
+            background: #f3f4f6;
+        }
+        
+        .na-badge {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+        
+        
+        /* Absent Button */
+        .absent-btn {
+            padding: 0.375rem 0.75rem;
+            border: 2px solid #f59e0b;
+            background: white;
+            color: #f59e0b;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .absent-btn:hover {
+            background: #fef3c7;
+        }
+        
+        .absent-btn.active {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.pass { background: #d1fae5; color: #059669; }
+        .status-badge.fail { background: #fee2e2; color: #dc2626; }
+        .status-badge.absent { background: #fef3c7; color: #d97706; }
+        .status-badge.pending { background: #e5e7eb; color: #6b7280; }
+        
+        /* Corrective Action Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+            line-height: 1;
+        }
+        
+        .modal-body {
+            padding: 1.25rem;
+        }
+        
+        .modal-body textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .modal-body textarea:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        .modal-info {
+            background: #fef3c7;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #92400e;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+        }
+        
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-save {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background: #2563eb;
+        }
+        
+        .btn-save:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .draft-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #3b82f6;
+            background: #eff6ff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+        
+        .draft-indicator.show {
+            display: flex;
+        }
+        
+        /* Fixed Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 1rem;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+            z-index: 50;
+        }
+        
+        .bottom-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .summary-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        
+        .stat-value.pass { color: #059669; }
+        .stat-value.fail { color: #dc2626; }
+        .stat-value.absent { color: #d97706; }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Success Overlay */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .success-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .success-content {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #ecfdf5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: #10b981;
+        }
+        
+        .doc-number-badge {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 999px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+        
+        .success-content h2 {
+            color: #059669;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-content p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 1rem;
+            background: #1f2937;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            z-index: 300;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification.success { background: #059669; }
+        .notification.error { background: #dc2626; }
+        .notification.warning { background: #d97706; }
+        
+        .validation-msg {
+            font-size: 0.875rem;
+            color: #dc2626;
+            font-weight: 500;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .controls-row {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                width: 100%;
+            }
+            
+            .summary-stats {
+                display: none;
+            }
+            
+            .header-btn span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <button class="back-btn" onclick="goHome()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">Employee Hygiene Checklist</h1>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" onclick="window.location.href='/hygiene-checklist/history'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>History</span>
+                </button>
+                <button class="header-btn" onclick="window.location.href='/hygiene-checklist/employees'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Employees</span>
+                </button>
+                <button class="header-btn" onclick="window.location.href='/hygiene-checklist/items'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span>Items</span>
+                </button>
+                <button class="header-btn" onclick="window.location.href='/hygiene-checklist/settings'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-card">
+            <div class="controls-row">
+                <div class="form-group">
+                    <label for="shift">Shift</label>
+                    <select id="shift" required>
+                        <option value="">Select shift...</option>
+                        <!-- Shifts loaded dynamically from settings -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="check-date">Date</label>
+                    <input type="date" id="check-date" required>
+                </div>
+                <div class="form-group" style="flex: 0;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-secondary" onclick="checkAllPass()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        Check All
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Checklist Table -->
+        <div class="table-container">
+            <div class="table-scroll">
+                <table class="checklist-table" id="checklist-table">
+                    <thead>
+                        <tr id="table-header">
+                            <th class="employee-col">Employee</th>
+                            <!-- Checklist items will be added here -->
+                            <th class="action-col">Status</th>
+                            <th class="action-col">Absent</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr>
+                            <td colspan="10">
+                                <div class="loading">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fixed Bottom Bar -->
+    <div class="bottom-bar">
+        <div class="bottom-bar-content">
+            <div class="summary-stats">
+                <div class="stat">
+                    <span>Total:</span>
+                    <span class="stat-value" id="stat-total">0</span>
+                </div>
+                <div class="stat">
+                    <span>Pass:</span>
+                    <span class="stat-value pass" id="stat-pass">0</span>
+                </div>
+                <div class="stat">
+                    <span>Fail:</span>
+                    <span class="stat-value fail" id="stat-fail">0</span>
+                </div>
+                <div class="stat">
+                    <span>Absent:</span>
+                    <span class="stat-value absent" id="stat-absent">0</span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span id="draft-indicator" class="draft-indicator">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    </svg>
+                    <span id="draft-status">Draft saved</span>
+                </span>
+                <span id="validation-msg" class="validation-msg"></span>
+                <button class="btn btn-save" id="save-draft-btn" onclick="saveDraft()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Save Draft
+                </button>
+                <button class="btn btn-primary" id="submit-btn" onclick="submitAll()" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Submit All Checklists
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Corrective Action Modal -->
+    <div class="modal-overlay" id="corrective-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Corrective Action Required</h2>
+                <button class="modal-close" onclick="closeCorrectiveModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info">
+                    <strong id="modal-employee-name">Employee</strong> failed 
+                    <strong id="modal-item-name">Item</strong>
+                </div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
+                    Describe the corrective action taken:
+                </label>
+                <textarea id="corrective-action-text" placeholder="Enter corrective action..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCorrectiveModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCorrectiveAction()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-content">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <div class="doc-number-badge" id="success-doc-number">HYG-20260115-001</div>
+            <h2>Checklist Submitted!</h2>
+            <p id="success-message">Hygiene checks completed successfully.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-secondary" onclick="goHome()">Back to Menu</button>
+                <button class="btn btn-primary" onclick="resetAndReload()">New Check</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notifications"></div>
+    
+    <script>
+        // State
+        let employees = [];
+        let checklistItems = [];
+        let checklistData = {}; // { empId: { absent: bool, items: { itemId: { checked: bool, corrective: string } } } }
+        let currentCorrectiveEdit = null; // { empId, itemId }
+        let isOffline = !navigator.onLine;
+        let offlineDB = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check for URL parameters (from history page draft continuation)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlDate = urlParams.get('date');
+            const urlShift = urlParams.get('shift');
+            
+            if (urlDate) {
+                document.getElementById('check-date').value = urlDate;
+            } else {
+                document.getElementById('check-date').valueAsDate = new Date();
+            }
+            
+            if (urlShift) {
+                document.getElementById('shift').value = urlShift;
+            }
+            
+            // Initialize offline database
+            await initOfflineDB();
+            
+            // Listen for online/offline status
+            window.addEventListener('online', handleOnline);
+            window.addEventListener('offline', handleOffline);
+            updateOnlineStatus();
+            
+            await loadData();
+            
+            // If we have both date and shift from URL, check for draft after data loads
+            if (urlDate && urlShift) {
+                setTimeout(() => checkForDraft(), 100);
+            }
+            
+            // Register service worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js');
+            }
+        });
+        
+        async function initOfflineDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('HygieneChecklistDB', 1);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    offlineDB = request.result;
+                    resolve(offlineDB);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    if (!db.objectStoreNames.contains('employees')) {
+                        db.createObjectStore('employees', { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains('checklistItems')) {
+                        db.createObjectStore('checklistItems', { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains('pendingSubmissions')) {
+                        const store = db.createObjectStore('pendingSubmissions', { keyPath: 'localId', autoIncrement: true });
+                        store.createIndex('status', 'status');
+                    }
+                };
+            });
+        }
+        
+        function updateOnlineStatus() {
+            isOffline = !navigator.onLine;
+            const statusEl = document.querySelector('.header-title');
+            if (isOffline) {
+                statusEl.innerHTML = 'Employee Hygiene Checklist <span style="font-size: 0.7em; background: #fbbf24; color: #92400e; padding: 2px 8px; border-radius: 10px; margin-left: 8px;">OFFLINE</span>';
+            } else {
+                statusEl.textContent = 'Employee Hygiene Checklist';
+            }
+        }
+        
+        function handleOnline() {
+            isOffline = false;
+            updateOnlineStatus();
+            showNotification('Back online! Syncing pending data...', 'success');
+            syncPendingSubmissions();
+        }
+        
+        function handleOffline() {
+            isOffline = true;
+            updateOnlineStatus();
+            showNotification('You are offline. Data will be saved locally.', 'warning');
+        }
+        
+        function loadShifts(shiftsString) {
+            const shiftSelect = document.getElementById('shift');
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlShift = urlParams.get('shift');
+            
+            // Clear existing options except the first one
+            while (shiftSelect.options.length > 1) {
+                shiftSelect.remove(1);
+            }
+            
+            // Parse shifts from settings or use defaults
+            let shifts;
+            if (shiftsString && shiftsString.trim()) {
+                shifts = shiftsString.split(',').map(s => s.trim()).filter(s => s);
+            } else {
+                shifts = ['Morning', 'Afternoon', 'Night'];
+            }
+            
+            // Add shift options
+            shifts.forEach(shift => {
+                const option = document.createElement('option');
+                option.value = shift;
+                option.textContent = shift;
+                shiftSelect.appendChild(option);
+            });
+            
+            // Set shift from URL if provided
+            if (urlShift && shifts.includes(urlShift)) {
+                shiftSelect.value = urlShift;
+            }
+        }
+        
+        async function loadData() {
+            try {
+                if (navigator.onLine) {
+                    const [empRes, itemRes, settingsRes] = await Promise.all([
+                        fetch('/hygiene-checklist/api/employees'),
+                        fetch('/hygiene-checklist/api/checklist-items'),
+                        fetch('/hygiene-checklist/api/settings')
+                    ]);
+                    
+                    employees = await empRes.json();
+                    checklistItems = await itemRes.json();
+                    const settings = await settingsRes.json();
+                    
+                    // Load shifts from settings
+                    loadShifts(settings.shifts);
+                    
+                    // Cache data for offline use
+                    await cacheDataOffline(employees, checklistItems);
+                } else {
+                    // Load from offline cache
+                    employees = await getFromOfflineDB('employees');
+                    checklistItems = await getFromOfflineDB('checklistItems');
+                    
+                    // Use default shifts when offline
+                    loadShifts(null);
+                }
+                
+                initializeChecklistData();
+                renderTable();
+                updateStats();
+                
+                // Check for pending submissions
+                await checkPendingSubmissions();
+            } catch (e) {
+                console.error('Failed to load data:', e);
+                // Try offline cache
+                try {
+                    employees = await getFromOfflineDB('employees');
+                    checklistItems = await getFromOfflineDB('checklistItems');
+                    loadShifts(null);
+                    initializeChecklistData();
+                    renderTable();
+                    updateStats();
+                    showNotification('Loaded cached data', 'info');
+                } catch (e2) {
+                    showNotification('Failed to load data', 'error');
+                }
+            }
+        }
+        
+        async function cacheDataOffline(emps, items) {
+            if (!offlineDB) return;
+            
+            const tx = offlineDB.transaction(['employees', 'checklistItems'], 'readwrite');
+            const empStore = tx.objectStore('employees');
+            const itemStore = tx.objectStore('checklistItems');
+            
+            // Clear and re-add
+            empStore.clear();
+            itemStore.clear();
+            
+            emps.forEach(e => empStore.put(e));
+            items.forEach(i => itemStore.put(i));
+        }
+        
+        async function getFromOfflineDB(storeName) {
+            return new Promise((resolve, reject) => {
+                if (!offlineDB) return resolve([]);
+                
+                const tx = offlineDB.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const request = store.getAll();
+                
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+        }
+        
+        async function savePendingSubmission(data) {
+            return new Promise((resolve, reject) => {
+                if (!offlineDB) return reject('No offline DB');
+                
+                const tx = offlineDB.transaction('pendingSubmissions', 'readwrite');
+                const store = tx.objectStore('pendingSubmissions');
+                const request = store.add({
+                    ...data,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                });
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+        
+        async function checkPendingSubmissions() {
+            try {
+                const pending = await getFromOfflineDB('pendingSubmissions');
+                if (pending.length > 0) {
+                    showNotification(`${pending.length} pending submission(s) waiting to sync`, 'warning');
+                }
+            } catch (e) {
+                console.error('Error checking pending:', e);
+            }
+        }
+        
+        async function syncPendingSubmissions() {
+            if (!offlineDB || !navigator.onLine) return;
+            
+            try {
+                const tx = offlineDB.transaction('pendingSubmissions', 'readonly');
+                const store = tx.objectStore('pendingSubmissions');
+                const request = store.getAll();
+                
+                request.onsuccess = async () => {
+                    const pending = request.result || [];
+                    
+                    for (const submission of pending) {
+                        try {
+                            const res = await fetch('/hygiene-checklist/api/hygiene-checklists/batch', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(submission.payload)
+                            });
+                            
+                            if (res.ok) {
+                                // Remove from pending
+                                const delTx = offlineDB.transaction('pendingSubmissions', 'readwrite');
+                                delTx.objectStore('pendingSubmissions').delete(submission.localId);
+                                showNotification(`Synced offline submission from ${submission.payload.check_date}`, 'success');
+                            }
+                        } catch (e) {
+                            console.error('Failed to sync:', e);
+                        }
+                    }
+                };
+            } catch (e) {
+                console.error('Sync error:', e);
+            }
+        }
+        
+        function initializeChecklistData() {
+            checklistData = {};
+            employees.forEach(emp => {
+                checklistData[emp.id] = {
+                    absent: false,
+                    items: {}
+                };
+                checklistItems.forEach(item => {
+                    // Skip male-only items for female employees
+                    const isApplicable = !item.gender_specific || 
+                        item.gender_specific.toLowerCase() === emp.gender?.toLowerCase();
+                    
+                    checklistData[emp.id].items[item.id] = {
+                        checked: false,  // Default to unchecked
+                        corrective: '',
+                        applicable: isApplicable
+                    };
+                });
+            });
+        }
+        
+        function renderTable() {
+            // Render header
+            const headerRow = document.getElementById('table-header');
+            headerRow.innerHTML = `
+                <th class="employee-col">Employee</th>
+                ${checklistItems.map(item => `
+                    <th class="item-col" title="${item.name}">${item.name}</th>
+                `).join('')}
+                <th class="action-col">Status</th>
+                <th class="action-col">Absent</th>
+            `;
+            
+            // Render body
+            const tbody = document.getElementById('table-body');
+            
+            if (employees.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${checklistItems.length + 3}">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                </svg>
+                                <h3>No Employees</h3>
+                                <p>Add employees first to start hygiene checks.</p>
+                                <button class="btn btn-primary" onclick="window.location.href='/hygiene-checklist/employees'">
+                                    Add Employees
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            if (checklistItems.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                <h3>No Checklist Items</h3>
+                                <p>Add checklist items first.</p>
+                                <button class="btn btn-primary" onclick="window.location.href='/hygiene-checklist/items'">
+                                    Add Items
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = employees.map(emp => {
+                const empData = checklistData[emp.id];
+                const isAbsent = empData.absent;
+                
+                return `
+                    <tr id="row-${emp.id}" class="${isAbsent ? 'absent-row' : ''}">
+                        <td class="employee-cell">
+                            <div class="employee-info">
+                                <div class="employee-avatar ${emp.gender?.toLowerCase() || ''}">
+                                    ${emp.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="employee-details">
+                                    <div class="employee-name">${emp.name}</div>
+                                    <div class="employee-position">${emp.position || 'Staff'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        ${checklistItems.map(item => {
+                            const itemData = empData.items[item.id];
+                            const isApplicable = itemData.applicable;
+                            const hasError = isApplicable && !itemData.checked && !isAbsent && itemData.corrective === '';
+                            
+                            if (!isApplicable) {
+                                // Item not applicable for this gender - show N/A
+                                return `
+                                    <td class="item-cell na-cell" id="cell-${emp.id}-${item.id}" title="Not applicable">
+                                        <span class="na-badge">N/A</span>
+                                    </td>
+                                `;
+                            }
+                            
+                            return `
+                                <td class="item-cell ${hasError ? 'has-error' : ''}" id="cell-${emp.id}-${item.id}">
+                                    <input type="checkbox" 
+                                        class="item-checkbox" 
+                                        id="check-${emp.id}-${item.id}"
+                                        ${itemData.checked ? 'checked' : ''}
+                                        ${isAbsent ? 'disabled' : ''}
+                                        onchange="onCheckChange(${emp.id}, ${item.id}, this.checked)"
+                                    >
+                                </td>
+                            `;
+                        }).join('')}
+                        <td>
+                            <span class="status-badge ${getEmployeeStatus(emp.id)}" id="status-${emp.id}">
+                                ${getEmployeeStatusText(emp.id)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="absent-btn ${isAbsent ? 'active' : ''}" 
+                                    id="absent-btn-${emp.id}"
+                                    onclick="toggleAbsent(${emp.id})">
+                                ${isAbsent ? 'Present' : 'Absent'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function onCheckChange(empId, itemId, checked) {
+            checklistData[empId].items[itemId].checked = checked;
+            
+            if (!checked) {
+                // Item unchecked - need corrective action
+                openCorrectiveModal(empId, itemId);
+            } else {
+                // Item checked - clear corrective action
+                checklistData[empId].items[itemId].corrective = '';
+                updateCellError(empId, itemId);
+            }
+            
+            updateEmployeeStatus(empId);
+            updateStats();
+        }
+        
+        function toggleAbsent(empId) {
+            const isAbsent = !checklistData[empId].absent;
+            checklistData[empId].absent = isAbsent;
+            
+            // Update row styling
+            const row = document.getElementById(`row-${empId}`);
+            row.classList.toggle('absent-row', isAbsent);
+            
+            // Update button
+            const btn = document.getElementById(`absent-btn-${empId}`);
+            btn.classList.toggle('active', isAbsent);
+            btn.textContent = isAbsent ? 'Present' : 'Absent';
+            
+            // Disable/enable checkboxes (only for applicable items)
+            checklistItems.forEach(item => {
+                const itemData = checklistData[empId].items[item.id];
+                if (itemData.applicable) {
+                    const checkbox = document.getElementById(`check-${empId}-${item.id}`);
+                    if (checkbox) checkbox.disabled = isAbsent;
+                }
+            });
+            
+            updateEmployeeStatus(empId);
+            updateStats();
+        }
+        
+        function getEmployeeStatus(empId) {
+            const empData = checklistData[empId];
+            
+            if (empData.absent) return 'absent';
+            
+            // Only consider applicable items
+            const applicableItems = checklistItems.filter(item => empData.items[item.id].applicable);
+            
+            const allChecked = applicableItems.every(item => empData.items[item.id].checked);
+            if (allChecked) return 'pass';
+            
+            const anyUnchecked = applicableItems.some(item => !empData.items[item.id].checked);
+            const allHaveCorrective = applicableItems.every(item => 
+                empData.items[item.id].checked || empData.items[item.id].corrective
+            );
+            
+            if (anyUnchecked && allHaveCorrective) return 'fail';
+            
+            return 'pending';
+        }
+        
+        function getEmployeeStatusText(empId) {
+            const status = getEmployeeStatus(empId);
+            switch(status) {
+                case 'pass': return 'Pass';
+                case 'fail': return 'Fail';
+                case 'absent': return 'Absent';
+                default: return 'Pending';
+            }
+        }
+        
+        function updateEmployeeStatus(empId) {
+            const badge = document.getElementById(`status-${empId}`);
+            const status = getEmployeeStatus(empId);
+            badge.className = `status-badge ${status}`;
+            badge.textContent = getEmployeeStatusText(empId);
+            
+            // Update cell errors
+            checklistItems.forEach(item => {
+                updateCellError(empId, item.id);
+            });
+            
+            validateForm();
+        }
+        
+        function updateCellError(empId, itemId) {
+            const cell = document.getElementById(`cell-${empId}-${itemId}`);
+            const empData = checklistData[empId];
+            const itemData = empData.items[itemId];
+            
+            const hasError = !itemData.checked && !empData.absent && !itemData.corrective;
+            cell.classList.toggle('has-error', hasError);
+        }
+        
+        function openCorrectiveModal(empId, itemId) {
+            currentCorrectiveEdit = { empId, itemId };
+            
+            const emp = employees.find(e => e.id === empId);
+            const item = checklistItems.find(i => i.id === itemId);
+            
+            document.getElementById('modal-employee-name').textContent = emp.name;
+            document.getElementById('modal-item-name').textContent = item.name;
+            document.getElementById('corrective-action-text').value = 
+                checklistData[empId].items[itemId].corrective || '';
+            
+            document.getElementById('corrective-modal').classList.add('active');
+            document.getElementById('corrective-action-text').focus();
+        }
+        
+        function closeCorrectiveModal() {
+            document.getElementById('corrective-modal').classList.remove('active');
+            
+            // If closing without saving and no corrective action, re-check the box
+            if (currentCorrectiveEdit) {
+                const { empId, itemId } = currentCorrectiveEdit;
+                if (!checklistData[empId].items[itemId].corrective) {
+                    // No corrective action - revert to checked
+                    checklistData[empId].items[itemId].checked = true;
+                    document.getElementById(`check-${empId}-${itemId}`).checked = true;
+                    updateCellError(empId, itemId);
+                    updateEmployeeStatus(empId);
+                    updateStats();
+                }
+            }
+            
+            currentCorrectiveEdit = null;
+        }
+        
+        function saveCorrectiveAction() {
+            if (!currentCorrectiveEdit) return;
+            
+            const { empId, itemId } = currentCorrectiveEdit;
+            const text = document.getElementById('corrective-action-text').value.trim();
+            
+            if (!text) {
+                showNotification('Please enter a corrective action', 'warning');
+                return;
+            }
+            
+            checklistData[empId].items[itemId].corrective = text;
+            updateCellError(empId, itemId);
+            updateEmployeeStatus(empId);
+            updateStats();
+            
+            document.getElementById('corrective-modal').classList.remove('active');
+            currentCorrectiveEdit = null;
+            
+            showNotification('Corrective action saved', 'success');
+        }
+        
+        function checkAllPass() {
+            employees.forEach(emp => {
+                if (!checklistData[emp.id].absent) {
+                    checklistItems.forEach(item => {
+                        const itemData = checklistData[emp.id].items[item.id];
+                        if (itemData.applicable) {
+                            itemData.checked = true;
+                            itemData.corrective = '';
+                            const checkbox = document.getElementById(`check-${emp.id}-${item.id}`);
+                            if (checkbox) checkbox.checked = true;
+                        }
+                    });
+                    updateEmployeeStatus(emp.id);
+                }
+            });
+            updateStats();
+            showNotification('All applicable items checked as Pass', 'success');
+        }
+        
+        function updateStats() {
+            let total = 0, pass = 0, fail = 0, absent = 0;
+            
+            employees.forEach(emp => {
+                const status = getEmployeeStatus(emp.id);
+                total++;
+                if (status === 'pass') pass++;
+                else if (status === 'fail') fail++;
+                else if (status === 'absent') absent++;
+            });
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-pass').textContent = pass;
+            document.getElementById('stat-fail').textContent = fail;
+            document.getElementById('stat-absent').textContent = absent;
+            
+            validateForm();
+        }
+        
+        function validateForm() {
+            const shift = document.getElementById('shift').value;
+            const date = document.getElementById('check-date').value;
+            const msgEl = document.getElementById('validation-msg');
+            
+            // Check all non-absent employees have complete data (only applicable items)
+            const allComplete = employees.every(emp => {
+                const empData = checklistData[emp.id];
+                if (empData.absent) return true;
+                
+                return checklistItems.every(item => {
+                    const itemData = empData.items[item.id];
+                    // Skip non-applicable items
+                    if (!itemData.applicable) return true;
+                    return itemData.checked || itemData.corrective;
+                });
+            });
+            
+            const hasEmployees = employees.length > 0;
+            const hasItems = checklistItems.length > 0;
+            const hasData = employees.some(emp => !checklistData[emp.id].absent);
+            
+            // Show validation message
+            let msg = '';
+            if (!hasEmployees) msg = 'No employees found';
+            else if (!hasItems) msg = 'No checklist items found';
+            else if (!shift) msg = 'Please select a shift';
+            else if (!date) msg = 'Please select a date';
+            else if (!hasData) msg = 'All employees are absent';
+            else if (!allComplete) msg = 'Unchecked items need corrective action';
+            
+            msgEl.textContent = msg;
+            
+            const isValid = hasEmployees && hasItems && shift && date && allComplete && hasData;
+            document.getElementById('submit-btn').disabled = !isValid;
+        }
+        
+        async function submitAll() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <div class="loading-spinner" style="width: 20px; height: 20px; margin: 0;"></div>
+                ${isOffline ? 'Saving Offline...' : 'Submitting...'}
+            `;
+            
+            const shift = document.getElementById('shift').value;
+            const check_date = document.getElementById('check-date').value;
+            
+            // Build batch payload - only include applicable items
+            const employeesPayload = employees.map(emp => {
+                const empData = checklistData[emp.id];
+                return {
+                    employee_id: emp.id,
+                    absent: empData.absent,
+                    responses: checklistItems
+                        .filter(item => empData.items[item.id].applicable)
+                        .map(item => ({
+                            item_id: item.id,
+                            checked: empData.items[item.id].checked,
+                            corrective_action: empData.items[item.id].corrective || null
+                        }))
+                };
+            });
+            
+            const payload = {
+                check_date,
+                shift,
+                employees: employeesPayload
+            };
+            
+            // If offline, save locally
+            if (isOffline) {
+                try {
+                    await savePendingSubmission({ payload });
+                    document.getElementById('success-doc-number').textContent = 'OFFLINE-' + Date.now();
+                    document.getElementById('success-message').innerHTML = 
+                        `<strong style="color: #f59e0b;">⚠️ Saved Offline</strong><br>
+                         ${employeesPayload.length} employees checked. Data will sync when you're back online.`;
+                    document.getElementById('success-overlay').classList.add('active');
+                } catch (e) {
+                    console.error('Offline save error:', e);
+                    showNotification('Failed to save offline', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Submit All Checklists
+                    `;
+                }
+                return;
+            }
+            
+            try {
+                const res = await fetch('/hygiene-checklist/api/hygiene-checklists/batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await res.json();
+                
+                if (res.ok) {
+                    document.getElementById('success-doc-number').textContent = result.document_number;
+                    document.getElementById('success-message').textContent = 
+                        `${result.total_employees} employees checked: ${result.total_pass} passed, ${result.total_fail} failed, ${result.total_absent} absent.`;
+                    document.getElementById('success-overlay').classList.add('active');
+                } else {
+                    showNotification(result.error || 'Failed to submit', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Submit All Checklists
+                    `;
+                }
+            } catch (e) {
+                console.error('Submit error:', e);
+                // Network failed - save offline
+                try {
+                    await savePendingSubmission({ payload });
+                    document.getElementById('success-doc-number').textContent = 'OFFLINE-' + Date.now();
+                    document.getElementById('success-message').innerHTML = 
+                        `<strong style="color: #f59e0b;">⚠️ Saved Offline</strong><br>
+                         Network error occurred. Data saved locally and will sync when online.`;
+                    document.getElementById('success-overlay').classList.add('active');
+                } catch (e2) {
+                    showNotification('Network error. Please try again.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Submit All Checklists
+                    `;
+                }
+            }
+        }
+        
+        function resetAndReload() {
+            document.getElementById('success-overlay').classList.remove('active');
+            document.getElementById('shift').value = '';
+            document.getElementById('check-date').valueAsDate = new Date();
+            initializeChecklistData();
+            renderTable();
+            updateStats();
+        }
+        
+        function goHome() {
+            window.location.href = '/dashboard';
+        }
+        
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // ==========================================
+        // Save Draft Functions
+        // ==========================================
+        
+        function getDraftKey() {
+            const date = document.getElementById('check-date').value;
+            const shift = document.getElementById('shift').value;
+            return `hygiene-draft-${date}-${shift}`;
+        }
+        
+        function saveDraft() {
+            const date = document.getElementById('check-date').value;
+            const shift = document.getElementById('shift').value;
+            
+            if (!date) {
+                showNotification('Please select a date first', 'error');
+                return;
+            }
+            
+            const draftData = {
+                date: date,
+                shift: shift,
+                checklistData: checklistData,
+                savedAt: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem(getDraftKey(), JSON.stringify(draftData));
+                
+                // Show draft saved indicator
+                const indicator = document.getElementById('draft-indicator');
+                const status = document.getElementById('draft-status');
+                const time = new Date().toLocaleTimeString();
+                status.textContent = `Draft saved at ${time}`;
+                indicator.classList.add('show');
+                
+                showNotification('Draft saved successfully!', 'success');
+            } catch (e) {
+                console.error('Error saving draft:', e);
+                showNotification('Failed to save draft', 'error');
+            }
+        }
+        
+        function loadDraft() {
+            const draftKey = getDraftKey();
+            const savedDraft = localStorage.getItem(draftKey);
+            
+            if (!savedDraft) {
+                return false;
+            }
+            
+            try {
+                const draftData = JSON.parse(savedDraft);
+                
+                // Check if draft is from today or still relevant
+                const savedDate = new Date(draftData.savedAt);
+                const now = new Date();
+                const hoursSincesSave = (now - savedDate) / (1000 * 60 * 60);
+                
+                // If draft is older than 24 hours, don't load it
+                if (hoursSincesSave > 24) {
+                    localStorage.removeItem(draftKey);
+                    return false;
+                }
+                
+                // Ask user if they want to load the draft
+                const savedTime = savedDate.toLocaleString();
+                if (confirm(`A saved draft from ${savedTime} was found. Do you want to continue from where you left off?`)) {
+                    checklistData = draftData.checklistData;
+                    renderTable();
+                    updateStats();
+                    
+                    // Show draft indicator
+                    const indicator = document.getElementById('draft-indicator');
+                    const status = document.getElementById('draft-status');
+                    status.textContent = `Draft loaded from ${savedDate.toLocaleTimeString()}`;
+                    indicator.classList.add('show');
+                    
+                    showNotification('Draft loaded successfully!', 'success');
+                    return true;
+                }
+            } catch (e) {
+                console.error('Error loading draft:', e);
+                localStorage.removeItem(draftKey);
+            }
+            
+            return false;
+        }
+        
+        function clearDraft() {
+            const draftKey = getDraftKey();
+            localStorage.removeItem(draftKey);
+            document.getElementById('draft-indicator').classList.remove('show');
+        }
+        
+        // Check for existing draft when date/shift changes
+        function checkForDraft() {
+            const date = document.getElementById('check-date').value;
+            const shift = document.getElementById('shift').value;
+            
+            if (date && shift) {
+                loadDraft();
+            }
+        }
+        
+        // Clear draft on successful submit
+        const originalResetAndReload = resetAndReload;
+        resetAndReload = function() {
+            clearDraft();
+            originalResetAndReload();
+        };
+        
+        // Update form validation on control changes
+        document.getElementById('shift').addEventListener('change', () => {
+            validateForm();
+            checkForDraft();
+        });
+        document.getElementById('check-date').addEventListener('change', () => {
+            validateForm();
+            checkForDraft();
+        });
+    </script>
+</body>
+</html>

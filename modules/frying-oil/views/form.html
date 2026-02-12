@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f59e0b">
+    <title>New Oil Test - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .required {
+            color: #ef4444;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .status-selector {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .status-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .status-option:hover {
+            border-color: #f59e0b;
+        }
+        
+        .status-option.selected.pass {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .status-option.selected.fail {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .status-option .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-option .label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .status-display {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .status-display.neutral {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .status-display.pass {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-display.warning {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        
+        .status-display.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .threshold-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .corrective-action-group {
+            display: none;
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .corrective-action-group.show {
+            display: block;
+        }
+        
+        .corrective-action-group label {
+            color: #92400e;
+        }
+        
+        .reference-note {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .reference-note-title {
+            font-weight: 600;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reference-note-content {
+            color: #78350f;
+            font-size: 0.95rem;
+        }
+        
+        .submit-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            color: white;
+        }
+        
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        
+        .success-overlay.active {
+            display: flex;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+        
+        .success-title {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-doc {
+            background: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .success-message {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state a {
+            color: #f59e0b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.error {
+            background: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .submit-bar { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/frying-oil" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">🛢️ New Oil Test</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Equipment Selection -->
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
+                    Select Equipment
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="equipment-select">Equipment <span class="required">*</span></label>
+                    <select id="equipment-select" onchange="onEquipmentChange()">
+                        <option value="">-- Select Equipment --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Form (hidden until equipment selected) -->
+        <div id="test-form-card" class="card" style="display: none;">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Test Details
+                </h2>
+            </div>
+            <div class="card-body">
+                <form id="test-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="equipment-name">Equipment Name</label>
+                            <input type="text" id="equipment-name" readonly style="background: #f9fafb;">
+                        </div>
+                        <div class="form-group">
+                            <label for="log-date">Log Date <span class="required">*</span></label>
+                            <input type="date" id="log-date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tested-value">Tested Value %TPC <span class="required">*</span></label>
+                            <input type="number" step="0.1" id="tested-value" placeholder="Enter TPC value" required oninput="calculateStatus()">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <div class="status-display neutral" id="status-display">--</div>
+                            <input type="hidden" id="status">
+                        </div>
+                    </div>
+                    <div class="threshold-hint" id="threshold-hint">Select equipment to see thresholds</div>
+                    
+                    <div class="corrective-action-group" id="corrective-action-group">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="corrective-action">⚠️ Corrective Action Required <span class="required">*</span></label>
+                            <textarea id="corrective-action" rows="3" placeholder="What action was taken? (e.g., Oil replaced, Filter cleaned)" oninput="validateForm()"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label for="filled-by">Filled By <span class="required">*</span></label>
+                            <input type="text" id="filled-by" required oninput="validateForm()">
+                        </div>
+                        <div class="form-group">
+                            <label for="next-due-date">Next Due Date</label>
+                            <input type="date" id="next-due-date" readonly style="background: #f9fafb;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remarks">Remarks (Optional)</label>
+                        <textarea id="remarks" rows="2" placeholder="Any additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="reference-note" id="reference-note" style="display: none;">
+                        <div class="reference-note-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            Reference Standard
+                        </div>
+                        <div class="reference-note-content" id="reference-note-content"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="card" style="display: none;">
+            <div class="card-body">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <h3>No Equipment Available</h3>
+                    <p>Add oil references first.</p>
+                    <a href="/frying-oil/references">Add References →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="submit-bar" id="submit-bar" style="display: none;">
+        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+            </svg>
+            Reset
+        </button>
+        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitTest()" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Submit Test
+        </button>
+    </div>
+    
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-modal">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Oil Test Recorded!</h2>
+            <div class="success-doc" id="success-doc-number">OIL-20260116-001</div>
+            <p class="success-message" id="success-message">Oil test has been recorded successfully.</p>
+            <div class="success-buttons">
+                <button class="btn btn-secondary" onclick="goHome()">Home</button>
+                <button class="btn btn-primary" onclick="newTest()">New Test</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let references = [];
+        let selectedReference = null;
+        let currentUser = null;
+        let selectedStatus = null;
+        let editMode = false;
+        let editSessionId = null;
+        let editData = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('log-date').min = today;
+            await loadCurrentUser();
+            await loadReferences();
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            editSessionId = urlParams.get('edit');
+            if (editSessionId) {
+                await loadEditData();
+            }
+        });
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/frying-oil/api/me?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                if (res.ok) {
+                    currentUser = await res.json();
+                    document.getElementById('filled-by').value = currentUser?.displayName || currentUser?.name || '';
+                }
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        function canEdit() {
+            if (!currentUser) return false;
+            const role = currentUser.role || '';
+            return role === 'Admin' || role === 'Super Auditor';
+        }
+        
+        async function loadEditData() {
+            if (!canEdit()) {
+                alert('Only Admin and Super Auditor can edit records');
+                window.location.href = '/frying-oil/history';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/frying-oil/api/tests/${editSessionId}?_=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                if (!res.ok) {
+                    alert('Failed to load test data');
+                    window.location.href = '/frying-oil/history';
+                    return;
+                }
+                
+                editData = await res.json();
+                editMode = true;
+                
+                document.querySelector('.header-title').textContent = '✏️ Edit Oil Test';
+                document.getElementById('submit-btn').innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Update Test
+                `;
+                
+                const record = editData.records[0];
+                document.getElementById('equipment-select').value = record.reference_id;
+                
+                onEquipmentChange();
+                
+                setTimeout(() => {
+                    const testDate = new Date(editData.session.test_date);
+                    document.getElementById('log-date').value = testDate.toISOString().split('T')[0];
+                    document.getElementById('tested-value').value = record.tested_value || '';
+                    document.getElementById('remarks').value = record.remarks || '';
+                    document.getElementById('corrective-action').value = record.corrective_action || '';
+                    
+                    selectStatus(record.status);
+                    validateForm();
+                }, 100);
+            } catch (e) {
+                console.error('Error loading edit data:', e);
+                alert('Failed to load test data');
+                window.location.href = '/frying-oil/history';
+            }
+        }
+        
+        async function loadReferences() {
+            try {
+                const res = await fetch('/frying-oil/api/references?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                references = await res.json();
+                
+                const select = document.getElementById('equipment-select');
+                
+                if (references.length === 0) {
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+                
+                references.forEach(ref => {
+                    const option = document.createElement('option');
+                    option.value = ref.id;
+                    option.textContent = ref.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading references:', e);
+                showToast('Failed to load equipment', 'error');
+            }
+        }
+        
+        function onEquipmentChange() {
+            const select = document.getElementById('equipment-select');
+            const refId = parseInt(select.value);
+            
+            if (!refId) {
+                document.getElementById('test-form-card').style.display = 'none';
+                document.getElementById('submit-bar').style.display = 'none';
+                selectedReference = null;
+                return;
+            }
+            
+            selectedReference = references.find(r => r.id === refId);
+            
+            if (!selectedReference) return;
+            
+            document.getElementById('equipment-name').value = selectedReference.name;
+            
+            // Calculate next due date based on frequency
+            const logDate = new Date(document.getElementById('log-date').value);
+            const nextDueDate = calculateNextDueDate(logDate, selectedReference.frequency);
+            document.getElementById('next-due-date').value = nextDueDate.toISOString().split('T')[0];
+            
+            // Show reference note
+            if (selectedReference.reference) {
+                document.getElementById('reference-note-content').textContent = selectedReference.reference;
+                document.getElementById('reference-note').style.display = 'block';
+            } else {
+                document.getElementById('reference-note').style.display = 'none';
+            }
+            
+            // Update threshold hint based on reference
+            updateThresholdHint();
+            
+            document.getElementById('test-form-card').style.display = 'block';
+            document.getElementById('submit-bar').style.display = 'flex';
+            
+            // Reset status
+            selectedStatus = null;
+            document.querySelectorAll('.status-option').forEach(opt => {
+                opt.classList.remove('selected', 'pass', 'fail');
+            });
+            document.getElementById('status').value = '';
+            document.getElementById('corrective-action-group').classList.remove('show');
+            
+            validateForm();
+        }
+        
+        function calculateNextDueDate(fromDate, frequency) {
+            const date = new Date(fromDate);
+            
+            switch (frequency) {
+                case 'Daily':
+                    date.setDate(date.getDate() + 1);
+                    break;
+                case 'Every Shift':
+                case 'Twice Daily':
+                    date.setDate(date.getDate() + 1);
+                    break;
+                case 'Every 3 Days':
+                    date.setDate(date.getDate() + 3);
+                    break;
+                case 'Weekly':
+                    date.setDate(date.getDate() + 7);
+                    break;
+                default:
+                    date.setDate(date.getDate() + 1);
+            }
+            
+            return date;
+        }
+        
+        // Parse thresholds from reference text
+        // Expected formats in reference:
+        // "<18.5%" or "≤18.5%" for pass threshold
+        // "19-24%" or "20-24%" for warning range  
+        // ">24%" for fail threshold
+        function parseThresholds(referenceText) {
+            if (!referenceText) {
+                return { passMax: 20, warningMax: 24 }; // Default values
+            }
+            
+            let passMax = 20;
+            let warningMax = 24;
+            
+            // Try to find pass threshold: <X% or ≤X% or acceptable...X%
+            const passMatch = referenceText.match(/[<≤]\s*(\d+\.?\d*)\s*%/i);
+            if (passMatch) {
+                passMax = parseFloat(passMatch[1]);
+            }
+            
+            // Try to find warning range: X-Y% (takes the upper bound)
+            const rangeMatch = referenceText.match(/(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)\s*%/i);
+            if (rangeMatch) {
+                warningMax = parseFloat(rangeMatch[2]);
+                // If we didn't find a pass threshold, use the lower bound of warning range
+                if (!passMatch) {
+                    passMax = parseFloat(rangeMatch[1]) - 0.1;
+                }
+            }
+            
+            // Try to find fail threshold: >X%
+            const failMatch = referenceText.match(/>\s*(\d+\.?\d*)\s*%?/i);
+            if (failMatch && !rangeMatch) {
+                warningMax = parseFloat(failMatch[1]);
+            }
+            
+            return { passMax, warningMax };
+        }
+        
+        function updateThresholdHint() {
+            const hintEl = document.getElementById('threshold-hint');
+            if (!selectedReference) {
+                hintEl.textContent = 'Select equipment to see thresholds';
+                return;
+            }
+            
+            const thresholds = parseThresholds(selectedReference.reference);
+            hintEl.innerHTML = `🟢 Pass: ≤${thresholds.passMax}% TPC | 🟠 Warning: ${thresholds.passMax}-${thresholds.warningMax}% TPC | 🔴 Fail: >${thresholds.warningMax}% TPC (Oil should be replaced)`;
+        }
+        
+        function calculateStatus() {
+            const testedValue = parseFloat(document.getElementById('tested-value').value);
+            const statusDisplay = document.getElementById('status-display');
+            const correctiveActionGroup = document.getElementById('corrective-action-group');
+            
+            // Get thresholds from selected reference
+            const thresholds = parseThresholds(selectedReference ? selectedReference.reference : null);
+            const TPC_GOOD = thresholds.passMax;
+            const TPC_WARNING = thresholds.warningMax;
+            
+            if (isNaN(testedValue)) {
+                statusDisplay.textContent = '--';
+                statusDisplay.className = 'status-display neutral';
+                selectedStatus = '';
+                document.getElementById('status').value = '';
+                correctiveActionGroup.classList.remove('show');
+                validateForm();
+                return;
+            }
+            
+            if (testedValue <= TPC_GOOD) {
+                selectedStatus = 'Pass';
+                statusDisplay.textContent = '🟢 Pass';
+                statusDisplay.className = 'status-display pass';
+                correctiveActionGroup.classList.remove('show');
+            } else if (testedValue <= TPC_WARNING) {
+                selectedStatus = 'Warning';
+                statusDisplay.textContent = '🟠 Warning';
+                statusDisplay.className = 'status-display warning';
+                correctiveActionGroup.classList.remove('show');
+            } else {
+                selectedStatus = 'Fail';
+                statusDisplay.textContent = '🔴 Fail';
+                statusDisplay.className = 'status-display fail';
+                correctiveActionGroup.classList.add('show');
+            }
+            
+            document.getElementById('status').value = selectedStatus;
+            validateForm();
+        }
+        
+        // Keep selectStatus for edit mode loading
+        function selectStatus(status) {
+            selectedStatus = status;
+            document.getElementById('status').value = status;
+            const statusDisplay = document.getElementById('status-display');
+            
+            if (status === 'Pass') {
+                statusDisplay.textContent = '🟢 Pass';
+                statusDisplay.className = 'status-display pass';
+                document.getElementById('corrective-action-group').classList.remove('show');
+            } else if (status === 'Warning') {
+                statusDisplay.textContent = '🟠 Warning';
+                statusDisplay.className = 'status-display warning';
+                document.getElementById('corrective-action-group').classList.remove('show');
+            } else {
+                statusDisplay.textContent = '🔴 Fail';
+                statusDisplay.className = 'status-display fail';
+                document.getElementById('corrective-action-group').classList.add('show');
+            }
+            
+            validateForm();
+        }
+        
+        function validateForm() {
+            const logDate = document.getElementById('log-date').value;
+            const testedValue = document.getElementById('tested-value').value;
+            const filledBy = document.getElementById('filled-by').value;
+            const correctiveAction = document.getElementById('corrective-action').value;
+            
+            const isFailing = selectedStatus === 'Fail';
+            const correctiveActionValid = !isFailing || (isFailing && correctiveAction.trim() !== '');
+            
+            const isValid = selectedReference && logDate && testedValue && selectedStatus && filledBy && correctiveActionValid;
+            document.getElementById('submit-btn').disabled = !isValid;
+        }
+        
+        document.getElementById('log-date').addEventListener('change', () => {
+            if (selectedReference) {
+                const logDate = new Date(document.getElementById('log-date').value);
+                const nextDueDate = calculateNextDueDate(logDate, selectedReference.frequency);
+                document.getElementById('next-due-date').value = nextDueDate.toISOString().split('T')[0];
+            }
+            validateForm();
+        });
+        
+        async function submitTest() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = editMode ? 'Updating...' : 'Submitting...';
+            
+            try {
+                let res, result;
+                
+                if (editMode) {
+                    const updateData = {
+                        test_date: document.getElementById('log-date').value,
+                        record: {
+                            tested_value: document.getElementById('tested-value').value,
+                            status: selectedStatus,
+                            remarks: document.getElementById('remarks').value,
+                            corrective_action: document.getElementById('corrective-action').value
+                        }
+                    };
+                    
+                    res = await fetch(`/frying-oil/api/tests/${editSessionId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    result = await res.json();
+                    
+                    if (res.ok) {
+                        document.getElementById('success-doc-number').textContent = editData.session.document_number;
+                        document.getElementById('success-message').textContent = 
+                            `${selectedReference.name} oil test updated. Status: ${selectedStatus}`;
+                        document.getElementById('success-overlay').classList.add('active');
+                        
+                        document.querySelector('.success-buttons').innerHTML = `
+                            <button class="btn btn-primary" onclick="goToHistory()">Back to History</button>
+                        `;
+                    } else {
+                        showToast(result.error || 'Failed to update', 'error');
+                        resetSubmitBtn();
+                    }
+                } else {
+                    const data = {
+                        test_date: document.getElementById('log-date').value,
+                        records: [{
+                            reference_id: selectedReference.id,
+                            tested_value: document.getElementById('tested-value').value,
+                            status: selectedStatus,
+                            remarks: document.getElementById('remarks').value,
+                            corrective_action: document.getElementById('corrective-action').value,
+                            next_due_date: document.getElementById('next-due-date').value
+                        }]
+                    };
+                    
+                    res = await fetch('/frying-oil/api/tests/batch', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    result = await res.json();
+                    
+                    if (res.ok) {
+                        document.getElementById('success-doc-number').textContent = result.document_number;
+                        document.getElementById('success-message').textContent = 
+                            `${selectedReference.name} oil test recorded. Status: ${selectedStatus}`;
+                        document.getElementById('success-overlay').classList.add('active');
+                    } else {
+                        showToast(result.error || 'Failed to submit', 'error');
+                        resetSubmitBtn();
+                    }
+                }
+            } catch (e) {
+                console.error('Submit error:', e);
+                showToast('Network error. Please try again.', 'error');
+                resetSubmitBtn();
+            }
+        }
+        
+        function goToHistory() {
+            window.location.href = '/frying-oil/history';
+        }
+        
+        function resetSubmitBtn() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = false;
+            const btnText = editMode ? 'Update Test' : 'Submit Test';
+            submitBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                ${btnText}
+            `;
+        }
+        
+        function resetForm() {
+            document.getElementById('equipment-select').value = '';
+            document.getElementById('test-form-card').style.display = 'none';
+            document.getElementById('submit-bar').style.display = 'none';
+            document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('tested-value').value = '';
+            document.getElementById('remarks').value = '';
+            document.getElementById('corrective-action').value = '';
+            document.getElementById('corrective-action-group').classList.remove('show');
+            document.getElementById('filled-by').value = currentUser?.displayName || currentUser?.name || '';
+            selectedReference = null;
+            selectedStatus = null;
+            document.querySelectorAll('.status-option').forEach(opt => {
+                opt.classList.remove('selected', 'pass', 'fail');
+            });
+        }
+        
+        function newTest() {
+            document.getElementById('success-overlay').classList.remove('active');
+            resetForm();
+            resetSubmitBtn();
+        }
+        
+        function goHome() {
+            window.location.href = '/frying-oil';
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

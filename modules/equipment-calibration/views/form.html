@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>New Calibration Record - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-group label .required {
+            color: #ef4444;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background: #f9fafb;
+            color: #6b7280;
+        }
+        
+        .form-group input.auto-filled {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .reference-note {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .corrective-action-group {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+        }
+        
+        .corrective-action-group.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .corrective-action-group label {
+            color: #92400e;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .corrective-action-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        
+        .corrective-action-group textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        
+        .reference-note-title {
+            color: #dc2626;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .reference-note-content {
+            color: #991b1b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .difference-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+        }
+        
+        .difference-display.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .difference-display.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .difference-display.neutral {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .submit-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        
+        /* Success Overlay */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .success-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+        
+        .success-title {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-doc {
+            font-size: 1.25rem;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .success-message {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            color: #1e40af;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .submit-bar { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/equipment-calibration" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">📝 New Calibration Record</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Equipment Selection -->
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
+                    Select Equipment
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="equipment-select">Equipment <span class="required">*</span></label>
+                    <select id="equipment-select" onchange="onEquipmentChange()">
+                        <option value="">-- Select Equipment --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Calibration Form (hidden until equipment selected) -->
+        <div id="calibration-form-card" class="card" style="display: none;">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Calibration Details
+                </h2>
+            </div>
+            <div class="card-body">
+                <form id="calibration-form">
+                    <div class="form-group">
+                        <label for="branch">Branch <span class="required">*</span></label>
+                        <select id="branch" required onchange="validateForm()">
+                            <option value="">-- Select Branch --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="device-name">Device Name</label>
+                            <input type="text" id="device-name" class="auto-filled" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-name">Item Name <span class="required">*</span></label>
+                            <input type="text" id="item-name" required placeholder="e.g., Kitchen Thermometer #1">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="log-date">Log Date <span class="required">*</span></label>
+                            <input type="date" id="log-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="method-used">Method Used</label>
+                            <input type="text" id="method-used" class="auto-filled" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reference-value">Reference Value <span class="required" id="ref-value-required" style="display:none;">*</span></label>
+                            <input type="text" id="reference-value" class="auto-filled" readonly oninput="calculateDifference(); validateForm();">
+                        </div>
+                        <div class="form-group">
+                            <label for="unit-measurement">Unit of Measurement <span class="required">*</span></label>
+                            <select id="unit-measurement" required>
+                                <option value="">-- Select Unit --</option>
+                                <option value="°C">°C (Celsius)</option>
+                                <option value="°F">°F (Fahrenheit)</option>
+                                <option value="g">g (Grams)</option>
+                                <option value="kg">kg (Kilograms)</option>
+                                <option value="ml">ml (Milliliters)</option>
+                                <option value="L">L (Liters)</option>
+                                <option value="ppm">ppm (Parts per Million)</option>
+                                <option value="pH">pH</option>
+                                <option value="%">% (Percentage)</option>
+                                <option value="bar">bar (Pressure)</option>
+                                <option value="psi">psi (Pressure)</option>
+                                <option value="mm">mm (Millimeters)</option>
+                                <option value="cm">cm (Centimeters)</option>
+                                <option value="µs">µs (Microseconds)</option>
+                                <option value="%rF">%rF (Relative Humidity)</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tested-value">Tested Value <span class="required">*</span></label>
+                            <input type="number" step="any" id="tested-value" required oninput="calculateDifference()">
+                        </div>
+                        <div class="form-group">
+                            <label>Difference (Reference - Tested)</label>
+                            <div class="difference-display neutral" id="difference-display">--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="next-due-date">Next Due Date</label>
+                            <input type="date" id="next-due-date" class="auto-filled" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="filled-by">Filled By <span class="required">*</span></label>
+                            <input type="text" id="filled-by" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remarks">Remarks</label>
+                        <textarea id="remarks" rows="2" placeholder="Optional notes..."></textarea>
+                    </div>
+                    
+                    <!-- Corrective Action (shown when fail) -->
+                    <div class="corrective-action-group" id="corrective-action-group">
+                        <label for="corrective-action">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            Corrective Action Required <span class="required">*</span>
+                        </label>
+                        <textarea id="corrective-action" rows="3" placeholder="Describe the corrective action taken..."></textarea>
+                    </div>
+                    
+                    <!-- Reference Note -->
+                    <div class="reference-note" id="reference-note" style="display: none;">
+                        <div class="reference-note-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            Reference Standard
+                        </div>
+                        <div class="reference-note-content" id="reference-note-content"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="card" style="display: none;">
+            <div class="card-body">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
+                    <h3>No Equipment Available</h3>
+                    <p>Add calibration references first.</p>
+                    <a href="/equipment-calibration/references">Add References →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="submit-bar" id="submit-bar" style="display: none;">
+        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+            </svg>
+            Reset
+        </button>
+        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitCalibration()" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Submit Calibration
+        </button>
+    </div>
+    
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-modal">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Calibration Recorded!</h2>
+            <div class="success-doc" id="success-doc-number">CAL-20260116-001</div>
+            <p class="success-message" id="success-message">Equipment calibration has been recorded successfully.</p>
+            <div class="success-buttons">
+                <button class="btn btn-secondary" onclick="goHome()">Home</button>
+                <button class="btn btn-primary" onclick="newCalibration()">New Record</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let references = [];
+        let selectedReference = null;
+        let currentUser = null;
+        let editMode = false;
+        let editSessionId = null;
+        let editData = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('log-date').valueAsDate = new Date();
+            await loadCurrentUser();
+            await loadBranches();
+            await loadReferences();
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            editSessionId = urlParams.get('edit');
+            if (editSessionId) {
+                await loadEditData();
+            }
+        });
+        
+        async function loadBranches() {
+            try {
+                const res = await fetch('/equipment-calibration/api/settings?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                const settings = await res.json();
+                
+                const branchSelect = document.getElementById('branch');
+                const branchesStr = settings.branches || '';
+                
+                if (branchesStr) {
+                    const branches = branchesStr.split(',').map(b => b.trim()).filter(b => b);
+                    branches.forEach(branch => {
+                        const option = document.createElement('option');
+                        option.value = branch;
+                        option.textContent = branch;
+                        branchSelect.appendChild(option);
+                    });
+                }
+            } catch (e) {
+                console.error('Error loading branches:', e);
+            }
+        }
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/equipment-calibration/api/me?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                if (res.ok) {
+                    currentUser = await res.json();
+                    document.getElementById('filled-by').value = currentUser?.displayName || currentUser?.name || '';
+                }
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        function canEdit() {
+            if (!currentUser) return false;
+            const role = currentUser.role || '';
+            return role === 'Admin' || role === 'Super Auditor';
+        }
+        
+        async function loadEditData() {
+            if (!canEdit()) {
+                alert('Only Admin and Super Auditor can edit calibration records');
+                window.location.href = '/equipment-calibration/history';
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/equipment-calibration/api/calibrations/${editSessionId}?_=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                if (!res.ok) {
+                    alert('Failed to load calibration data');
+                    window.location.href = '/equipment-calibration/history';
+                    return;
+                }
+                
+                editData = await res.json();
+                editMode = true;
+                
+                // Update header
+                document.querySelector('.header-title').textContent = '✏️ Edit Calibration Record';
+                document.getElementById('submit-btn').innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Update Calibration
+                `;
+                
+                // Set the equipment
+                const record = editData.records[0];
+                document.getElementById('equipment-select').value = record.reference_id;
+                
+                // Trigger equipment change
+                onEquipmentChange();
+                
+                // Populate form with existing data
+                setTimeout(() => {
+                    const calDate = new Date(editData.session.calibration_date);
+                    document.getElementById('log-date').value = calDate.toISOString().split('T')[0];
+                    document.getElementById('item-name').value = record.item_name || '';
+                    document.getElementById('tested-value').value = record.measured_value || '';
+                    document.getElementById('remarks').value = record.remarks || '';
+                    document.getElementById('corrective-action').value = record.corrective_action || '';
+                    
+                    // Set branch if exists
+                    if (editData.session.branch) {
+                        document.getElementById('branch').value = editData.session.branch;
+                    }
+                    
+                    // Trigger calculations
+                    calculateDifference();
+                    validateForm();
+                }, 100);
+            } catch (e) {
+                console.error('Error loading edit data:', e);
+                alert('Failed to load calibration data');
+                window.location.href = '/equipment-calibration/history';
+            }
+        }
+        
+        async function loadReferences() {
+            try {
+                const res = await fetch('/equipment-calibration/api/references?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                references = await res.json();
+                
+                const select = document.getElementById('equipment-select');
+                
+                if (references.length === 0) {
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+                
+                references.forEach(ref => {
+                    const option = document.createElement('option');
+                    option.value = ref.id;
+                    option.textContent = `${ref.name} (${ref.frequency})`;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading references:', e);
+                showToast('Failed to load equipment', 'error');
+            }
+        }
+        
+        function onEquipmentChange() {
+            const select = document.getElementById('equipment-select');
+            const refId = parseInt(select.value);
+            
+            if (!refId) {
+                document.getElementById('calibration-form-card').style.display = 'none';
+                document.getElementById('submit-bar').style.display = 'none';
+                selectedReference = null;
+                return;
+            }
+            
+            selectedReference = references.find(r => r.id === refId);
+            
+            if (!selectedReference) return;
+            
+            // Fill auto-populated fields
+            document.getElementById('device-name').value = selectedReference.name;
+            document.getElementById('method-used').value = selectedReference.method_used || '';
+            
+            // Check if equipment is probe thermometer or hygrometer (user must enter reference value)
+            const refValueInput = document.getElementById('reference-value');
+            const refValueRequired = document.getElementById('ref-value-required');
+            const equipmentName = selectedReference.name.toLowerCase();
+            const requiresManualEntry = equipmentName.includes('thermometer') || equipmentName.includes('hygrometer');
+            
+            if (requiresManualEntry) {
+                // Probe thermometer/hygrometer: user must enter reference value manually
+                refValueInput.value = '';
+                refValueInput.readOnly = false;
+                refValueInput.classList.remove('auto-filled');
+                refValueInput.placeholder = 'Enter reference value...';
+                refValueRequired.style.display = 'inline';
+            } else {
+                // Other equipment: auto-fill from calibration reference
+                refValueInput.value = selectedReference.reference_value || '';
+                refValueInput.readOnly = true;
+                refValueInput.classList.add('auto-filled');
+                refValueInput.placeholder = '';
+                refValueRequired.style.display = 'none';
+            }
+            
+            // Calculate next due date based on frequency
+            const logDate = new Date(document.getElementById('log-date').value);
+            const nextDueDate = calculateNextDueDate(logDate, selectedReference.frequency);
+            document.getElementById('next-due-date').value = nextDueDate.toISOString().split('T')[0];
+            
+            // Show reference note
+            if (selectedReference.reference) {
+                document.getElementById('reference-note-content').textContent = selectedReference.reference;
+                document.getElementById('reference-note').style.display = 'block';
+            } else {
+                document.getElementById('reference-note').style.display = 'none';
+            }
+            
+            // Show form
+            document.getElementById('calibration-form-card').style.display = 'block';
+            document.getElementById('submit-bar').style.display = 'flex';
+            
+            // Reset calculated fields
+            document.getElementById('item-name').value = '';
+            document.getElementById('tested-value').value = '';
+            document.getElementById('difference-display').textContent = '--';
+            document.getElementById('difference-display').className = 'difference-display neutral';
+            
+            validateForm();
+        }
+        
+        function calculateNextDueDate(fromDate, frequency) {
+            const date = new Date(fromDate);
+            
+            switch (frequency) {
+                case 'Daily':
+                    date.setDate(date.getDate() + 1);
+                    break;
+                case 'Every 3 Days':
+                    date.setDate(date.getDate() + 3);
+                    break;
+                case 'Weekly':
+                    date.setDate(date.getDate() + 7);
+                    break;
+                case 'Biweekly':
+                    date.setDate(date.getDate() + 14);
+                    break;
+                case 'Every 3 Weeks':
+                    date.setDate(date.getDate() + 21);
+                    break;
+                case 'Monthly':
+                    date.setMonth(date.getMonth() + 1);
+                    break;
+                case 'Every 6 Months':
+                    date.setMonth(date.getMonth() + 6);
+                    break;
+                case 'Yearly':
+                    date.setFullYear(date.getFullYear() + 1);
+                    break;
+                default:
+                    date.setMonth(date.getMonth() + 1); // Default to monthly
+            }
+            
+            return date;
+        }
+        
+        function calculateDifference() {
+            const testedValue = parseFloat(document.getElementById('tested-value').value);
+            const referenceValueStr = document.getElementById('reference-value').value;
+            const referenceValue = parseFloat(referenceValueStr);
+            const acceptableError = parseFloat(selectedReference?.acceptable_error) || 0;
+            
+            const diffDisplay = document.getElementById('difference-display');
+            
+            if (isNaN(testedValue) || isNaN(referenceValue)) {
+                diffDisplay.textContent = '--';
+                diffDisplay.className = 'difference-display neutral';
+                validateForm();
+                return;
+            }
+            
+            const difference = referenceValue - testedValue;
+            const absDiff = Math.abs(difference);
+            
+            // Display absolute value only (no +/- sign)
+            diffDisplay.textContent = absDiff.toFixed(2);
+            
+            // Check if within acceptable error
+            const correctiveActionGroup = document.getElementById('corrective-action-group');
+            if (absDiff <= acceptableError) {
+                diffDisplay.className = 'difference-display pass';
+                correctiveActionGroup.classList.remove('show');
+            } else {
+                diffDisplay.className = 'difference-display fail';
+                correctiveActionGroup.classList.add('show');
+            }
+            
+            validateForm();
+        }
+        
+        function validateForm() {
+            const branch = document.getElementById('branch').value;
+            const logDate = document.getElementById('log-date').value;
+            const itemName = document.getElementById('item-name').value;
+            const unit = document.getElementById('unit-measurement').value;
+            const testedValue = document.getElementById('tested-value').value;
+            const referenceValue = document.getElementById('reference-value').value;
+            const filledBy = document.getElementById('filled-by').value;
+            const correctiveAction = document.getElementById('corrective-action').value;
+            
+            // Check if corrective action is required (when fail)
+            const isFailing = document.getElementById('corrective-action-group').classList.contains('show');
+            const correctiveActionValid = !isFailing || (isFailing && correctiveAction.trim() !== '');
+            
+            // Check if reference value is required (for probe thermometer/hygrometer)
+            const refValueInput = document.getElementById('reference-value');
+            const referenceValueValid = refValueInput.readOnly || (!refValueInput.readOnly && referenceValue.trim() !== '');
+            
+            const isValid = selectedReference && branch && logDate && itemName && unit && testedValue && filledBy && correctiveActionValid && referenceValueValid;
+            document.getElementById('submit-btn').disabled = !isValid;
+        }
+        
+        // Update next due date when log date changes
+        document.getElementById('log-date').addEventListener('change', () => {
+            if (selectedReference) {
+                const logDate = new Date(document.getElementById('log-date').value);
+                const nextDueDate = calculateNextDueDate(logDate, selectedReference.frequency);
+                document.getElementById('next-due-date').value = nextDueDate.toISOString().split('T')[0];
+            }
+            validateForm();
+        });
+        
+        document.getElementById('unit-measurement').addEventListener('change', validateForm);
+        document.getElementById('item-name').addEventListener('input', validateForm);
+        document.getElementById('filled-by').addEventListener('input', validateForm);
+        document.getElementById('corrective-action').addEventListener('input', validateForm);
+        
+        async function submitCalibration() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = editMode ? 'Updating...' : 'Submitting...';
+            
+            const testedValue = document.getElementById('tested-value').value;
+            const referenceValue = parseFloat(document.getElementById('reference-value').value) || 0;
+            const difference = (referenceValue - parseFloat(testedValue)).toFixed(2);
+            const acceptableError = parseFloat(selectedReference?.acceptable_error) || 0;
+            const status = Math.abs(parseFloat(difference)) <= acceptableError ? 'Pass' : 'Fail';
+            
+            try {
+                let res, result;
+                
+                if (editMode) {
+                    // Update existing record
+                    const updateData = {
+                        calibration_date: document.getElementById('log-date').value,
+                        record: {
+                            measured_value: testedValue,
+                            deviation: difference,
+                            status: status,
+                            remarks: document.getElementById('remarks').value,
+                            corrective_action: document.getElementById('corrective-action').value
+                        }
+                    };
+                    
+                    res = await fetch(`/equipment-calibration/api/calibrations/${editSessionId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    result = await res.json();
+                    
+                    if (res.ok) {
+                        document.getElementById('success-doc-number').textContent = editData.session.document_number;
+                        document.getElementById('success-message').textContent = 
+                            `${selectedReference.name} calibration updated. Status: ${status}`;
+                        document.getElementById('success-overlay').classList.add('active');
+                        
+                        // Change success modal buttons for edit mode
+                        document.querySelector('.success-buttons').innerHTML = `
+                            <button class="btn btn-primary" onclick="goToHistory()">Back to History</button>
+                        `;
+                    } else {
+                        showToast(result.error || 'Failed to update', 'error');
+                        resetSubmitBtn();
+                    }
+                } else {
+                    // Create new record
+                    const data = {
+                        calibration_date: document.getElementById('log-date').value,
+                        shift: 'N/A',
+                        branch: document.getElementById('branch').value,
+                        records: [{
+                            reference_id: selectedReference.id,
+                            item_name: document.getElementById('item-name').value,
+                            measured_value: testedValue,
+                            deviation: difference,
+                            status: status,
+                            remarks: document.getElementById('remarks').value,
+                            corrective_action: document.getElementById('corrective-action').value,
+                            unit: document.getElementById('unit-measurement').value,
+                            next_due_date: document.getElementById('next-due-date').value,
+                            filled_by: document.getElementById('filled-by').value
+                        }]
+                    };
+                    
+                    res = await fetch('/equipment-calibration/api/calibrations/batch', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    result = await res.json();
+                    
+                    if (res.ok) {
+                        document.getElementById('success-doc-number').textContent = result.document_number;
+                        document.getElementById('success-message').textContent = 
+                            `${selectedReference.name} calibration recorded. Status: ${status}`;
+                        document.getElementById('success-overlay').classList.add('active');
+                    } else {
+                        showToast(result.error || 'Failed to submit', 'error');
+                        resetSubmitBtn();
+                    }
+                }
+            } catch (e) {
+                console.error('Submit error:', e);
+                showToast('Network error. Please try again.', 'error');
+                resetSubmitBtn();
+            }
+        }
+        
+        function goToHistory() {
+            window.location.href = '/equipment-calibration/history';
+        }
+        
+        function resetSubmitBtn() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = false;
+            const btnText = editMode ? 'Update Calibration' : 'Submit Calibration';
+            submitBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                ${btnText}
+            `;
+        }
+        
+        function resetForm() {
+            document.getElementById('equipment-select').value = '';
+            document.getElementById('branch').value = '';
+            document.getElementById('calibration-form-card').style.display = 'none';
+            document.getElementById('submit-bar').style.display = 'none';
+            document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('tested-value').value = '';
+            document.getElementById('unit-measurement').value = '';
+            document.getElementById('remarks').value = '';
+            document.getElementById('corrective-action').value = '';
+            document.getElementById('corrective-action-group').classList.remove('show');
+            document.getElementById('filled-by').value = currentUser?.displayName || currentUser?.name || '';
+            selectedReference = null;
+        }
+        
+        function newCalibration() {
+            document.getElementById('success-overlay').classList.remove('active');
+            resetForm();
+            resetSubmitBtn();
+        }
+        
+        function goHome() {
+            window.location.href = '/equipment-calibration';
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

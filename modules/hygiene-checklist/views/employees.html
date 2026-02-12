@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Employees - Hygiene Checklist</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+        
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .search-box svg {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        
+        /* Employee Cards */
+        .employee-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .employee-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .employee-avatar {
+            width: 50px;
+            height: 50px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .employee-card.male .employee-avatar { background: #3b82f6; }
+        .employee-card.female .employee-avatar { background: #ec4899; }
+        
+        .employee-info {
+            flex: 1;
+        }
+        
+        .employee-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .employee-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-male { background: #dbeafe; color: #1d4ed8; }
+        .badge-female { background: #fce7f3; color: #be185d; }
+        
+        .employee-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+            line-height: 1;
+        }
+        
+        .modal-body {
+            padding: 1.25rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            z-index: 300;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .notification.success { background: #059669; }
+        .notification.error { background: #dc2626; }
+        .notification.warning { background: #d97706; }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+        
+        .notification.fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <button class="back-btn" onclick="window.location.href='/hygiene-checklist'">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <h1 class="header-title">Manage Employees</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2 class="page-title">Employees</h2>
+            <button class="btn btn-primary" onclick="openAddModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Employee
+            </button>
+        </div>
+        
+        <div class="search-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search employees...">
+        </div>
+        
+        <div id="employee-list" class="employee-list">
+            <!-- Employees will be loaded here -->
+        </div>
+    </div>
+    
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="employee-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Add Employee</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employee-form">
+                    <input type="hidden" id="employee-id">
+                    
+                    <div class="form-group">
+                        <label for="employee-name">Name *</label>
+                        <input type="text" id="employee-name" required placeholder="Enter employee name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employee-gender">Gender *</label>
+                        <select id="employee-gender" required>
+                            <option value="">Select gender...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employee-position">Position</label>
+                        <input type="text" id="employee-position" placeholder="e.g. Chef, Waiter, Cashier">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEmployee()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notifications"></div>
+    
+    <script>
+        let employees = [];
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadEmployees();
+            
+            // Search functionality
+            document.getElementById('search-input').addEventListener('input', filterEmployees);
+        });
+        
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/hygiene-checklist/api/employees');
+                employees = await response.json();
+                renderEmployees(employees);
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                showNotification('Failed to load employees', 'error');
+            }
+        }
+        
+        function renderEmployees(data) {
+            const container = document.getElementById('employee-list');
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <h3>No Employees Yet</h3>
+                        <p>Add your first employee to get started with hygiene checks.</p>
+                        <button class="btn btn-primary" onclick="openAddModal()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Employee
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.map(emp => `
+                <div class="employee-card ${emp.gender?.toLowerCase() || ''}">
+                    <div class="employee-avatar">${emp.name.charAt(0).toUpperCase()}</div>
+                    <div class="employee-info">
+                        <div class="employee-name">${emp.name}</div>
+                        <div class="employee-meta">
+                            <span class="badge badge-${emp.gender?.toLowerCase() || ''}">${emp.gender}</span>
+                            ${emp.position ? ` • ${emp.position}` : ''}
+                        </div>
+                    </div>
+                    <div class="employee-actions">
+                        <button class="btn btn-secondary btn-icon" onclick="editEmployee(${emp.id})" title="Edit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="btn btn-danger btn-icon" onclick="deleteEmployee(${emp.id}, '${emp.name}')" title="Delete">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterEmployees() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = employees.filter(emp => 
+                emp.name.toLowerCase().includes(query) ||
+                (emp.position && emp.position.toLowerCase().includes(query))
+            );
+            renderEmployees(filtered);
+        }
+        
+        function openAddModal() {
+            document.getElementById('modal-title').textContent = 'Add Employee';
+            document.getElementById('employee-id').value = '';
+            document.getElementById('employee-form').reset();
+            document.getElementById('employee-modal').classList.add('active');
+        }
+        
+        function editEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+            
+            document.getElementById('modal-title').textContent = 'Edit Employee';
+            document.getElementById('employee-id').value = emp.id;
+            document.getElementById('employee-name').value = emp.name;
+            document.getElementById('employee-gender').value = emp.gender;
+            document.getElementById('employee-position').value = emp.position || '';
+            document.getElementById('employee-modal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('employee-modal').classList.remove('active');
+        }
+        
+        async function saveEmployee() {
+            const id = document.getElementById('employee-id').value;
+            const data = {
+                name: document.getElementById('employee-name').value,
+                gender: document.getElementById('employee-gender').value,
+                position: document.getElementById('employee-position').value
+            };
+            
+            if (!data.name || !data.gender) {
+                showNotification('Name and gender are required', 'warning');
+                return;
+            }
+            
+            try {
+                const url = id ? `/hygiene-checklist/api/employees/${id}` : '/hygiene-checklist/api/employees';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to save');
+                }
+                
+                showNotification(id ? 'Employee updated!' : 'Employee added!', 'success');
+                closeModal();
+                await loadEmployees();
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+        
+        async function deleteEmployee(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+            
+            try {
+                const response = await fetch(`/hygiene-checklist/api/employees/${id}`, { method: 'DELETE' });
+                
+                if (!response.ok) throw new Error('Failed to delete');
+                
+                showNotification('Employee deleted', 'success');
+                await loadEmployees();
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

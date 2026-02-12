@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Holding Reading Form - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(234, 88, 12, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-title i {
+            color: #ea580c;
+        }
+
+        .form-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .form-group label .required {
+            color: #dc2626;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ea580c;
+            box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .temp-section {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .temp-section h4 {
+            color: #374151;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .temp-section h4 i {
+            color: #ea580c;
+        }
+
+        .temp-input-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .temp-input-row input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .temp-input-row input:focus {
+            outline: none;
+            border-color: #ea580c;
+            box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1);
+        }
+
+        .result-status {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .result-status.pass {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .result-status.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .result-status.pending {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .corrective-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .corrective-section.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f3f4f6;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(234, 88, 12, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        .threshold-hint {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .temp-input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-fire"></i> Hot Holding Reading Form</h1>
+            <a href="/dashboard" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Hot Holding
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-card">
+            <h2 class="form-title">
+                <i class="fas fa-plus-circle"></i>
+                <span id="formTitle">New Hot Holding Reading</span>
+            </h2>
+            <p class="form-subtitle" id="formSubtitle">Record hot holding temperature checks for food safety</p>
+
+            <form id="hotHoldingForm">
+                <input type="hidden" id="readingId">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="logDate">Log Date <span class="required">*</span></label>
+                        <input type="date" id="logDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product">Product <span class="required">*</span></label>
+                        <input type="text" id="product" placeholder="Enter product name" required>
+                    </div>
+                </div>
+
+                <!-- Product Temperature Section -->
+                <div class="temp-section">
+                    <h4><i class="fas fa-drumstick-bite"></i> Product Temperature</h4>
+                    <div class="temp-input-row">
+                        <input type="number" id="productTemp" step="0.1" placeholder="Enter product temperature (°C)" required>
+                        <span class="result-status pending" id="productTempStatus">Enter Value</span>
+                    </div>
+                    <div class="threshold-hint">Target: ≥<span id="productTargetHint">63</span>°C | Critical Limit: <span id="productCriticalHint">60</span>°C</div>
+                    
+                    <div class="corrective-section" id="productCorrectiveSection">
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label for="correctiveActionProduct">Corrective Action (Product) <span class="required">*</span></label>
+                            <textarea id="correctiveActionProduct" placeholder="Describe corrective action for product temperature..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hot Holding Unit Temperature Section -->
+                <div class="temp-section">
+                    <h4><i class="fas fa-temperature-high"></i> Hot Holding Unit Temperature</h4>
+                    <div class="temp-input-row">
+                        <input type="number" id="unitTemp" step="0.1" placeholder="Enter unit temperature (°C)" required>
+                        <span class="result-status pending" id="unitTempStatus">Enter Value</span>
+                    </div>
+                    <div class="threshold-hint">Target: ≥<span id="unitTargetHint">70</span>°C</div>
+                    
+                    <div class="corrective-section" id="unitCorrectiveSection">
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label for="correctiveActionUnit">Corrective Action (Hot Holding Unit) <span class="required">*</span></label>
+                            <textarea id="correctiveActionUnit" placeholder="Describe corrective action for unit temperature..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="shelfLife">Correct and Clear Shelf Life <span class="required">*</span></label>
+                        <select id="shelfLife" required>
+                            <option value="">-- Select --</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="filledBy">Filled By <span class="required">*</span></label>
+                        <input type="text" id="filledBy" readonly>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i>
+                        Save Reading
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        let productTempTarget = 63;
+        let productTempCritical = 60;
+        let unitTempTarget = 70;
+        let editMode = false;
+        let currentUser = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                loadSettings(),
+                loadCurrentUser()
+            ]);
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('logDate').value = today;
+            document.getElementById('logDate').min = today;
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+            if (editId) {
+                await loadReading(editId);
+            }
+        });
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/hot-holding/api/settings');
+                const settings = await response.json();
+                
+                if (settings.product_temp_target) {
+                    productTempTarget = parseFloat(settings.product_temp_target);
+                    document.getElementById('productTargetHint').textContent = productTempTarget;
+                }
+                if (settings.product_temp_critical) {
+                    productTempCritical = parseFloat(settings.product_temp_critical);
+                    document.getElementById('productCriticalHint').textContent = productTempCritical;
+                }
+                if (settings.unit_temp_target) {
+                    unitTempTarget = parseFloat(settings.unit_temp_target);
+                    document.getElementById('unitTargetHint').textContent = unitTempTarget;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/hot-holding/api/current-user');
+                currentUser = await response.json();
+                document.getElementById('filledBy').value = currentUser.name;
+            } catch (error) {
+                console.error('Error loading current user:', error);
+                document.getElementById('filledBy').value = 'Unknown User';
+            }
+        }
+
+        async function loadReading(id) {
+            try {
+                const response = await fetch(`/hot-holding/api/readings/${id}`);
+                if (!response.ok) throw new Error('Reading not found');
+                
+                const reading = await response.json();
+                
+                editMode = true;
+                document.getElementById('readingId').value = reading.id;
+                document.getElementById('formTitle').textContent = 'Edit Hot Holding Reading';
+                document.getElementById('formSubtitle').textContent = `Editing: ${reading.document_number}`;
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Reading';
+                
+                document.getElementById('logDate').value = reading.log_date.split('T')[0];
+                document.getElementById('product').value = reading.product;
+                document.getElementById('productTemp').value = reading.product_temp;
+                document.getElementById('unitTemp').value = reading.hot_holding_unit_temp;
+                document.getElementById('correctiveActionProduct').value = reading.corrective_action_product || '';
+                document.getElementById('correctiveActionUnit').value = reading.corrective_action_unit || '';
+                document.getElementById('shelfLife').value = reading.correct_clear_shelf_life || '';
+                document.getElementById('filledBy').value = reading.filled_by;
+                
+                updateProductTempStatus();
+                updateUnitTempStatus();
+            } catch (error) {
+                console.error('Error loading reading:', error);
+                showToast('Failed to load reading', 'error');
+            }
+        }
+
+        // Product temperature change handler
+        document.getElementById('productTemp').addEventListener('input', updateProductTempStatus);
+
+        function updateProductTempStatus() {
+            const value = parseFloat(document.getElementById('productTemp').value);
+            const statusEl = document.getElementById('productTempStatus');
+            const correctiveSection = document.getElementById('productCorrectiveSection');
+            const correctiveInput = document.getElementById('correctiveActionProduct');
+            
+            if (isNaN(value)) {
+                statusEl.textContent = 'Enter Value';
+                statusEl.className = 'result-status pending';
+                correctiveSection.classList.remove('show');
+                correctiveInput.required = false;
+                return;
+            }
+            
+            if (value >= productTempCritical) {
+                statusEl.textContent = '✓ PASS';
+                statusEl.className = 'result-status pass';
+                correctiveSection.classList.remove('show');
+                correctiveInput.required = false;
+            } else {
+                statusEl.textContent = '✗ FAIL';
+                statusEl.className = 'result-status fail';
+                correctiveSection.classList.add('show');
+                correctiveInput.required = true;
+            }
+        }
+
+        // Unit temperature change handler
+        document.getElementById('unitTemp').addEventListener('input', updateUnitTempStatus);
+
+        function updateUnitTempStatus() {
+            const value = parseFloat(document.getElementById('unitTemp').value);
+            const statusEl = document.getElementById('unitTempStatus');
+            const correctiveSection = document.getElementById('unitCorrectiveSection');
+            const correctiveInput = document.getElementById('correctiveActionUnit');
+            
+            if (isNaN(value)) {
+                statusEl.textContent = 'Enter Value';
+                statusEl.className = 'result-status pending';
+                correctiveSection.classList.remove('show');
+                correctiveInput.required = false;
+                return;
+            }
+            
+            if (value >= unitTempTarget) {
+                statusEl.textContent = '✓ PASS';
+                statusEl.className = 'result-status pass';
+                correctiveSection.classList.remove('show');
+                correctiveInput.required = false;
+            } else {
+                statusEl.textContent = '✗ FAIL';
+                statusEl.className = 'result-status fail';
+                correctiveSection.classList.add('show');
+                correctiveInput.required = true;
+            }
+        }
+
+        // Form submission
+        document.getElementById('hotHoldingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            
+            const productTemp = parseFloat(document.getElementById('productTemp').value);
+            const unitTemp = parseFloat(document.getElementById('unitTemp').value);
+            
+            const productTempStatus = productTemp >= productTempCritical ? 'Pass' : 'Fail';
+            const unitTempStatus = unitTemp >= unitTempTarget ? 'Pass' : 'Fail';
+            
+            const data = {
+                log_date: document.getElementById('logDate').value,
+                product: document.getElementById('product').value,
+                product_temp: productTemp,
+                product_temp_status: productTempStatus,
+                hot_holding_unit_temp: unitTemp,
+                unit_temp_status: unitTempStatus,
+                corrective_action_product: document.getElementById('correctiveActionProduct').value || null,
+                corrective_action_unit: document.getElementById('correctiveActionUnit').value || null,
+                correct_clear_shelf_life: document.getElementById('shelfLife').value || null,
+                filled_by: document.getElementById('filledBy').value
+            };
+            
+            try {
+                const id = document.getElementById('readingId').value;
+                const url = id ? `/hot-holding/api/readings/${id}` : '/hot-holding/api/readings';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save');
+                
+                showToast(id ? 'Reading updated successfully!' : 'Reading saved successfully!', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '/hot-holding/history';
+                }, 1500);
+            } catch (error) {
+                console.error('Error saving reading:', error);
+                showToast('Failed to save reading', 'error');
+                submitBtn.disabled = false;
+            }
+        });
+
+        function resetForm() {
+            if (editMode) {
+                window.location.href = '/hot-holding/form';
+                return;
+            }
+            
+            document.getElementById('hotHoldingForm').reset();
+            document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('filledBy').value = currentUser.name;
+            
+            document.getElementById('productTempStatus').textContent = 'Enter Value';
+            document.getElementById('productTempStatus').className = 'result-status pending';
+            document.getElementById('productCorrectiveSection').classList.remove('show');
+            
+            document.getElementById('unitTempStatus').textContent = 'Enter Value';
+            document.getElementById('unitTempStatus').className = 'result-status pending';
+            document.getElementById('unitCorrectiveSection').classList.remove('show');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

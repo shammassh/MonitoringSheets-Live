@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0891b2">
+    <title>Water Quality Monitoring - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-title p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .reference-card {
+            background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #0891b2;
+        }
+        
+        .reference-card h3 {
+            color: #164e63;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .reference-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .reference-item {
+            background: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .reference-item .label {
+            color: #0e7490;
+            font-weight: 600;
+        }
+        
+        .reference-item .value {
+            color: #164e63;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            border-color: #0891b2;
+        }
+        
+        .menu-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .menu-icon svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+        
+        .menu-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .menu-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .stats-section {
+            margin-top: 2rem;
+        }
+        
+        .stats-title {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0891b2;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .header-left {
+                width: 100%;
+                justify-content: center;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .reference-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Home
+            </a>
+            <div class="header-title">
+                <h1>💧 Water Quality Monitoring</h1>
+                <p>Water Quality Testing Sheet</p>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="reference-card">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                Reference Standards
+            </h3>
+            <div class="reference-grid">
+                <div class="reference-item">
+                    <span class="label">TDS:</span>
+                    <span class="value">100-750 mg/L</span>
+                </div>
+                <div class="reference-item">
+                    <span class="label">TH:</span>
+                    <span class="value">&lt; 500 mg/L</span>
+                </div>
+                <div class="reference-item">
+                    <span class="label">pH:</span>
+                    <span class="value">6.5 - 8.5</span>
+                </div>
+                <div class="reference-item">
+                    <span class="label">Chlorine (30 min):</span>
+                    <span class="value">&gt; 0.5 mg/L</span>
+                </div>
+                <div class="reference-item">
+                    <span class="label">Chlorine (POU):</span>
+                    <span class="value">0.2-0.5 mg/L</span>
+                </div>
+                <div class="reference-item">
+                    <span class="label">Salt:</span>
+                    <span class="value">Enough / Refill</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-grid">
+            <a href="/water-quality/form" class="menu-card">
+                <div class="menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                    </svg>
+                </div>
+                <h3>New Reading</h3>
+                <p>Record water quality test results</p>
+            </a>
+            
+            <a href="/water-quality/history" class="menu-card">
+                <div class="menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3>Reading History</h3>
+                <p>View and manage past readings</p>
+            </a>
+            
+            <a href="/water-quality/sections" class="menu-card">
+                <div class="menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </div>
+                <h3>Sections</h3>
+                <p>Manage testing sections & settings</p>
+            </a>
+            
+            <a href="/water-quality/settings" class="menu-card">
+                <div class="menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </div>
+                <h3>Settings</h3>
+                <p>Configure document information and edition</p>
+            </a>
+        </div>
+        
+        <div class="stats-section">
+            <h3 class="stats-title">This Month's Summary</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">Total Readings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-pass">0</div>
+                    <div class="stat-label">All Pass</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-fail">0</div>
+                    <div class="stat-label">Has Deviations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-verified">0</div>
+                    <div class="stat-label">Verified</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadStats() {
+            try {
+                const res = await fetch('/water-quality/api/readings');
+                const readings = await res.json();
+                
+                // Filter this month
+                const now = new Date();
+                const thisMonth = readings.filter(r => {
+                    const date = new Date(r.reading_date);
+                    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+                });
+                
+                document.getElementById('stat-total').textContent = thisMonth.length;
+                
+                const allPass = thisMonth.filter(r => 
+                    r.th_status === 'Pass' && r.tds_status === 'Pass' &&
+                    r.ph_status === 'Pass' && r.salt_status === 'Pass' &&
+                    r.chlorine_30min_status === 'Pass' && r.chlorine_point_of_use_status === 'Pass'
+                ).length;
+                
+                document.getElementById('stat-pass').textContent = allPass;
+                document.getElementById('stat-fail').textContent = thisMonth.length - allPass;
+                document.getElementById('stat-verified').textContent = thisMonth.filter(r => r.verified).length;
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+        
+        loadStats();
+    </script>
+</body>
+</html>

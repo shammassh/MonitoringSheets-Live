@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Fridge Temperature History - FS Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #4f46e5;
+        }
+        
+        .btn-primary:hover {
+            background: #eef2ff;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .section-badge {
+            background: #eef2ff;
+            color: #4f46e5;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon.view {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        
+        .btn-icon.view:hover {
+            background: #e0e7ff;
+        }
+        
+        .btn-icon.delete {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+        
+        .btn-icon.delete:hover {
+            background: #fee2e2;
+        }
+        
+        .btn-icon.edit {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .btn-icon.edit:hover {
+            background: #fde68a;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 95vw;
+            width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .modal-close:hover {
+            color: #1f2937;
+        }
+        
+        .detail-table {
+            overflow-x: auto;
+        }
+        
+        .detail-table table {
+            min-width: 800px;
+        }
+        
+        .detail-table th, .detail-table td {
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .detail-table th:first-child,
+        .detail-table td:first-child {
+            text-align: left;
+        }
+        
+        .pass { color: #10b981; font-weight: 600; }
+        .fail { color: #ef4444; font-weight: 600; }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1001;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>📊 Temperature History</h1>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="/fridge-temp/form" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    New Reading
+                </a>
+                <a href="/fridge-temp" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Filter Card -->
+        <div class="card">
+            <div class="filter-bar">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="filter-date">
+                </div>
+                <div class="form-group">
+                    <label>Section</label>
+                    <select id="filter-section">
+                        <option value="">All Sections</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="loadDocuments()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    Search
+                </button>
+                <button class="btn btn-secondary" onclick="clearFilters()" style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db;">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Documents Table -->
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Document #</th>
+                        <th>Date</th>
+                        <th>Section</th>
+                        <th>Fridges</th>
+                        <th>Filled By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="documents-list">
+                    <tr>
+                        <td colspan="6" class="empty-state">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div class="modal-overlay" id="view-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Document Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-content">
+                <div class="detail-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fridge</th>
+                                <th>1 AM</th>
+                                <th>4 AM</th>
+                                <th>7 AM</th>
+                                <th>10 AM</th>
+                                <th>1 PM</th>
+                                <th>4 PM</th>
+                                <th>7 PM</th>
+                                <th>10 PM</th>
+                                <th>Corrective Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detail-readings">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_BASE = '/fridge-temp/api';
+        const TIME_SLOTS = ['01am', '04am', '07am', '10am', '01pm', '04pm', '07pm', '10pm'];
+        let documents = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSections();
+            loadDocuments();
+        });
+        
+        // Show toast
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // Load sections
+        async function loadSections() {
+            try {
+                const response = await fetch(`${API_BASE}/sections?_t=${Date.now()}`, {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                const sections = await response.json();
+                
+                const select = document.getElementById('filter-section');
+                select.innerHTML = '<option value="">All Sections</option>' +
+                    sections.map(s => `<option value="${s}">${s}</option>`).join('');
+            } catch (err) {
+                console.error('Error loading sections:', err);
+            }
+        }
+        
+        // Load documents
+        async function loadDocuments() {
+            try {
+                const date = document.getElementById('filter-date').value;
+                const section = document.getElementById('filter-section').value;
+                
+                let url = `${API_BASE}/documents?`;
+                if (date) url += `date=${date}&`;
+                if (section) url += `section=${encodeURIComponent(section)}&`;
+                url += `_t=${Date.now()}`; // Cache buster
+                
+                const response = await fetch(url, {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                documents = await response.json();
+                renderDocuments();
+            } catch (err) {
+                console.error('Error loading documents:', err);
+                showToast('Failed to load documents', true);
+            }
+        }
+        
+        // Render documents
+        function renderDocuments() {
+            const tbody = document.getElementById('documents-list');
+            
+            if (documents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No records found.</td></tr>';
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            tbody.innerHTML = documents.map(doc => {
+                const docDate = doc.log_date.split('T')[0];
+                const isToday = docDate === today;
+                
+                return `
+                <tr>
+                    <td><strong>${escapeHtml(doc.document_number)}</strong></td>
+                    <td>${formatDate(doc.log_date)}</td>
+                    <td><span class="section-badge">${escapeHtml(doc.section)}</span></td>
+                    <td>${doc.fridge_count} fridges</td>
+                    <td>${escapeHtml(doc.filled_by)}</td>
+                    <td>
+                        <div class="actions">
+                            ${isToday ? `
+                            <a href="/fridge-temp/form?date=${docDate}" class="btn-icon edit" title="Continue/Edit">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </a>
+                            ` : ''}
+                            <button class="btn-icon view" onclick="viewDocument(${doc.id})" title="View Details">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon delete" onclick="deleteDocument(${doc.id})" title="Delete">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+        
+        // View document
+        async function viewDocument(id) {
+            try {
+                const response = await fetch(`${API_BASE}/documents/${id}`);
+                const data = await response.json();
+                
+                document.getElementById('modal-title').textContent = 
+                    `${data.document.document_number} - ${data.document.section} - ${formatDate(data.document.log_date)}`;
+                
+                const tbody = document.getElementById('detail-readings');
+                tbody.innerHTML = data.readings.map(r => `
+                    <tr>
+                        <td><strong>${escapeHtml(r.fridge_name)}</strong><br><small>${r.min_temp}°C to ${r.max_temp}°C</small></td>
+                        ${TIME_SLOTS.map(slot => {
+                            const temp = r[`temp_${slot}`];
+                            const status = r[`status_${slot}`];
+                            if (temp === null) return '<td>-</td>';
+                            return `<td class="${status?.toLowerCase() || ''}">${temp}°C</td>`;
+                        }).join('')}
+                        <td>${r.corrective_action || '-'}</td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('view-modal').classList.add('active');
+            } catch (err) {
+                console.error('Error viewing document:', err);
+                showToast('Failed to load document details', true);
+            }
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('view-modal').classList.remove('active');
+        }
+        
+        // Delete document
+        async function deleteDocument(id) {
+            if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/documents/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showToast('Document deleted successfully');
+                    loadDocuments();
+                } else {
+                    throw new Error('Failed to delete document');
+                }
+            } catch (err) {
+                console.error('Error deleting document:', err);
+                showToast('Failed to delete document', true);
+            }
+        }
+        
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('filter-date').value = '';
+            document.getElementById('filter-section').value = '';
+            loadDocuments();
+        }
+        
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Close modal on overlay click
+        document.getElementById('view-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+    </script>
+</body>
+</html>

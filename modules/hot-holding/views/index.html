@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Holding Quality Control - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(234, 88, 12, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 i {
+            font-size: 1.5rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .reference-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 5px solid #ea580c;
+        }
+
+        .reference-card h3 {
+            color: #ea580c;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reference-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .reference-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-radius: 10px;
+        }
+
+        .reference-item .icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .reference-item .text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reference-item .label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reference-item .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .status-pass {
+            color: #059669 !important;
+        }
+
+        .status-fail {
+            color: #dc2626 !important;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(234, 88, 12, 0.2);
+            border-color: #ea580c;
+        }
+
+        .menu-card .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 20px rgba(234, 88, 12, 0.3);
+        }
+
+        .menu-card .icon-wrapper i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .menu-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .reference-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .reference-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-fire"></i> Hot Holding Quality Control</h1>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="reference-card">
+            <h3><i class="fas fa-info-circle"></i> Temperature Reference Standards</h3>
+            <div class="reference-info">
+                <div class="reference-item">
+                    <div class="icon">
+                        <i class="fas fa-drumstick-bite"></i>
+                    </div>
+                    <div class="text">
+                        <span class="label">Product Temp Target</span>
+                        <span class="value status-pass"><span id="productTarget">63</span>°C</span>
+                    </div>
+                </div>
+                <div class="reference-item">
+                    <div class="icon" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="text">
+                        <span class="label">Product Critical Limit</span>
+                        <span class="value status-fail"><span id="productCritical">60</span>°C</span>
+                    </div>
+                </div>
+                <div class="reference-item">
+                    <div class="icon" style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);">
+                        <i class="fas fa-temperature-high"></i>
+                    </div>
+                    <div class="text">
+                        <span class="label">Hot Holding Unit</span>
+                        <span class="value"><span id="unitTarget">70</span>°C</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <a href="/hot-holding/form" class="menu-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3>New Reading</h3>
+                <p>Record a new hot holding temperature reading with product and unit temperatures</p>
+            </a>
+
+            <a href="/hot-holding/history" class="menu-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3>View History</h3>
+                <p>Browse, edit, verify and manage all hot holding temperature records</p>
+            </a>
+
+            <a href="/hot-holding/settings" class="menu-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <h3>Settings</h3>
+                <p>Manage products and configure temperature thresholds</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        async function loadSettings() {
+            try {
+                const response = await fetch('/hot-holding/api/settings');
+                const settings = await response.json();
+                
+                if (settings.product_temp_target) {
+                    document.getElementById('productTarget').textContent = settings.product_temp_target;
+                }
+                if (settings.product_temp_critical) {
+                    document.getElementById('productCritical').textContent = settings.product_temp_critical;
+                }
+                if (settings.unit_temp_target) {
+                    document.getElementById('unitTarget').textContent = settings.unit_temp_target;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>

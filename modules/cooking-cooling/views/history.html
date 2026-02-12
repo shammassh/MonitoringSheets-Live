@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Cooking & Cooling History - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(13, 148, 136, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.85rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #0d9488;
+        }
+
+        .history-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .history-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .doc-number {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+        }
+
+        .product-name {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .status-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .status-badge.pass {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-badge.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-badge.verified {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-badge.draft {
+            background: #fef3c7;
+            color: #d97706;
+            border: 2px dashed #d97706;
+        }
+
+        .card-details {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .card-details span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-details i {
+            color: #0d9488;
+        }
+
+        .temp-readings {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.25rem;
+        }
+
+        .temp-reading {
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .temp-reading.cooking {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .temp-reading.cooling {
+            background: #cffafe;
+            color: #0891b2;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+
+        .btn-edit {
+            background: #ccfbf1;
+            color: #0d9488;
+        }
+
+        .btn-edit:hover {
+            background: #99f6e4;
+        }
+
+        .btn-continue {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .btn-continue:hover {
+            background: #fde68a;
+        }
+
+        .btn-verify {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .btn-verify:hover {
+            background: #bfdbfe;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            color: #6b7280;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .history-card {
+                grid-template-columns: 1fr;
+            }
+
+            .card-actions {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-history"></i> Temperature History</h1>
+            <a href="/cooking-cooling" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Cooking & Cooling
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="filters-card">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="filterDate">Filter by Date</label>
+                    <input type="date" id="filterDate">
+                </div>
+                <div class="filter-group">
+                    <label for="filterCookingStatus">Cooking Status</label>
+                    <select id="filterCookingStatus">
+                        <option value="">All</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterCoolingStatus">Cooling Status</label>
+                    <select id="filterCoolingStatus">
+                        <option value="">All</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-grid" id="historyGrid">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        let readings = [];
+        let currentUser = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCurrentUser();
+            await loadReadings();
+            
+            // Add filter listeners
+            document.getElementById('filterDate').addEventListener('change', loadReadings);
+            document.getElementById('filterCookingStatus').addEventListener('change', loadReadings);
+            document.getElementById('filterCoolingStatus').addEventListener('change', loadReadings);
+        });
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/cooking-cooling/api/current-user');
+                currentUser = await response.json();
+            } catch (error) {
+                console.error('Error loading current user:', error);
+            }
+        }
+
+        async function loadReadings() {
+            const container = document.getElementById('historyGrid');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i></div>';
+            
+            try {
+                const params = new URLSearchParams();
+                const date = document.getElementById('filterDate').value;
+                const cookingStatus = document.getElementById('filterCookingStatus').value;
+                const coolingStatus = document.getElementById('filterCoolingStatus').value;
+                
+                if (date) params.append('date', date);
+                if (cookingStatus) params.append('cookingStatus', cookingStatus);
+                if (coolingStatus) params.append('coolingStatus', coolingStatus);
+                
+                const response = await fetch(`/cooking-cooling/api/readings?${params}`);
+                readings = await response.json();
+                
+                renderReadings();
+            } catch (error) {
+                console.error('Error loading readings:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Data</h3>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Pass': return 'pass';
+                case 'Fail': return 'fail';
+                case 'Pending': return 'pending';
+                default: return '';
+            }
+        }
+
+        function canEdit(reading) {
+            if (reading.verified_by) return false;
+            if (['Admin', 'Super Auditor'].includes(currentUser.role)) return true;
+            return reading.filled_by === currentUser.name;
+        }
+
+        function canVerify(reading) {
+            if (reading.verified_by) return false;
+            return ['Admin', 'Super Auditor'].includes(currentUser.role);
+        }
+
+        function canDelete(reading) {
+            if (reading.verified_by) return false;
+            return currentUser.role === 'Admin';
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '--';
+            return timeStr.substring(0, 5);
+        }
+
+        function renderReadings() {
+            const container = document.getElementById('historyGrid');
+            
+            if (readings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No Records Found</h3>
+                        <p>Try adjusting your filters or create a new record.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = readings.map(reading => {
+                const cookingClass = getStatusClass(reading.cooking_status);
+                const coolingClass = getStatusClass(reading.cooling_status);
+                const isDraft = reading.status === 'draft';
+                
+                return `
+                    <div class="history-card" ${isDraft ? 'style="border-left: 4px solid #d97706;"' : ''}>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <span class="doc-number">${reading.document_number}</span>
+                                <span class="product-name">${reading.product_name}</span>
+                                ${isDraft ? '<span class="status-badge draft"><i class="fas fa-file-pen"></i> Draft</span>' : ''}
+                            </div>
+                            
+                            <div class="status-badges">
+                                <span class="status-badge ${cookingClass}">
+                                    <i class="fas fa-fire"></i>
+                                    Cooking: ${reading.cooking_status}
+                                </span>
+                                ${!isDraft || reading.cooling_method ? `
+                                <span class="status-badge ${coolingClass}">
+                                    <i class="fas fa-snowflake"></i>
+                                    Cooling: ${reading.cooling_status}
+                                </span>
+                                ` : '<span class="status-badge pending"><i class="fas fa-clock"></i> Cooling: Not Started</span>'}
+                                ${reading.verified_by ? '<span class="status-badge verified"><i class="fas fa-check"></i> Verified</span>' : ''}
+                            </div>
+                            
+                            <div class="card-details">
+                                <span><i class="fas fa-calendar"></i> ${new Date(reading.log_date).toLocaleDateString()}</span>
+                                <span><i class="fas fa-user"></i> ${reading.filled_by}</span>
+                                ${reading.cooling_method ? `<span><i class="fas fa-wind"></i> ${reading.cooling_method}</span>` : ''}
+                            </div>
+                            
+                            <div class="temp-readings">
+                                <span class="temp-reading cooking">
+                                    <i class="fas fa-thermometer-full"></i>
+                                    Core: ${reading.cooking_core_temp}°C
+                                </span>
+                                ${reading.start_cooling_temp !== null ? `
+                                <span class="temp-reading cooling">
+                                    Start: ${reading.start_cooling_temp}°C @ ${formatTime(reading.start_cooling_time)}
+                                </span>
+                                ` : ''}
+                                ${reading.temp_after_1h !== null ? `<span class="temp-reading cooling">1h: ${reading.temp_after_1h}°C</span>` : ''}
+                                ${reading.temp_after_1h30 !== null ? `<span class="temp-reading cooling">1.5h: ${reading.temp_after_1h30}°C</span>` : ''}
+                                ${reading.temp_after_2h !== null ? `<span class="temp-reading cooling">2h: ${reading.temp_after_2h}°C</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="card-actions">
+                            ${isDraft ? `
+                            <button class="btn btn-continue" onclick="editReading(${reading.id})">
+                                <i class="fas fa-play"></i> Continue
+                            </button>
+                            ` : `
+                            <button class="btn btn-edit" onclick="editReading(${reading.id})" ${!canEdit(reading) ? 'disabled' : ''}>
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            `}
+                            <button class="btn btn-verify" onclick="verifyReading(${reading.id})" ${!canVerify(reading) || isDraft ? 'disabled' : ''}>
+                                <i class="fas fa-check-circle"></i> Verify
+                            </button>
+                            <button class="btn btn-delete" onclick="deleteReading(${reading.id})" ${!canDelete(reading) && !isDraft ? 'disabled' : ''}>
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editReading(id) {
+            window.location.href = `/cooking-cooling/form?edit=${id}`;
+        }
+
+        async function verifyReading(id) {
+            if (!confirm('Are you sure you want to verify this record? This action cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`/cooking-cooling/api/readings/${id}/verify`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Failed to verify');
+                
+                showToast('Record verified successfully!', 'success');
+                await loadReadings();
+            } catch (error) {
+                console.error('Error verifying reading:', error);
+                showToast('Failed to verify record', 'error');
+            }
+        }
+
+        async function deleteReading(id) {
+            if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`/cooking-cooling/api/readings/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete');
+                
+                showToast('Record deleted successfully!', 'success');
+                await loadReadings();
+            } catch (error) {
+                console.error('Error deleting reading:', error);
+                showToast('Failed to delete record', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

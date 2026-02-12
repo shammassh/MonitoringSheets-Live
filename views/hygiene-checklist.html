@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Hygiene Checklist - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+        .step.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .step.completed {
+            color: var(--success-color);
+        }
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--border-color);
+            font-weight: 600;
+        }
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+        .step.completed .step-number {
+            background: var(--success-color);
+            color: white;
+        }
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: var(--border-color);
+        }
+        .employee-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .employee-card:hover, .employee-card.selected {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+        }
+        .employee-card.checked {
+            border-color: var(--success-color);
+            background: #f0fdf4;
+        }
+        .employee-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .employee-avatar.female {
+            background: #ec4899;
+        }
+        .employee-info {
+            flex: 1;
+        }
+        .employee-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .employee-meta {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        .check-badge {
+            color: var(--success-color);
+        }
+        .checklist-form {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        .check-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .check-item:last-child {
+            border-bottom: none;
+        }
+        .check-number {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .check-content {
+            flex: 1;
+        }
+        .check-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .check-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        .check-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .check-btn {
+            padding: 0.5rem 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .check-btn.pass:hover, .check-btn.pass.selected {
+            background: #dcfce7;
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+        .check-btn.fail:hover, .check-btn.fail.selected {
+            background: #fee2e2;
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+        .employee-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .employees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .result-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .result-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        .result-icon.pass {
+            background: #dcfce7;
+            color: var(--success-color);
+        }
+        .result-icon.fail {
+            background: #fee2e2;
+            color: var(--danger-color);
+        }
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .result-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .shift-select {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .shift-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .shift-btn:hover, .shift-btn.selected {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/dashboard" class="logo">FS Monitoring</a>
+            <div class="header-actions">
+                <div id="online-status" class="status-indicator online">
+                    <span class="dot"></span> Online
+                </div>
+                <a href="/auth/logout" class="btn btn-outline" title="Logout">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Employee Hygiene Checklist</h1>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1-indicator">
+                    <span class="step-number">1</span>
+                    <span class="step-text">Select Store</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step2-indicator">
+                    <span class="step-number">2</span>
+                    <span class="step-text">Select Employee</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" id="step3-indicator">
+                    <span class="step-number">3</span>
+                    <span class="step-text">Complete Check</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Select Store -->
+            <div id="step1" class="card">
+                <h2 class="card-title">Select Store</h2>
+                <div class="form-group">
+                    <select class="form-control" id="store-select">
+                        <option value="">-- Select Store --</option>
+                    </select>
+                </div>
+                <div class="shift-select">
+                    <button type="button" class="shift-btn" data-shift="Morning">🌅 Morning</button>
+                    <button type="button" class="shift-btn" data-shift="Afternoon">☀️ Afternoon</button>
+                    <button type="button" class="shift-btn" data-shift="Evening">🌙 Evening</button>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="goToStep2()" id="step1-next" disabled>
+                    Continue
+                </button>
+            </div>
+
+            <!-- Step 2: Select Employee -->
+            <div id="step2" class="card hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 class="card-title" style="margin: 0;">Select Employee</h2>
+                    <button class="btn btn-outline btn-sm" onclick="goToStep1()">← Back</button>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    Store: <strong id="selected-store-name"></strong> | 
+                    Shift: <strong id="selected-shift-name"></strong>
+                </p>
+                <div class="employees-grid" id="employees-grid">
+                    <p>Loading employees...</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Complete Check -->
+            <div id="step3" class="hidden">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2 class="card-title" style="margin: 0;">Hygiene Check</h2>
+                        <button class="btn btn-outline btn-sm" onclick="goToStep2()">← Back</button>
+                    </div>
+                    
+                    <div class="employee-header">
+                        <div class="employee-avatar" id="check-employee-avatar">?</div>
+                        <div class="employee-info">
+                            <div class="employee-name" id="check-employee-name">Employee Name</div>
+                            <div class="employee-meta" id="check-employee-meta">Position</div>
+                        </div>
+                    </div>
+                    
+                    <div id="checklist-items">
+                        <p>Loading checklist items...</p>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="check-notes" rows="2" 
+                            placeholder="Any additional observations..."></textarea>
+                    </div>
+                    
+                    <button class="btn btn-success btn-block btn-lg" onclick="submitChecklist()" id="submit-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Submit Checklist
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result -->
+            <div id="result" class="hidden">
+                <div class="result-card">
+                    <div class="result-icon" id="result-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <h2 class="result-title" id="result-title">Checklist Submitted!</h2>
+                    <p class="result-subtitle" id="result-subtitle">All checks passed</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-primary" onclick="checkNextEmployee()">Check Next Employee</button>
+                        <button class="btn btn-outline" onclick="goToStep1()">New Store</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="/dashboard" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Home
+        </a>
+        <a href="/employees" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            Employees
+        </a>
+        <a href="/checklist-items" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Items
+        </a>
+        <a href="/hygiene-checklist" class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            Checklist
+        </a>
+    </nav>
+
+    <div id="notifications"></div>
+
+    <script>
+        let stores = [];
+        let employees = [];
+        let checklistItems = [];
+        let selectedStore = null;
+        let selectedShift = null;
+        let selectedEmployee = null;
+        let responses = {};
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadStores();
+            await loadChecklistItems();
+            
+            // Shift buttons
+            document.querySelectorAll('.shift-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    selectedShift = btn.dataset.shift;
+                    updateStep1NextButton();
+                });
+            });
+            
+            // Store select
+            document.getElementById('store-select').addEventListener('change', (e) => {
+                selectedStore = stores.find(s => s.id == e.target.value);
+                updateStep1NextButton();
+            });
+        });
+        
+        async function loadStores() {
+            try {
+                const response = await fetch('/api/stores');
+                stores = await response.json();
+                
+                const select = document.getElementById('store-select');
+                stores.forEach(store => {
+                    select.innerHTML += `<option value="${store.id}">${store.name}</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading stores:', error);
+            }
+        }
+        
+        async function loadChecklistItems() {
+            try {
+                const response = await fetch('/api/checklist-items');
+                checklistItems = await response.json();
+            } catch (error) {
+                console.error('Error loading checklist items:', error);
+            }
+        }
+        
+        async function loadEmployees(storeId) {
+            try {
+                const response = await fetch(`/api/employees/store/${storeId}`);
+                employees = await response.json();
+                
+                // Also get today's checked employees
+                const todayResponse = await fetch(`/api/hygiene-checklists/today/${storeId}`);
+                const todayChecks = await todayResponse.json();
+                const checkedIds = todayChecks.map(c => c.employee_id);
+                
+                renderEmployees(employees, checkedIds);
+            } catch (error) {
+                console.error('Error loading employees:', error);
+            }
+        }
+        
+        function renderEmployees(data, checkedIds = []) {
+            const grid = document.getElementById('employees-grid');
+            
+            if (data.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        No employees found for this store.
+                        <a href="/employees" style="display: block; margin-top: 1rem;">Add employees</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = data.map(emp => {
+                const isChecked = checkedIds.includes(emp.id);
+                return `
+                    <div class="employee-card ${isChecked ? 'checked' : ''}" 
+                         onclick="${isChecked ? '' : `selectEmployee(${emp.id})`}"
+                         style="${isChecked ? 'cursor: default; opacity: 0.7;' : ''}">
+                        <div class="employee-avatar ${emp.gender === 'Female' ? 'female' : ''}">
+                            ${emp.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="employee-info">
+                            <div class="employee-name">${emp.name}</div>
+                            <div class="employee-meta">${emp.position || emp.gender}</div>
+                        </div>
+                        ${isChecked ? `
+                            <div class="check-badge">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function updateStep1NextButton() {
+            const btn = document.getElementById('step1-next');
+            btn.disabled = !(selectedStore && selectedShift);
+        }
+        
+        function goToStep1() {
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            
+            document.getElementById('step1-indicator').classList.add('active');
+            document.getElementById('step1-indicator').classList.remove('completed');
+            document.getElementById('step2-indicator').classList.remove('active', 'completed');
+            document.getElementById('step3-indicator').classList.remove('active', 'completed');
+        }
+        
+        async function goToStep2() {
+            if (!selectedStore) return;
+            
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            
+            document.getElementById('step1-indicator').classList.remove('active');
+            document.getElementById('step1-indicator').classList.add('completed');
+            document.getElementById('step2-indicator').classList.add('active');
+            document.getElementById('step3-indicator').classList.remove('active', 'completed');
+            
+            document.getElementById('selected-store-name').textContent = selectedStore.name;
+            document.getElementById('selected-shift-name').textContent = selectedShift;
+            
+            await loadEmployees(selectedStore.id);
+        }
+        
+        function selectEmployee(id) {
+            selectedEmployee = employees.find(e => e.id === id);
+            if (!selectedEmployee) return;
+            
+            responses = {};
+            goToStep3();
+        }
+        
+        function goToStep3() {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            
+            document.getElementById('step1-indicator').classList.remove('active');
+            document.getElementById('step1-indicator').classList.add('completed');
+            document.getElementById('step2-indicator').classList.remove('active');
+            document.getElementById('step2-indicator').classList.add('completed');
+            document.getElementById('step3-indicator').classList.add('active');
+            
+            // Set employee info
+            document.getElementById('check-employee-avatar').textContent = selectedEmployee.name.charAt(0).toUpperCase();
+            document.getElementById('check-employee-avatar').className = `employee-avatar ${selectedEmployee.gender === 'Female' ? 'female' : ''}`;
+            document.getElementById('check-employee-name').textContent = selectedEmployee.name;
+            document.getElementById('check-employee-meta').textContent = selectedEmployee.position || selectedEmployee.gender;
+            
+            renderChecklistItems();
+        }
+        
+        function renderChecklistItems() {
+            const container = document.getElementById('checklist-items');
+            
+            container.innerHTML = checklistItems.map((item, index) => `
+                <div class="check-item" data-item-id="${item.id}">
+                    <div class="check-number">${index + 1}</div>
+                    <div class="check-content">
+                        <div class="check-name">${item.name}</div>
+                        <div class="check-description">${item.description || ''}</div>
+                        <div class="check-buttons">
+                            <button class="check-btn pass" onclick="setResponse(${item.id}, true, this)">
+                                ✓ Pass
+                            </button>
+                            <button class="check-btn fail" onclick="setResponse(${item.id}, false, this)">
+                                ✗ Fail
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function setResponse(itemId, value, btn) {
+            responses[itemId] = value;
+            
+            // Update UI
+            const container = btn.closest('.check-buttons');
+            container.querySelectorAll('.check-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+        
+        async function submitChecklist() {
+            // Validate all items are answered
+            const unanswered = checklistItems.filter(item => responses[item.id] === undefined);
+            if (unanswered.length > 0) {
+                showNotification(`Please answer all items. ${unanswered.length} remaining.`, 'warning');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;"></div> Submitting...';
+            
+            try {
+                const data = {
+                    employee_id: selectedEmployee.id,
+                    store_id: selectedStore.id,
+                    shift: selectedShift,
+                    notes: document.getElementById('check-notes').value,
+                    responses: checklistItems.map(item => ({
+                        item_id: item.id,
+                        response: responses[item.id]
+                    }))
+                };
+                
+                const response = await fetch('/api/hygiene-checklists', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to submit');
+                }
+                
+                const result = await response.json();
+                showResult(result.overall_pass);
+                
+            } catch (error) {
+                showNotification(error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Checklist';
+            }
+        }
+        
+        function showResult(passed) {
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            
+            const icon = document.getElementById('result-icon');
+            const title = document.getElementById('result-title');
+            const subtitle = document.getElementById('result-subtitle');
+            
+            if (passed) {
+                icon.className = 'result-icon pass';
+                icon.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                title.textContent = 'All Checks Passed!';
+                title.style.color = 'var(--success-color)';
+                subtitle.textContent = `${selectedEmployee.name} passed all hygiene checks`;
+            } else {
+                icon.className = 'result-icon fail';
+                icon.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+                title.textContent = 'Some Checks Failed';
+                title.style.color = 'var(--danger-color)';
+                subtitle.textContent = `${selectedEmployee.name} has failed items - please follow up`;
+            }
+            
+            document.getElementById('step3-indicator').classList.remove('active');
+            document.getElementById('step3-indicator').classList.add('completed');
+        }
+        
+        function checkNextEmployee() {
+            selectedEmployee = null;
+            responses = {};
+            document.getElementById('check-notes').value = '';
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('submit-btn').innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Submit Checklist';
+            goToStep2();
+        }
+        
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

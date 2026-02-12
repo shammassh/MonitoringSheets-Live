@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>Calibration Schedule - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid;
+        }
+        
+        .summary-card.overdue {
+            border-color: #ef4444;
+        }
+        
+        .summary-card.today {
+            border-color: #f59e0b;
+        }
+        
+        .summary-card.week {
+            border-color: #10b981;
+        }
+        
+        .summary-card.future {
+            border-color: #6b7280;
+        }
+        
+        .summary-count {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .summary-card.overdue .summary-count {
+            color: #ef4444;
+        }
+        
+        .summary-card.today .summary-count {
+            color: #f59e0b;
+        }
+        
+        .summary-card.week .summary-count {
+            color: #10b981;
+        }
+        
+        .summary-card.future .summary-count {
+            color: #6b7280;
+        }
+        
+        .summary-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .schedule-list {
+            padding: 0;
+        }
+        
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            gap: 1rem;
+        }
+        
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+        
+        .schedule-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .schedule-status.overdue {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        .schedule-status.today {
+            background: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+        }
+        
+        .schedule-status.week {
+            background: #10b981;
+        }
+        
+        .schedule-status.future {
+            background: #9ca3af;
+        }
+        
+        .schedule-status.never {
+            background: #d1d5db;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .schedule-info {
+            flex: 1;
+        }
+        
+        .schedule-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .schedule-meta {
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .schedule-due {
+            text-align: right;
+        }
+        
+        .schedule-due-date {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .schedule-due-date.overdue {
+            color: #ef4444;
+        }
+        
+        .schedule-due-date.today {
+            color: #f59e0b;
+        }
+        
+        .schedule-due-date.week {
+            color: #10b981;
+        }
+        
+        .schedule-due-date.future {
+            color: #6b7280;
+        }
+        
+        .schedule-due-date.never {
+            color: #9ca3af;
+            font-style: italic;
+        }
+        
+        .schedule-due-label {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.125rem;
+        }
+        
+        .calibrate-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        
+        .calibrate-btn:hover {
+            background: #2563eb;
+        }
+        
+        .calibrate-btn.urgent {
+            background: #ef4444;
+        }
+        
+        .calibrate-btn.urgent:hover {
+            background: #dc2626;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            overflow-x: auto;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            background: white;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .filter-tab:hover {
+            background: #e5e7eb;
+        }
+        
+        .filter-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .filter-tab .count {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.125rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+        
+        .filter-tab.active .count {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .schedule-item {
+                flex-wrap: wrap;
+            }
+            .schedule-due {
+                width: 100%;
+                text-align: left;
+                margin-top: 0.5rem;
+                padding-left: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/equipment-calibration" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">📅 Calibration Schedule</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card overdue">
+                <div class="summary-count" id="count-overdue">0</div>
+                <div class="summary-label">Overdue</div>
+            </div>
+            <div class="summary-card today">
+                <div class="summary-count" id="count-today">0</div>
+                <div class="summary-label">Due Today</div>
+            </div>
+            <div class="summary-card week">
+                <div class="summary-count" id="count-week">0</div>
+                <div class="summary-label">This Week</div>
+            </div>
+            <div class="summary-card future">
+                <div class="summary-count" id="count-future">0</div>
+                <div class="summary-label">Future</div>
+            </div>
+        </div>
+        
+        <!-- Schedule List -->
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Equipment Due Dates
+                </h2>
+            </div>
+            
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All <span class="count" id="tab-count-all">0</span></button>
+                <button class="filter-tab" data-filter="overdue">🔴 Overdue <span class="count" id="tab-count-overdue">0</span></button>
+                <button class="filter-tab" data-filter="today">🟡 Due Today <span class="count" id="tab-count-today">0</span></button>
+                <button class="filter-tab" data-filter="week">🟢 This Week <span class="count" id="tab-count-week">0</span></button>
+                <button class="filter-tab" data-filter="never">⚪ Never Calibrated <span class="count" id="tab-count-never">0</span></button>
+            </div>
+            
+            <div class="schedule-list" id="schedule-list">
+                <div class="empty-state">Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let equipment = [];
+        let currentFilter = 'all';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSchedule();
+            
+            // Filter tab clicks
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentFilter = tab.dataset.filter;
+                    renderList();
+                });
+            });
+        });
+        
+        async function loadSchedule() {
+            try {
+                const res = await fetch('/equipment-calibration/api/schedule?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                equipment = await res.json();
+                categorizeAndRender();
+            } catch (e) {
+                console.error('Error loading schedule:', e);
+                document.getElementById('schedule-list').innerHTML = `
+                    <div class="empty-state">Failed to load schedule</div>
+                `;
+            }
+        }
+        
+        function categorizeAndRender() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const endOfWeek = new Date(today);
+            endOfWeek.setDate(endOfWeek.getDate() + 7);
+            
+            let overdue = 0, dueToday = 0, thisWeek = 0, future = 0, never = 0;
+            
+            equipment.forEach(eq => {
+                if (!eq.next_due_date) {
+                    eq.category = 'never';
+                    never++;
+                } else {
+                    const dueDate = new Date(eq.next_due_date);
+                    dueDate.setHours(0, 0, 0, 0);
+                    
+                    if (dueDate < today) {
+                        eq.category = 'overdue';
+                        overdue++;
+                    } else if (dueDate.getTime() === today.getTime()) {
+                        eq.category = 'today';
+                        dueToday++;
+                    } else if (dueDate <= endOfWeek) {
+                        eq.category = 'week';
+                        thisWeek++;
+                    } else {
+                        eq.category = 'future';
+                        future++;
+                    }
+                }
+            });
+            
+            // Update summary counts
+            document.getElementById('count-overdue').textContent = overdue;
+            document.getElementById('count-today').textContent = dueToday;
+            document.getElementById('count-week').textContent = thisWeek;
+            document.getElementById('count-future').textContent = future;
+            
+            // Update tab counts
+            document.getElementById('tab-count-all').textContent = equipment.length;
+            document.getElementById('tab-count-overdue').textContent = overdue;
+            document.getElementById('tab-count-today').textContent = dueToday;
+            document.getElementById('tab-count-week').textContent = thisWeek;
+            document.getElementById('tab-count-never').textContent = never;
+            
+            // Sort: overdue first, then by due date
+            equipment.sort((a, b) => {
+                const order = { overdue: 0, today: 1, week: 2, future: 3, never: 4 };
+                if (order[a.category] !== order[b.category]) {
+                    return order[a.category] - order[b.category];
+                }
+                if (!a.next_due_date) return 1;
+                if (!b.next_due_date) return -1;
+                return new Date(a.next_due_date) - new Date(b.next_due_date);
+            });
+            
+            renderList();
+        }
+        
+        function renderList() {
+            const list = document.getElementById('schedule-list');
+            
+            let filtered = equipment;
+            if (currentFilter !== 'all') {
+                filtered = equipment.filter(eq => eq.category === currentFilter);
+            }
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <h3>No equipment found</h3>
+                        <p>All equipment is up to date!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = filtered.map(eq => {
+                const dueText = eq.next_due_date 
+                    ? new Date(eq.next_due_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    : 'Not set';
+                
+                // Use actual calibration date if available
+                const lastCalDate = eq.last_calibration_date_actual || eq.last_calibration_date;
+                const lastCalText = lastCalDate
+                    ? new Date(lastCalDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    : 'Never';
+                
+                const daysText = getDaysText(eq);
+                const isUrgent = eq.category === 'overdue' || eq.category === 'today';
+                
+                // Show document number and status if available
+                const docInfo = eq.document_number ? `📄 ${eq.document_number}` : '';
+                const statusBadge = eq.last_status 
+                    ? `<span style="background: ${eq.last_status === 'Pass' ? '#d1fae5' : '#fee2e2'}; color: ${eq.last_status === 'Pass' ? '#059669' : '#dc2626'}; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">${eq.last_status}</span>`
+                    : '';
+                const verifiedBadge = eq.verified 
+                    ? '<span style="color: #059669; font-size: 0.75rem;">✓ Verified</span>'
+                    : '';
+                
+                return `
+                    <div class="schedule-item">
+                        <div class="schedule-status ${eq.category}"></div>
+                        <div class="schedule-info">
+                            <div class="schedule-name">${eq.name} ${statusBadge}</div>
+                            <div class="schedule-meta">
+                                <span>📊 ${eq.frequency}</span>
+                                <span>🕐 Last: ${lastCalText}</span>
+                                ${docInfo ? `<span>${docInfo}</span>` : ''}
+                                ${verifiedBadge}
+                            </div>
+                        </div>
+                        <div class="schedule-due">
+                            <div class="schedule-due-date ${eq.category}">${dueText}</div>
+                            <div class="schedule-due-label">${daysText}</div>
+                        </div>
+                        <a href="/equipment-calibration/form" class="calibrate-btn ${isUrgent ? 'urgent' : ''}">
+                            Calibrate
+                        </a>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getDaysText(eq) {
+            if (!eq.next_due_date) return 'Setup required';
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dueDate = new Date(eq.next_due_date);
+            dueDate.setHours(0, 0, 0, 0);
+            
+            const diffDays = Math.round((dueDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                return `${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''} overdue`;
+            } else if (diffDays === 0) {
+                return 'Due today';
+            } else if (diffDays === 1) {
+                return 'Due tomorrow';
+            } else {
+                return `In ${diffDays} days`;
+            }
+        }
+    </script>
+</body>
+</html>

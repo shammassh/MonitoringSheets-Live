@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Employees - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            background: var(--bg-color);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-male { background: #dbeafe; color: #1d4ed8; }
+        .badge-female { background: #fce7f3; color: #be185d; }
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box input {
+            padding-left: 2.5rem;
+        }
+        .search-box svg {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        @media (max-width: 768px) {
+            .data-table thead {
+                display: none;
+            }
+            .data-table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+            }
+            .data-table td {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.75rem 1rem;
+            }
+            .data-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-muted);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/dashboard" class="logo">FS Monitoring</a>
+            <div class="header-actions">
+                <div id="online-status" class="status-indicator online">
+                    <span class="dot"></span> Online
+                </div>
+                <a href="/auth/logout" class="btn btn-outline" title="Logout">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Employees</h1>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div class="search-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" class="form-control" id="search-input" placeholder="Search employees...">
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddModal()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Employee
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employees Table -->
+            <table class="data-table" id="employees-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Position</th>
+                        <th>Store</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="employees-body">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="employee-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Add Employee</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employee-form">
+                    <input type="hidden" id="employee-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="employee-name">Name *</label>
+                        <input type="text" class="form-control" id="employee-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="employee-gender">Gender *</label>
+                        <select class="form-control" id="employee-gender" required>
+                            <option value="">-- Select Gender --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="employee-position">Position</label>
+                        <input type="text" class="form-control" id="employee-position" placeholder="e.g. Chef, Waiter, Cashier">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="employee-store">Store</label>
+                        <select class="form-control" id="employee-store">
+                            <option value="">-- Select Store --</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEmployee()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="/dashboard" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Home
+        </a>
+        <a href="/employees" class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Employees
+        </a>
+        <a href="/checklist-items" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            Items
+        </a>
+        <a href="/hygiene-checklist" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            Checklist
+        </a>
+    </nav>
+
+    <div id="notifications"></div>
+
+    <script>
+        let employees = [];
+        let stores = [];
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadStores();
+            await loadEmployees();
+            
+            // Search functionality
+            document.getElementById('search-input').addEventListener('input', filterEmployees);
+        });
+        
+        async function loadStores() {
+            try {
+                const response = await fetch('/api/stores');
+                stores = await response.json();
+                
+                const select = document.getElementById('employee-store');
+                select.innerHTML = '<option value="">-- Select Store --</option>';
+                stores.forEach(store => {
+                    select.innerHTML += `<option value="${store.id}">${store.name}</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading stores:', error);
+            }
+        }
+        
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                employees = await response.json();
+                renderEmployees(employees);
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                showNotification('Failed to load employees', 'error');
+            }
+        }
+        
+        function renderEmployees(data) {
+            const tbody = document.getElementById('employees-body');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem;">
+                            No employees found. Click "Add Employee" to create one.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = data.map(emp => `
+                <tr>
+                    <td data-label="Name">${emp.name}</td>
+                    <td data-label="Gender">
+                        <span class="badge badge-${emp.gender.toLowerCase()}">${emp.gender}</span>
+                    </td>
+                    <td data-label="Position">${emp.position || '-'}</td>
+                    <td data-label="Store">${emp.store_name || '-'}</td>
+                    <td data-label="Actions">
+                        <div class="action-btns">
+                            <button class="btn btn-outline btn-icon" onclick="editEmployee(${emp.id})" title="Edit">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="btn btn-outline btn-icon" onclick="deleteEmployee(${emp.id}, '${emp.name}')" title="Delete" style="color: var(--danger-color);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function filterEmployees() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = employees.filter(emp => 
+                emp.name.toLowerCase().includes(query) ||
+                (emp.position && emp.position.toLowerCase().includes(query)) ||
+                (emp.store_name && emp.store_name.toLowerCase().includes(query))
+            );
+            renderEmployees(filtered);
+        }
+        
+        function openAddModal() {
+            document.getElementById('modal-title').textContent = 'Add Employee';
+            document.getElementById('employee-id').value = '';
+            document.getElementById('employee-form').reset();
+            document.getElementById('employee-modal').classList.add('active');
+        }
+        
+        function editEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+            
+            document.getElementById('modal-title').textContent = 'Edit Employee';
+            document.getElementById('employee-id').value = emp.id;
+            document.getElementById('employee-name').value = emp.name;
+            document.getElementById('employee-gender').value = emp.gender;
+            document.getElementById('employee-position').value = emp.position || '';
+            document.getElementById('employee-store').value = emp.store_id || '';
+            document.getElementById('employee-modal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('employee-modal').classList.remove('active');
+        }
+        
+        async function saveEmployee() {
+            const id = document.getElementById('employee-id').value;
+            const data = {
+                name: document.getElementById('employee-name').value,
+                gender: document.getElementById('employee-gender').value,
+                position: document.getElementById('employee-position').value,
+                store_id: document.getElementById('employee-store').value || null
+            };
+            
+            if (!data.name || !data.gender) {
+                showNotification('Name and gender are required', 'warning');
+                return;
+            }
+            
+            try {
+                const url = id ? `/api/employees/${id}` : '/api/employees';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to save');
+                }
+                
+                showNotification(id ? 'Employee updated!' : 'Employee added!', 'success');
+                closeModal();
+                await loadEmployees();
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+        
+        async function deleteEmployee(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+            
+            try {
+                const response = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+                
+                if (!response.ok) throw new Error('Failed to delete');
+                
+                showNotification('Employee deleted', 'success');
+                await loadEmployees();
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

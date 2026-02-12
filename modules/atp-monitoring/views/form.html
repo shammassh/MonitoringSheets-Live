@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATP Reading Form - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-title i {
+            color: #7c3aed;
+        }
+
+        .form-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .form-group label .required {
+            color: #dc2626;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .result-display {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+        }
+
+        .result-status {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .result-status.pass {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .result-status.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .result-status.pending {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .threshold-info {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .corrective-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .corrective-section.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f3f4f6;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-microscope"></i> ATP Reading Form</h1>
+            <a href="/dashboard" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to ATP Monitoring
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-card">
+            <h2 class="form-title">
+                <i class="fas fa-plus-circle"></i>
+                <span id="formTitle">New ATP Reading</span>
+            </h2>
+            <p class="form-subtitle" id="formSubtitle">Record ATP test results for hygiene monitoring</p>
+
+            <form id="atpForm">
+                <input type="hidden" id="readingId">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="logDate">Log Date <span class="required">*</span></label>
+                        <input type="date" id="logDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="branch">Branch <span class="required">*</span></label>
+                        <select id="branch" required>
+                            <option value="">Select Branch</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="section">Section <span class="required">*</span></label>
+                        <select id="section" required>
+                            <option value="">Select Section</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="equipment">Equipment/Packaging <span class="required">*</span></label>
+                        <input type="text" id="equipment" placeholder="Enter equipment or packaging name" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="resultValue">Result Value (RLU) <span class="required">*</span></label>
+                        <input type="number" id="resultValue" step="0.01" min="0" placeholder="Enter ATP reading value" required>
+                        <div class="result-display">
+                            <span class="result-status pending" id="resultStatus">Enter Value</span>
+                            <span class="threshold-info">Acceptable: &lt; <span id="thresholdDisplay">30</span> RLU</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width corrective-section" id="correctiveSection">
+                        <label for="correctiveAction">Corrective Action <span class="required">*</span></label>
+                        <textarea id="correctiveAction" placeholder="Describe corrective action taken..."></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="filledBy">Filled By <span class="required">*</span></label>
+                        <input type="text" id="filledBy" readonly>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i>
+                        Save Reading
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        let acceptableMax = 30;
+        let editMode = false;
+        let currentUser = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                loadSettings(),
+                loadBranches(),
+                loadSections(),
+                loadCurrentUser()
+            ]);
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('logDate').value = today;
+            document.getElementById('logDate').min = today;
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+            if (editId) {
+                await loadReading(editId);
+            }
+        });
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/atp-monitoring/api/settings?_=' + Date.now(), { cache: 'no-store' });
+                const settings = await response.json();
+                
+                if (settings.acceptable_max) {
+                    acceptableMax = parseFloat(settings.acceptable_max);
+                    document.getElementById('thresholdDisplay').textContent = acceptableMax;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function loadBranches() {
+            try {
+                const response = await fetch('/atp-monitoring/api/branches?_=' + Date.now(), { cache: 'no-store' });
+                const branches = await response.json();
+                
+                const select = document.getElementById('branch');
+                branches.forEach(branch => {
+                    const option = document.createElement('option');
+                    option.value = branch.name;
+                    option.textContent = branch.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading branches:', error);
+            }
+        }
+
+        async function loadSections() {
+            try {
+                const response = await fetch('/atp-monitoring/api/sections?_=' + Date.now(), { cache: 'no-store' });
+                const sections = await response.json();
+                
+                const select = document.getElementById('section');
+                sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section.name;
+                    option.textContent = section.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading sections:', error);
+            }
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/atp-monitoring/api/current-user');
+                currentUser = await response.json();
+                document.getElementById('filledBy').value = currentUser.name;
+            } catch (error) {
+                console.error('Error loading current user:', error);
+                document.getElementById('filledBy').value = 'Unknown User';
+            }
+        }
+
+        async function loadReading(id) {
+            try {
+                const response = await fetch(`/atp-monitoring/api/readings/${id}`);
+                if (!response.ok) throw new Error('Reading not found');
+                
+                const reading = await response.json();
+                
+                editMode = true;
+                document.getElementById('readingId').value = reading.id;
+                document.getElementById('formTitle').textContent = 'Edit ATP Reading';
+                document.getElementById('formSubtitle').textContent = `Editing: ${reading.document_number}`;
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Reading';
+                
+                document.getElementById('logDate').value = reading.log_date.split('T')[0];
+                document.getElementById('branch').value = reading.branch;
+                document.getElementById('section').value = reading.section;
+                document.getElementById('equipment').value = reading.equipment_packaging;
+                document.getElementById('resultValue').value = reading.result_value;
+                document.getElementById('correctiveAction').value = reading.corrective_action || '';
+                document.getElementById('filledBy').value = reading.filled_by;
+                
+                updateResultStatus();
+            } catch (error) {
+                console.error('Error loading reading:', error);
+                showToast('Failed to load reading', 'error');
+            }
+        }
+
+        // Result value change handler
+        document.getElementById('resultValue').addEventListener('input', updateResultStatus);
+
+        function updateResultStatus() {
+            const value = parseFloat(document.getElementById('resultValue').value);
+            const statusEl = document.getElementById('resultStatus');
+            const correctiveSection = document.getElementById('correctiveSection');
+            const correctiveInput = document.getElementById('correctiveAction');
+            
+            if (isNaN(value)) {
+                statusEl.textContent = 'Enter Value';
+                statusEl.className = 'result-status pending';
+                correctiveSection.classList.remove('show');
+                correctiveInput.required = false;
+                return;
+            }
+            
+            if (value < acceptableMax) {
+                statusEl.textContent = '✓ PASS';
+                statusEl.className = 'result-status pass';
+                correctiveSection.classList.remove('show');
+                correctiveInput.required = false;
+            } else {
+                statusEl.textContent = '✗ FAIL';
+                statusEl.className = 'result-status fail';
+                correctiveSection.classList.add('show');
+                correctiveInput.required = true;
+            }
+        }
+
+        // Form submission
+        document.getElementById('atpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            
+            const resultValue = parseFloat(document.getElementById('resultValue').value);
+            const resultStatus = resultValue < acceptableMax ? 'Pass' : 'Fail';
+            
+            const data = {
+                log_date: document.getElementById('logDate').value,
+                branch: document.getElementById('branch').value,
+                section: document.getElementById('section').value,
+                equipment_packaging: document.getElementById('equipment').value,
+                result_value: resultValue,
+                result_status: resultStatus,
+                corrective_action: document.getElementById('correctiveAction').value || null,
+                filled_by: document.getElementById('filledBy').value
+            };
+            
+            try {
+                const id = document.getElementById('readingId').value;
+                const url = id ? `/atp-monitoring/api/readings/${id}` : '/atp-monitoring/api/readings';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save');
+                
+                showToast(id ? 'Reading updated successfully!' : 'Reading saved successfully!', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '/atp-monitoring/history';
+                }, 1500);
+            } catch (error) {
+                console.error('Error saving reading:', error);
+                showToast('Failed to save reading', 'error');
+                submitBtn.disabled = false;
+            }
+        });
+
+        function resetForm() {
+            if (editMode) {
+                window.location.href = '/atp-monitoring/form';
+                return;
+            }
+            
+            document.getElementById('atpForm').reset();
+            document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('filledBy').value = currentUser.name;
+            document.getElementById('resultStatus').textContent = 'Enter Value';
+            document.getElementById('resultStatus').className = 'result-status pending';
+            document.getElementById('correctiveSection').classList.remove('show');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

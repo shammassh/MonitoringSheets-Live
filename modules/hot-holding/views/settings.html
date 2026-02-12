@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Holding Settings - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(234, 88, 12, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header i {
+            color: #ea580c;
+            font-size: 1.25rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .threshold-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .threshold-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .threshold-row label {
+            flex: 1;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .threshold-row input {
+            width: 100px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .threshold-row input:focus {
+            outline: none;
+            border-color: #ea580c;
+        }
+
+        .threshold-row span {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .add-item-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .add-item-form input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .add-item-form input:focus {
+            outline: none;
+            border-color: #ea580c;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+        }
+
+        .btn-save {
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .items-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #f9fafb;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-row:hover {
+            background: #f3f4f6;
+        }
+
+        .item-name {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .btn-delete {
+            padding: 0.5rem 0.75rem;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .empty-list {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+        }
+
+        .empty-list i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #fff7ed;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .info-note i {
+            color: #ea580c;
+            margin-top: 2px;
+        }
+
+        .info-note p {
+            color: #6b7280;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .threshold-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .threshold-row input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-cog"></i> Hot Holding Settings</h1>
+            <a href="/hot-holding" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Hot Holding
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="settings-grid">
+            <!-- Document Information -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-file-alt"></i>
+                    <h2>Document Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="threshold-grid">
+                        <div class="threshold-row">
+                            <label>Creation Date:</label>
+                            <input type="date" id="creation_date">
+                        </div>
+                        <div class="threshold-row">
+                            <label>Last Revision:</label>
+                            <input type="date" id="last_revision_date">
+                        </div>
+                        <div class="threshold-row">
+                            <label>Edition:</label>
+                            <input type="text" id="edition" placeholder="e.g., 1.0">
+                        </div>
+                        <div class="threshold-row">
+                            <label>Reference:</label>
+                            <input type="text" id="company_name" placeholder="e.g., GMRL Group">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-save" onclick="saveDocumentInfo()">
+                        <i class="fas fa-save"></i>
+                        Save Document Info
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Temperature Thresholds -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-thermometer-half"></i>
+                    <h2>Temperature Thresholds</h2>
+                </div>
+                <div class="card-body">
+                    <div class="threshold-grid">
+                        <div class="threshold-row">
+                            <label>Product Temp Target:</label>
+                            <input type="number" id="productTempTarget" step="0.1" value="63">
+                            <span>°C</span>
+                        </div>
+                        <div class="threshold-row">
+                            <label>Product Temp Critical Limit:</label>
+                            <input type="number" id="productTempCritical" step="0.1" value="60">
+                            <span>°C</span>
+                        </div>
+                        <div class="threshold-row">
+                            <label>Hot Holding Unit Target:</label>
+                            <input type="number" id="unitTempTarget" step="0.1" value="70">
+                            <span>°C</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-save" onclick="saveThresholds()">
+                        <i class="fas fa-save"></i>
+                        Save Thresholds
+                    </button>
+                    <div class="info-note">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Product temperatures below the <strong>Critical Limit</strong> will be marked as <strong>FAIL</strong>. Unit temperatures below the target will also be marked as <strong>FAIL</strong>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-drumstick-bite"></i>
+                    <h2>Products</h2>
+                </div>
+                <div class="card-body">
+                    <div class="add-item-form">
+                        <input type="text" id="newProduct" placeholder="Enter product name">
+                        <button class="btn btn-primary" onclick="addProduct()">
+                            <i class="fas fa-plus"></i>
+                            Add
+                        </button>
+                    </div>
+                    <div class="items-list" id="productsList">
+                        <div class="empty-list">
+                            <i class="fas fa-drumstick-bite"></i>
+                            <p>No products defined</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadDocumentInfo();
+            loadProducts();
+        });
+
+        async function loadDocumentInfo() {
+            try {
+                const response = await fetch('/hot-holding/api/settings', {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                const settings = await response.json();
+                
+                document.getElementById('creation_date').value = settings.creation_date || '';
+                document.getElementById('last_revision_date').value = settings.last_revision_date || '';
+                document.getElementById('edition').value = settings.edition || '';
+                document.getElementById('company_name').value = settings.company_name || '';
+            } catch (error) {
+                console.error('Error loading document info:', error);
+            }
+        }
+
+        async function saveDocumentInfo() {
+            try {
+                const data = {
+                    creation_date: document.getElementById('creation_date').value,
+                    last_revision_date: document.getElementById('last_revision_date').value,
+                    edition: document.getElementById('edition').value,
+                    company_name: document.getElementById('company_name').value
+                };
+                
+                const response = await fetch('/hot-holding/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save');
+                showToast('Document info saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving document info:', error);
+                showToast('Failed to save document info', 'error');
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/hot-holding/api/settings');
+                const settings = await response.json();
+                
+                if (settings.product_temp_target) {
+                    document.getElementById('productTempTarget').value = settings.product_temp_target;
+                }
+                if (settings.product_temp_critical) {
+                    document.getElementById('productTempCritical').value = settings.product_temp_critical;
+                }
+                if (settings.unit_temp_target) {
+                    document.getElementById('unitTempTarget').value = settings.unit_temp_target;
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function saveThresholds() {
+            try {
+                const data = {
+                    product_temp_target: document.getElementById('productTempTarget').value,
+                    product_temp_critical: document.getElementById('productTempCritical').value,
+                    unit_temp_target: document.getElementById('unitTempTarget').value
+                };
+                
+                const response = await fetch('/hot-holding/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save');
+                
+                showToast('Thresholds saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving thresholds:', error);
+                showToast('Failed to save thresholds', 'error');
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/hot-holding/api/products');
+                const products = await response.json();
+                renderProducts(products);
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsList');
+            
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-list">
+                        <i class="fas fa-drumstick-bite"></i>
+                        <p>No products defined</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = products.map(p => `
+                <div class="item-row">
+                    <span class="item-name">${p.name}</span>
+                    <button class="btn-delete" onclick="deleteProduct(${p.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function addProduct() {
+            const input = document.getElementById('newProduct');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showToast('Please enter a product name', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/hot-holding/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                
+                if (!response.ok) throw new Error('Failed to add');
+                
+                input.value = '';
+                showToast('Product added successfully!', 'success');
+                loadProducts();
+            } catch (error) {
+                console.error('Error adding product:', error);
+                showToast('Failed to add product', 'error');
+            }
+        }
+
+        async function deleteProduct(id) {
+            try {
+                const response = await fetch(`/hot-holding/api/products/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete');
+                
+                showToast('Product deleted successfully!', 'success');
+                loadProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast('Failed to delete product', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Enter key handler
+        document.getElementById('newProduct').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addProduct();
+        });
+    </script>
+</body>
+</html>

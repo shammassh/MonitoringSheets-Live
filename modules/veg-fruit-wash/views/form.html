@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veg & Fruit Washing Check - FS Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(22, 163, 74, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #15803d;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            padding-bottom: 100px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card h2 {
+            font-size: 1.125rem;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            color: #374151;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .select-all-btn {
+            font-size: 0.75rem;
+            color: #16a34a;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .item-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .item-checkbox:hover {
+            background: #f0fdf4;
+        }
+        
+        .item-checkbox.checked {
+            background: #dcfce7;
+            border-color: #16a34a;
+        }
+        
+        .item-checkbox input {
+            width: 20px;
+            height: 20px;
+            accent-color: #16a34a;
+        }
+        
+        .item-checkbox .item-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .item-checkbox.fruit {
+            background: #fffbeb;
+        }
+        
+        .item-checkbox.fruit:hover {
+            background: #fef3c7;
+        }
+        
+        .item-checkbox.fruit.checked {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+        
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .checked-count {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .checked-count strong {
+            color: #16a34a;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 5rem;
+            right: 2rem;
+            background: #16a34a;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1001;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        .limit-warning {
+            font-size: 0.75rem;
+            color: #ef4444;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .limit-warning::before {
+            content: '⚠️';
+        }
+        
+        .input-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        
+        .input-success {
+            border-color: #16a34a !important;
+            background-color: #f0fdf4 !important;
+        }
+        
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .save-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1 id="page-title">🥬 New Washing Check</h1>
+            <a href="/dashboard" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Check Details 1 -->
+        <div class="card">
+            <h2>📝 Check Detail 1</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" id="log-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Branch *</label>
+                    <select id="branch" required>
+                        <option value="">Select Branch</option>
+                        <option value="Dekwaneh CK">Dekwaneh CK</option>
+                        <option value="BHOSP CP">BHOSP CP</option>
+                        <option value="Pastry CP">Pastry CP</option>
+                        <option value="Hazmieh CP">Hazmieh CP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Soaking Duration (sec) *</label>
+                    <input type="number" id="check-time" placeholder="60-90 sec" min="1" required onchange="checkLimits1()">
+                    <span id="check-time-warning" class="limit-warning" style="display: none;"></span>
+                </div>
+                <div class="form-group">
+                    <label>Concentration (ppm) *</label>
+                    <input type="number" id="concentration" placeholder="85 ppm" min="1" required onchange="checkLimits1()">
+                    <span id="concentration-warning" class="limit-warning" style="display: none;"></span>
+                </div>
+                <div class="form-group">
+                    <label>Filled By</label>
+                    <input type="text" id="filled-by" readonly>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label id="comments-label">Comments / Corrective Action <span id="comments-required" style="color: #ef4444; display: none;">* (Required - value outside limit)</span></label>
+                <textarea id="comments" rows="2" placeholder="Enter corrective action if values are outside limits..."></textarea>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="peracetic-acid-1" style="width: 20px; height: 20px; accent-color: #16a34a;">
+                    <span>Peracetic Acid</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Vegetables and Fruits -->
+        <div class="card">
+            <div class="section-title">
+                <span>🥬 Vegetables and Fruits</span>
+                <span class="select-all-btn" onclick="selectAll('vegetable')">Select All</span>
+            </div>
+            <div class="items-grid" id="vegetables-list">
+                <div class="empty-state">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Check Details 2 -->
+        <div class="card">
+            <h2>📝 Check Detail 2 <span style="font-size: 0.8rem; color: #6b7280; font-weight: normal;">- Optional</span></h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="log-date-2">
+                </div>
+                <div class="form-group">
+                    <label>Soaking Duration (in sec) <span style="font-size: 0.75rem; color: #6b7280;">(60-90 sec)</span></label>
+                    <input type="number" id="check-time-2" placeholder="60-90" min="1" onchange="checkLimits2()">
+                    <span id="check-time-2-warning" class="limit-warning" style="display: none;"></span>
+                </div>
+                <div class="form-group">
+                    <label>Concentration (ppm) <span style="font-size: 0.75rem; color: #6b7280;">(85 ppm)</span></label>
+                    <input type="number" id="concentration-2" placeholder="85" min="1" onchange="checkLimits2()">
+                    <span id="concentration-2-warning" class="limit-warning" style="display: none;"></span>
+                </div>
+                <div class="form-group">
+                    <label>Filled By</label>
+                    <input type="text" id="filled-by-2" readonly>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label id="comments-2-label">Comments / Corrective Action <span id="comments-2-required" style="color: #ef4444; display: none;">* (Required - value outside limit)</span></label>
+                <textarea id="comments-2" rows="2" placeholder="Enter corrective action if values are outside limits..."></textarea>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="peracetic-acid-2" style="width: 20px; height: 20px; accent-color: #16a34a;">
+                    <span>Peracetic Acid</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Vegetables and Fruits -->
+        <div class="card">
+            <div class="section-title">
+                <span>🍎 Vegetables and Fruits</span>
+                <span class="select-all-btn" onclick="selectAll('fruit')">Select All</span>
+            </div>
+            <div class="items-grid" id="fruits-list">
+                <div class="empty-state">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Bar -->
+    <div class="save-bar">
+        <div class="checked-count">
+            <strong id="checked-count">0</strong> items selected
+        </div>
+        <button class="btn btn-success" id="save-btn" onclick="saveCheck()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            <span id="save-btn-text">Save Check</span>
+        </button>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_BASE = '/veg-fruit-wash/api';
+        let items = [];
+        let currentUser = null;
+        let editId = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            editId = urlParams.get('edit');
+            
+            if (editId) {
+                document.getElementById('page-title').textContent = '🥬 Edit Washing Check';
+                document.getElementById('save-btn-text').textContent = 'Update Check';
+            }
+            
+            // Set today's date for both sections
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('log-date').min = today;
+            document.getElementById('log-date-2').valueAsDate = new Date();
+            document.getElementById('log-date-2').min = today;
+            
+            // Load current user
+            try {
+                const response = await fetch(`${API_BASE}/current-user`);
+                currentUser = await response.json();
+                document.getElementById('filled-by').value = currentUser.name || 'Unknown';
+                document.getElementById('filled-by-2').value = currentUser.name || 'Unknown';
+            } catch (err) {
+                console.error('Error loading user:', err);
+            }
+            
+            // Load items
+            await loadItems();
+            
+            // If editing, load document data
+            if (editId) {
+                await loadDocument(editId);
+            }
+        });
+        
+        // Load document for editing
+        async function loadDocument(id) {
+            try {
+                const response = await fetch(`${API_BASE}/documents/${id}`);
+                const data = await response.json();
+                const doc = data.document;
+                const docItems = data.items;
+                
+                // Fill form fields
+                document.getElementById('log-date').value = doc.log_date.split('T')[0];
+                document.getElementById('branch').value = doc.branch || '';
+                document.getElementById('check-time').value = doc.check_time;
+                document.getElementById('concentration').value = doc.concentration;
+                document.getElementById('filled-by').value = doc.filled_by;
+                document.getElementById('comments').value = doc.comments || '';
+                
+                // Fill second check details (fruits)
+                if (doc.log_date_2) {
+                    document.getElementById('log-date-2').value = doc.log_date_2.split('T')[0];
+                }
+                document.getElementById('check-time-2').value = doc.check_time_2 || '';
+                document.getElementById('concentration-2').value = doc.concentration_2 || '';
+                document.getElementById('filled-by-2').value = doc.filled_by_2 || '';
+                document.getElementById('comments-2').value = doc.comments_2 || '';
+                
+                // Load peracetic acid checkboxes
+                document.getElementById('peracetic-acid-1').checked = doc.peracetic_acid_1 || false;
+                document.getElementById('peracetic-acid-2').checked = doc.peracetic_acid_2 || false;
+                
+                // Check the items that were selected
+                const checkedIds = docItems.map(i => i.item_id);
+                document.querySelectorAll('.item-checkbox').forEach(label => {
+                    const itemId = parseInt(label.dataset.id);
+                    const checkbox = label.querySelector('input');
+                    if (checkedIds.includes(itemId)) {
+                        checkbox.checked = true;
+                        label.classList.add('checked');
+                    }
+                });
+                updateCount();
+            } catch (err) {
+                console.error('Error loading document:', err);
+                showToast('Failed to load document', true);
+            }
+        }
+        
+        // Show toast
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // Load items
+        async function loadItems() {
+            try {
+                const response = await fetch(`${API_BASE}/items?_=${Date.now()}`, { cache: 'no-store' });
+                items = await response.json();
+                renderItems();
+            } catch (err) {
+                console.error('Error loading items:', err);
+                showToast('Failed to load items', true);
+            }
+        }
+        
+        // Render items
+        function renderItems() {
+            const vegetables = items.filter(i => i.category === 'Vegetable');
+            const fruits = items.filter(i => i.category === 'Fruit');
+            
+            const vegList = document.getElementById('vegetables-list');
+            const fruitList = document.getElementById('fruits-list');
+            
+            if (vegetables.length === 0) {
+                vegList.innerHTML = '<div class="empty-state">No vegetables added. <a href="/veg-fruit-wash/settings">Add items</a></div>';
+            } else {
+                vegList.innerHTML = vegetables.map(item => `
+                    <label class="item-checkbox" data-id="${item.id}" data-category="vegetable">
+                        <input type="checkbox" onchange="updateCount()">
+                        <span class="item-name">${escapeHtml(item.name)}</span>
+                    </label>
+                `).join('');
+            }
+            
+            if (fruits.length === 0) {
+                fruitList.innerHTML = '<div class="empty-state">No fruits added. <a href="/veg-fruit-wash/settings">Add items</a></div>';
+            } else {
+                fruitList.innerHTML = fruits.map(item => `
+                    <label class="item-checkbox fruit" data-id="${item.id}" data-category="fruit">
+                        <input type="checkbox" onchange="updateCount()">
+                        <span class="item-name">${escapeHtml(item.name)}</span>
+                    </label>
+                `).join('');
+            }
+            
+            // Add click handler for visual feedback
+            document.querySelectorAll('.item-checkbox input').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    this.closest('.item-checkbox').classList.toggle('checked', this.checked);
+                });
+            });
+        }
+        
+        // Update checked count
+        function updateCount() {
+            const count = document.querySelectorAll('.item-checkbox input:checked').length;
+            document.getElementById('checked-count').textContent = count;
+        }
+        
+        // Select all in category
+        function selectAll(category) {
+            const checkboxes = document.querySelectorAll(`.item-checkbox[data-category="${category}"] input`);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(cb => {
+                cb.checked = !allChecked;
+                cb.closest('.item-checkbox').classList.toggle('checked', !allChecked);
+            });
+            
+            updateCount();
+        }
+        
+        // Check limits for Check Detail 1
+        function checkLimits1() {
+            const checkTime = parseFloat(document.getElementById('check-time').value) || 0;
+            const concentration = parseFloat(document.getElementById('concentration').value) || 0;
+            
+            const checkTimeInput = document.getElementById('check-time');
+            const concentrationInput = document.getElementById('concentration');
+            const checkTimeWarning = document.getElementById('check-time-warning');
+            const concentrationWarning = document.getElementById('concentration-warning');
+            const commentsRequired = document.getElementById('comments-required');
+            
+            let hasError = false;
+            
+            // Check soaking duration (60-90 sec)
+            if (checkTime > 0) {
+                if (checkTime < 60 || checkTime > 90) {
+                    checkTimeInput.classList.add('input-error');
+                    checkTimeInput.classList.remove('input-success');
+                    checkTimeWarning.textContent = 'Outside limit (60-90 sec)';
+                    checkTimeWarning.style.display = 'block';
+                    hasError = true;
+                } else {
+                    checkTimeInput.classList.remove('input-error');
+                    checkTimeInput.classList.add('input-success');
+                    checkTimeWarning.style.display = 'none';
+                }
+            }
+            
+            // Check concentration (85 ppm)
+            if (concentration > 0) {
+                if (concentration !== 85) {
+                    concentrationInput.classList.add('input-error');
+                    concentrationInput.classList.remove('input-success');
+                    concentrationWarning.textContent = 'Outside limit (should be 85 ppm)';
+                    concentrationWarning.style.display = 'block';
+                    hasError = true;
+                } else {
+                    concentrationInput.classList.remove('input-error');
+                    concentrationInput.classList.add('input-success');
+                    concentrationWarning.style.display = 'none';
+                }
+            }
+            
+            // Show/hide required marker for comments
+            commentsRequired.style.display = hasError ? 'inline' : 'none';
+        }
+        
+        // Check limits for Check Detail 2
+        function checkLimits2() {
+            const checkTime = parseFloat(document.getElementById('check-time-2').value) || 0;
+            const concentration = parseFloat(document.getElementById('concentration-2').value) || 0;
+            
+            const checkTimeInput = document.getElementById('check-time-2');
+            const concentrationInput = document.getElementById('concentration-2');
+            const checkTimeWarning = document.getElementById('check-time-2-warning');
+            const concentrationWarning = document.getElementById('concentration-2-warning');
+            const commentsRequired = document.getElementById('comments-2-required');
+            
+            let hasError = false;
+            
+            // Check soaking duration (60-90 sec)
+            if (checkTime > 0) {
+                if (checkTime < 60 || checkTime > 90) {
+                    checkTimeInput.classList.add('input-error');
+                    checkTimeInput.classList.remove('input-success');
+                    checkTimeWarning.textContent = 'Outside limit (60-90 sec)';
+                    checkTimeWarning.style.display = 'block';
+                    hasError = true;
+                } else {
+                    checkTimeInput.classList.remove('input-error');
+                    checkTimeInput.classList.add('input-success');
+                    checkTimeWarning.style.display = 'none';
+                }
+            }
+            
+            // Check concentration (85 ppm)
+            if (concentration > 0) {
+                if (concentration !== 85) {
+                    concentrationInput.classList.add('input-error');
+                    concentrationInput.classList.remove('input-success');
+                    concentrationWarning.textContent = 'Outside limit (should be 85 ppm)';
+                    concentrationWarning.style.display = 'block';
+                    hasError = true;
+                } else {
+                    concentrationInput.classList.remove('input-error');
+                    concentrationInput.classList.add('input-success');
+                    concentrationWarning.style.display = 'none';
+                }
+            }
+            
+            // Show/hide required marker for comments
+            commentsRequired.style.display = hasError ? 'inline' : 'none';
+        }
+        
+        // Save check
+        async function saveCheck() {
+            const logDate = document.getElementById('log-date').value;
+            const branch = document.getElementById('branch').value;
+            const checkTime = document.getElementById('check-time').value;
+            const concentration = document.getElementById('concentration').value.trim();
+            const comments = document.getElementById('comments').value.trim();
+            const peraceticAcid1 = document.getElementById('peracetic-acid-1').checked;
+            
+            // Second check details (fruits) - optional
+            const logDate2 = document.getElementById('log-date-2').value;
+            const checkTime2 = document.getElementById('check-time-2').value.trim();
+            const concentration2 = document.getElementById('concentration-2').value.trim();
+            const filledBy2 = document.getElementById('filled-by-2').value.trim();
+            const comments2 = document.getElementById('comments-2').value.trim();
+            const peraceticAcid2 = document.getElementById('peracetic-acid-2').checked;
+            
+            if (!logDate || !branch || !checkTime || !concentration) {
+                showToast('Please fill all required fields', true);
+                return;
+            }
+            
+            // Check limits for Check Detail 1
+            const checkTimeNum = parseFloat(checkTime);
+            const concentrationNum = parseFloat(concentration);
+            const isOutsideLimit1 = checkTimeNum < 60 || checkTimeNum > 90 || concentrationNum !== 85;
+            
+            if (isOutsideLimit1 && !comments) {
+                showToast('Corrective action (comments) is required when values are outside limits', true);
+                document.getElementById('comments').focus();
+                return;
+            }
+            
+            // Check limits for Check Detail 2 (only if filled)
+            if (checkTime2 || concentration2) {
+                const checkTime2Num = parseFloat(checkTime2) || 0;
+                const concentration2Num = parseFloat(concentration2) || 0;
+                const isOutsideLimit2 = checkTime2Num < 60 || checkTime2Num > 90 || concentration2Num !== 85;
+                
+                if (isOutsideLimit2 && !comments2) {
+                    showToast('Corrective action (comments) is required for Check Detail 2 when values are outside limits', true);
+                    document.getElementById('comments-2').focus();
+                    return;
+                }
+            }
+            
+            const checkedItems = [];
+            document.querySelectorAll('.item-checkbox input:checked').forEach(cb => {
+                const itemId = parseInt(cb.closest('.item-checkbox').dataset.id);
+                checkedItems.push(itemId);
+            });
+            
+            if (checkedItems.length === 0) {
+                showToast('Please select at least one item', true);
+                return;
+            }
+            
+            try {
+                const url = editId ? `${API_BASE}/documents/${editId}` : `${API_BASE}/documents`;
+                const method = editId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        log_date: logDate,
+                        branch: branch,
+                        check_time: checkTime,
+                        concentration: concentration,
+                        filled_by: currentUser?.name || 'Unknown',
+                        comments: comments,
+                        peracetic_acid_1: peraceticAcid1,
+                        log_date_2: logDate2 || null,
+                        check_time_2: checkTime2 || null,
+                        concentration_2: concentration2 || null,
+                        filled_by_2: filledBy2 || null,
+                        comments_2: comments2 || null,
+                        peracetic_acid_2: peraceticAcid2,
+                        checked_items: checkedItems
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showToast(editId ? 'Updated successfully!' : `Saved successfully! Document: ${result.document_number}`);
+                    
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/veg-fruit-wash/history';
+                    }, 2000);
+                } else {
+                    const err = await response.json();
+                    throw new Error(err.error || 'Failed to save');
+                }
+            } catch (err) {
+                console.error('Error saving:', err);
+                showToast(err.message || 'Failed to save check', true);
+            }
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

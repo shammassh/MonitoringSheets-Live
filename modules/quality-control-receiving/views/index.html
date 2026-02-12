@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Receiving Quality Control Checklist - Form 13 - FS Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .header-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #059669;
+        }
+        
+        .btn-primary:hover {
+            background: #ecfdf5;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .menu-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .menu-card-icon.green {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .menu-card-icon.blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .menu-card-icon.purple {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .menu-card-icon.orange {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+        
+        .menu-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-top: 2rem;
+        }
+        
+        .info-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-list {
+            list-style: none;
+        }
+        
+        .info-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .info-list li span.icon {
+            font-size: 1.25rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .user-info .avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <h1>📦 Receiving Quality Control Checklist</h1>
+                <p class="header-subtitle">Form 13 - Product Receiving & Storage Monitoring</p>
+            </div>
+            <div class="header-actions">
+                <div class="user-info">
+                    <div class="avatar">👤</div>
+                    <span id="currentUser">Loading...</span>
+                </div>
+                <a href="/dashboard" class="btn btn-secondary">🏠 Dashboard</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="menu-grid">
+            <a href="/quality-control-receiving/form" class="menu-card">
+                <div class="menu-card-icon green">📝</div>
+                <h3>New Entry</h3>
+                <p>Record new product receiving data including temperatures, inspections, and storage details.</p>
+            </a>
+            
+            <a href="/quality-control-receiving/history" class="menu-card">
+                <div class="menu-card-icon blue">📊</div>
+                <h3>View History</h3>
+                <p>Review past receiving records, search by date, product, or supplier.</p>
+            </a>
+            
+            <a href="/quality-control-receiving/settings" class="menu-card">
+                <div class="menu-card-icon purple">⚙️</div>
+                <h3>Settings</h3>
+                <p>Manage suppliers, configure temperature thresholds, and system preferences.</p>
+            </a>
+        </div>
+        
+        <div class="info-card">
+            <h3>ℹ️ Checklist Items</h3>
+            <ul class="info-list">
+                <li><span class="icon">📅</span> <strong>Date & Product Info:</strong> Record date, product name, expiry date, and supplier</li>
+                <li><span class="icon">🕐</span> <strong>Receiving Time:</strong> Log the time of product receiving</li>
+                <li><span class="icon">🌡️</span> <strong>Temperature Check:</strong> Measure product temperature at receiving</li>
+                <li><span class="icon">✅</span> <strong>Receiving Area Clean:</strong> Verify the receiving area is clean</li>
+                <li><span class="icon">📦</span> <strong>Packaging Check:</strong> Ensure products are well covered/packed</li>
+                <li><span class="icon">🔍</span> <strong>Inspection:</strong> Open and inspect at least 1 pack/bag</li>
+                <li><span class="icon">⚠️</span> <strong>Physical Hazards:</strong> Check for absence of physical hazards</li>
+                <li><span class="icon">❄️</span> <strong>Storage Transfer:</strong> Record time into fridge/freezer</li>
+                <li><span class="icon">🌡️</span> <strong>Storage Temps:</strong> Record product and chiller/freezer temperatures</li>
+                <li><span class="icon">⏱️</span> <strong>Duration:</strong> Calculate time between receiving and storage</li>
+                <li><span class="icon">✍️</span> <strong>Signature:</strong> Quality controller signature for verification</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Load current user
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/quality-control-receiving/api/current-user?_t=' + Date.now());
+                const user = await response.json();
+                document.getElementById('currentUser').textContent = user.name || 'User';
+            } catch (err) {
+                console.error('Error loading user:', err);
+                document.getElementById('currentUser').textContent = 'User';
+            }
+        }
+        
+        loadCurrentUser();
+    </script>
+</body>
+</html>

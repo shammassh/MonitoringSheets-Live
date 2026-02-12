@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <title>Hygiene Checklist History</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        /* Filters */
+        .filters-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .filters-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        /* Document Cards */
+        .docs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .doc-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .doc-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .doc-header {
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .doc-number {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #059669;
+            font-family: monospace;
+        }
+        
+        .doc-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .shift-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .shift-badge.morning { background: #fef3c7; color: #92400e; }
+        .shift-badge.afternoon { background: #dbeafe; color: #1e40af; }
+        .shift-badge.night { background: #e0e7ff; color: #3730a3; }
+        
+        .doc-body {
+            padding: 1rem 1.25rem;
+        }
+        
+        .doc-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .doc-stat {
+            text-align: center;
+        }
+        
+        .doc-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .doc-stat-value.total { color: #3b82f6; }
+        .doc-stat-value.pass { color: #059669; }
+        .doc-stat-value.fail { color: #dc2626; }
+        .doc-stat-value.absent { color: #d97706; }
+        
+        .doc-stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+        
+        .doc-auditor {
+            font-size: 0.875rem;
+            color: #6b7280;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+        
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .modal-title h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .modal-doc-number {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 0.375rem 1rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #9ca3af;
+            line-height: 1;
+        }
+        
+        .modal-body {
+            padding: 1.25rem;
+        }
+        
+        .modal-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            flex-wrap: wrap;
+        }
+        
+        .modal-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+        }
+        
+        .modal-meta-item svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .modal-meta-item strong {
+            color: #1f2937;
+        }
+        
+        /* Employee Table */
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .employee-table th {
+            background: #f9fafb;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+        }
+        
+        .employee-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        
+        .employee-table tr:hover {
+            background: #f9fafb;
+        }
+        
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .employee-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .employee-avatar.male { background: #3b82f6; }
+        .employee-avatar.female { background: #ec4899; }
+        
+        .employee-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .employee-position {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-badge.pass { background: #d1fae5; color: #059669; }
+        .status-badge.fail { background: #fee2e2; color: #dc2626; }
+        .status-badge.absent { background: #fef3c7; color: #d97706; }
+        
+        .response-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.375rem 0;
+            font-size: 0.8rem;
+        }
+        
+        .response-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .response-icon.pass {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .response-icon.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .response-content {
+            flex: 1;
+        }
+        
+        .response-name {
+            color: #374151;
+        }
+        
+        .response-corrective {
+            font-size: 0.75rem;
+            color: #dc2626;
+            margin-top: 0.25rem;
+            padding: 0.375rem 0.5rem;
+            background: #fef2f2;
+            border-radius: 4px;
+            border-left: 2px solid #dc2626;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Print Styles */
+        .print-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        @media print {
+            .header, .filters-card, .modal-close, .print-btn {
+                display: none !important;
+            }
+            
+            .modal-overlay {
+                position: static;
+                background: none;
+                padding: 0;
+            }
+            
+            .modal {
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+        
+        /* Document Info Footer */
+        .doc-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            padding-top: 0.75rem;
+            margin-top: 0.75rem;
+            border-top: 1px dashed #e5e7eb;
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+        
+        .doc-info-item {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        .doc-info-item span:first-child {
+            color: #9ca3af;
+        }
+        
+        .doc-info-item span:last-child {
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        /* Verified Badge & Button */
+        .doc-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.75rem;
+            margin-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .verified-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            background: #ecfdf5;
+            color: #059669;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .verified-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .verified-badge .verified-by {
+            font-weight: 400;
+            color: #065f46;
+        }
+        
+        .verify-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: #f0fdf4;
+            color: #059669;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .verify-btn:hover {
+            background: #dcfce7;
+        }
+        
+        .verify-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .unverified-label {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            font-style: italic;
+        }
+        
+        .unverify-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #f87171;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .unverify-btn:hover {
+            background: #fee2e2;
+        }
+        
+        .unverify-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+        
+        /* Editable Response Checkbox */
+        .response-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #10b981;
+        }
+        
+        .response-checkbox:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .response-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .response-row:last-child {
+            border-bottom: none;
+        }
+        
+        .response-label {
+            flex: 1;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        .response-label.unchecked {
+            color: #dc2626;
+        }
+        
+        .corrective-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            background: #fef2f2;
+        }
+        
+        .corrective-input:focus {
+            outline: none;
+            border-color: #f87171;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .save-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .save-btn:hover {
+            background: #059669;
+        }
+        
+        .save-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .locked-notice {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .absent-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                width: 100%;
+            }
+            
+            .doc-stats {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .modal-meta {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .doc-info {
+                flex-wrap: wrap;
+            }
+        }
+        
+        /* Draft Cards */
+        .drafts-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .drafts-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: #3b82f6;
+        }
+        
+        .drafts-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .drafts-header svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .draft-card {
+            background: white;
+            border: 2px dashed #3b82f6;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .draft-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .draft-title {
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .draft-badge {
+            background: #eff6ff;
+            color: #3b82f6;
+            font-size: 0.7rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        
+        .draft-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        .draft-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .draft-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        
+        .draft-btn-continue {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .draft-btn-continue:hover {
+            background: #2563eb;
+        }
+        
+        .draft-btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .draft-btn-delete:hover {
+            background: #fecaca;
+        }
+        
+        .draft-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <button class="back-btn" onclick="window.location.href='/hygiene-checklist'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">Checklist History</h1>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Filters -->
+        <div class="filters-card">
+            <div class="filters-row">
+                <div class="form-group">
+                    <label for="filter-date-from">From Date</label>
+                    <input type="date" id="filter-date-from">
+                </div>
+                <div class="form-group">
+                    <label for="filter-date-to">To Date</label>
+                    <input type="date" id="filter-date-to">
+                </div>
+                <div class="form-group">
+                    <label for="filter-shift">Shift</label>
+                    <select id="filter-shift">
+                        <option value="">All Shifts</option>
+                        <!-- Shifts loaded dynamically from settings -->
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 0;">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="loadHistory()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Saved Drafts Section -->
+        <div id="drafts-section" class="drafts-section" style="display: none;">
+            <div class="drafts-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                <h2>Saved Drafts</h2>
+            </div>
+            <div id="drafts-list"></div>
+        </div>
+        
+        <!-- Documents List -->
+        <div id="docs-container">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading documents...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Document Detail Modal -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-doc-number" id="modal-doc-number">HYG-20260115-001</span>
+                    <h2>Hygiene Checklist</h2>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="print-btn" onclick="window.print()" style="background: #e5e7eb; color: #374151;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                        Print
+                    </button>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body" id="modal-content">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-actions" id="modal-actions" style="display: none;">
+                <button class="save-btn" id="save-changes-btn" onclick="saveChanges()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let sessions = [];
+        let settings = {};
+        let currentUser = null;
+        let currentDoc = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set default date range (last 30 days)
+            const today = new Date();
+            const monthAgo = new Date(today);
+            monthAgo.setDate(monthAgo.getDate() - 30);
+            
+            document.getElementById('filter-date-to').valueAsDate = today;
+            document.getElementById('filter-date-from').valueAsDate = monthAgo;
+            
+            // Load current user and settings
+            await loadCurrentUser();
+            await loadSettings();
+            loadDrafts();
+            await loadHistory();
+        });
+        
+        // ==========================================
+        // Drafts Functions
+        // ==========================================
+        
+        function loadDrafts() {
+            const drafts = [];
+            
+            // Find all hygiene draft keys in localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('hygiene-draft-')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        drafts.push({ key, ...data });
+                    } catch (e) {
+                        // Invalid JSON, skip
+                    }
+                }
+            }
+            
+            const section = document.getElementById('drafts-section');
+            const container = document.getElementById('drafts-list');
+            
+            if (drafts.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            // Sort by savedAt descending (most recent first)
+            drafts.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+            
+            section.style.display = 'block';
+            container.innerHTML = drafts.map(draft => {
+                const savedDate = new Date(draft.savedAt);
+                const savedTime = savedDate.toLocaleString();
+                const checkDate = draft.date ? formatDate(draft.date) : 'Unknown date';
+                const shift = draft.shift || 'No shift';
+                const employeeCount = draft.checklistData ? Object.keys(draft.checklistData).length : 0;
+                
+                return `
+                    <div class="draft-card">
+                        <div class="draft-info">
+                            <div class="draft-title">
+                                ${checkDate} - ${shift}
+                                <span class="draft-badge">DRAFT</span>
+                            </div>
+                            <div class="draft-meta">
+                                ${employeeCount} employees • Saved ${savedTime}
+                            </div>
+                        </div>
+                        <div class="draft-actions">
+                            <button class="draft-btn draft-btn-continue" onclick="continueDraft('${draft.key}')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                Continue
+                            </button>
+                            <button class="draft-btn draft-btn-delete" onclick="deleteDraft('${draft.key}')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function continueDraft(draftKey) {
+            // Parse the key to get date and shift: hygiene-draft-YYYY-MM-DD-Shift
+            const parts = draftKey.replace('hygiene-draft-', '').split('-');
+            // Date is first 3 parts, shift is the rest
+            const date = parts.slice(0, 3).join('-');
+            const shift = parts.slice(3).join('-');
+            
+            // Navigate to form with date and shift as URL params
+            window.location.href = `/hygiene-checklist?date=${date}&shift=${encodeURIComponent(shift)}`;
+        }
+        
+        function deleteDraft(draftKey) {
+            if (confirm('Are you sure you want to delete this draft? This cannot be undone.')) {
+                localStorage.removeItem(draftKey);
+                loadDrafts();
+            }
+        }
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/hygiene-checklist/api/me');
+                currentUser = await res.json();
+            } catch (e) {
+                console.error('Failed to load user:', e);
+            }
+        }
+        
+        async function loadSettings() {
+            try {
+                const res = await fetch('/hygiene-checklist/api/settings');
+                settings = await res.json();
+                
+                // Load shifts into filter dropdown
+                loadShiftsFilter(settings.shifts);
+            } catch (e) {
+                console.error('Failed to load settings:', e);
+                loadShiftsFilter(null);
+            }
+        }
+        
+        function loadShiftsFilter(shiftsString) {
+            const shiftSelect = document.getElementById('filter-shift');
+            
+            // Clear existing options except the first one (All Shifts)
+            while (shiftSelect.options.length > 1) {
+                shiftSelect.remove(1);
+            }
+            
+            // Parse shifts from settings or use defaults
+            let shifts;
+            if (shiftsString && shiftsString.trim()) {
+                shifts = shiftsString.split(',').map(s => s.trim()).filter(s => s);
+            } else {
+                shifts = ['Morning', 'Afternoon', 'Night'];
+            }
+            
+            // Add shift options
+            shifts.forEach(shift => {
+                const option = document.createElement('option');
+                option.value = shift;
+                option.textContent = shift;
+                shiftSelect.appendChild(option);
+            });
+        }
+        
+        async function loadHistory() {
+            const container = document.getElementById('docs-container');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading documents...</p>
+                </div>
+            `;
+            
+            try {
+                const params = new URLSearchParams();
+                
+                const dateFrom = document.getElementById('filter-date-from').value;
+                const dateTo = document.getElementById('filter-date-to').value;
+                const shift = document.getElementById('filter-shift').value;
+                
+                if (dateFrom) params.append('date_from', dateFrom);
+                if (dateTo) params.append('date_to', dateTo);
+                if (shift) params.append('shift', shift);
+                params.append('limit', '100');
+                
+                const res = await fetch(`/hygiene-checklist/api/hygiene-checklists/sessions?${params}`);
+                sessions = await res.json();
+                
+                renderDocs();
+            } catch (e) {
+                console.error('Failed to load history:', e);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Loading Data</h3>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function renderDocs() {
+            const container = document.getElementById('docs-container');
+            
+            if (sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <h3>No Documents Found</h3>
+                        <p>No hygiene checklists found for the selected filters.</p>
+                        <button class="btn btn-primary" onclick="window.location.href='/hygiene-checklist'">
+                            New Checklist
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="docs-list">
+                    ${sessions.map(doc => `
+                        <div class="doc-card" onclick="viewDocument(${doc.id})">
+                            <div class="doc-header">
+                                <span class="doc-number">${doc.document_number}</span>
+                                <div class="doc-meta">
+                                    <span class="shift-badge ${doc.shift.toLowerCase()}">${doc.shift}</span>
+                                    <span>${formatDate(doc.check_date)}</span>
+                                </div>
+                            </div>
+                            <div class="doc-body">
+                                <div class="doc-stats">
+                                    <div class="doc-stat">
+                                        <div class="doc-stat-value total">${doc.total_employees}</div>
+                                        <div class="doc-stat-label">Total</div>
+                                    </div>
+                                    <div class="doc-stat">
+                                        <div class="doc-stat-value pass">${doc.total_pass}</div>
+                                        <div class="doc-stat-label">Passed</div>
+                                    </div>
+                                    <div class="doc-stat">
+                                        <div class="doc-stat-value fail">${doc.total_fail}</div>
+                                        <div class="doc-stat-label">Failed</div>
+                                    </div>
+                                    <div class="doc-stat">
+                                        <div class="doc-stat-value absent">${doc.total_absent}</div>
+                                        <div class="doc-stat-label">Absent</div>
+                                    </div>
+                                </div>
+                                <div class="doc-auditor">
+                                    <strong>Auditor:</strong> ${doc.checked_by_name}
+                                </div>
+                                <div class="doc-info">
+                                    <div class="doc-info-item">
+                                        <span>Edition:</span>
+                                        <span>${settings.edition || '-'}</span>
+                                    </div>
+                                    <div class="doc-info-item">
+                                        <span>Created:</span>
+                                        <span>${settings.creation_date ? formatShortDate(settings.creation_date) : '-'}</span>
+                                    </div>
+                                    <div class="doc-info-item">
+                                        <span>Revised:</span>
+                                        <span>${settings.last_revision_date ? formatShortDate(settings.last_revision_date) : '-'}</span>
+                                    </div>
+                                </div>
+                                <div class="doc-footer">
+                                    ${doc.verified ? `
+                                        <div class="verified-badge">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                            </svg>
+                                            Verified
+                                            <span class="verified-by">by ${doc.verified_by_name || 'Unknown'}</span>
+                                        </div>
+                                        ${canVerify() ? `
+                                            <button class="unverify-btn" onclick="unverifyDocument(event, ${doc.id})">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                                                    <line x1="18" y1="9" x2="12" y2="15"></line>
+                                                    <line x1="12" y1="9" x2="18" y2="15"></line>
+                                                </svg>
+                                                Unlock
+                                            </button>
+                                        ` : ''}
+                                    ` : `
+                                        <span class="unverified-label">Not verified</span>
+                                        ${canVerify() ? `
+                                            <button class="verify-btn" onclick="verifyDocument(event, ${doc.id})">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                                Verify
+                                            </button>
+                                        ` : ''}
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        async function viewDocument(sessionId) {
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('modal-content');
+            const actionsBar = document.getElementById('modal-actions');
+            
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading document...</p>
+                </div>
+            `;
+            actionsBar.style.display = 'none';
+            
+            modal.classList.add('active');
+            
+            try {
+                const res = await fetch(`/hygiene-checklist/api/hygiene-checklists/sessions/${sessionId}`);
+                const doc = await res.json();
+                currentDoc = doc;
+                
+                document.getElementById('modal-doc-number').textContent = doc.document_number;
+                
+                // Determine if editable
+                const userRole = (currentUser?.role || '').toLowerCase();
+                const isAdminOrSuper = userRole === 'superauditor' || userRole === 'admin';
+                const canEdit = !doc.verified || isAdminOrSuper;
+                
+                // Show/hide save button
+                actionsBar.style.display = canEdit ? 'flex' : 'none';
+                
+                content.innerHTML = `
+                    ${doc.verified && !isAdminOrSuper ? `
+                        <div class="locked-notice">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            This document is verified and locked. Contact an admin to unlock it for editing.
+                        </div>
+                    ` : ''}
+                    
+                    <div class="modal-meta">
+                        <div class="modal-meta-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <strong>${formatDate(doc.check_date)}</strong>
+                        </div>
+                        <div class="modal-meta-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <strong>${doc.shift}</strong> Shift
+                        </div>
+                        <div class="modal-meta-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            Auditor: <strong>${doc.checked_by_name}</strong>
+                        </div>
+                        <div class="modal-meta-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <strong>${doc.total_employees}</strong> Employees
+                        </div>
+                    </div>
+                    
+                    <div id="employees-edit-list">
+                        ${doc.employees.map((emp, empIndex) => `
+                            <div class="employee-edit-card" data-emp-index="${empIndex}" style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 1rem; overflow: hidden;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                                    <div class="employee-info">
+                                        <div class="employee-avatar ${emp.employee_gender?.toLowerCase() || ''}">
+                                            ${emp.employee_name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <div class="employee-name">${emp.employee_name}</div>
+                                            <div class="employee-position">${emp.employee_position || 'Staff'}</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <span id="status-${empIndex}" class="status-badge ${emp.is_absent ? 'absent' : (emp.overall_pass ? 'pass' : 'fail')}">
+                                            ${emp.is_absent ? 'Absent' : (emp.overall_pass ? 'Pass' : 'Fail')}
+                                        </span>
+                                        ${canEdit ? `
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #6b7280;">
+                                                <input type="checkbox" class="absent-checkbox" data-emp-index="${empIndex}" 
+                                                    ${emp.is_absent ? 'checked' : ''} onchange="toggleAbsent(${empIndex})">
+                                                Absent
+                                            </label>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                <div class="responses-container" id="responses-${empIndex}" style="padding: 1rem; ${emp.is_absent ? 'display: none;' : ''}">
+                                    ${emp.responses.map((r, respIndex) => `
+                                        <div class="response-row">
+                                            ${canEdit ? `
+                                                <input type="checkbox" class="response-checkbox" 
+                                                    data-emp-index="${empIndex}" data-resp-index="${respIndex}"
+                                                    ${r.response ? 'checked' : ''} 
+                                                    onchange="updateResponse(${empIndex}, ${respIndex})">
+                                            ` : `
+                                                <div class="response-icon ${r.response ? 'pass' : 'fail'}">
+                                                    ${r.response ? 
+                                                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' :
+                                                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+                                                    }
+                                                </div>
+                                            `}
+                                            <div class="response-label ${!r.response ? 'unchecked' : ''}" style="flex: 1;">
+                                                <div>${r.item_name}</div>
+                                                ${!r.response && canEdit ? `
+                                                    <input type="text" class="corrective-input" 
+                                                        data-emp-index="${empIndex}" data-resp-index="${respIndex}"
+                                                        placeholder="Enter corrective action..."
+                                                        value="${r.corrective_action || ''}"
+                                                        onchange="updateCorrectiveAction(${empIndex}, ${respIndex}, this.value)">
+                                                ` : (r.corrective_action ? `<div class="response-corrective" style="font-size: 0.75rem; color: #dc2626; margin-top: 0.25rem;"><strong>Corrective:</strong> ${r.corrective_action}</div>` : '')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (e) {
+                console.error('Failed to load document:', e);
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Loading Document</h3>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function toggleAbsent(empIndex) {
+            const emp = currentDoc.employees[empIndex];
+            emp.is_absent = !emp.is_absent;
+            
+            // Toggle responses container
+            const container = document.getElementById(`responses-${empIndex}`);
+            container.style.display = emp.is_absent ? 'none' : 'block';
+            
+            // Update status badge
+            updateEmployeeStatus(empIndex);
+        }
+        
+        function updateResponse(empIndex, respIndex) {
+            const checkbox = document.querySelector(`input[data-emp-index="${empIndex}"][data-resp-index="${respIndex}"].response-checkbox`);
+            const emp = currentDoc.employees[empIndex];
+            emp.responses[respIndex].response = checkbox.checked;
+            
+            // Update the label styling
+            const row = checkbox.closest('.response-row');
+            const label = row.querySelector('.response-label');
+            if (checkbox.checked) {
+                label.classList.remove('unchecked');
+                // Remove corrective action input if checked
+                const correctiveInput = row.querySelector('.corrective-input');
+                if (correctiveInput) {
+                    correctiveInput.remove();
+                    emp.responses[respIndex].corrective_action = null;
+                }
+            } else {
+                label.classList.add('unchecked');
+                // Add corrective action input if unchecked
+                if (!row.querySelector('.corrective-input')) {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'corrective-input';
+                    input.placeholder = 'Enter corrective action...';
+                    input.setAttribute('data-emp-index', empIndex);
+                    input.setAttribute('data-resp-index', respIndex);
+                    input.onchange = function() { updateCorrectiveAction(empIndex, respIndex, this.value); };
+                    label.appendChild(input);
+                }
+            }
+            
+            // Update status
+            updateEmployeeStatus(empIndex);
+        }
+        
+        function updateCorrectiveAction(empIndex, respIndex, value) {
+            currentDoc.employees[empIndex].responses[respIndex].corrective_action = value;
+        }
+        
+        function updateEmployeeStatus(empIndex) {
+            const emp = currentDoc.employees[empIndex];
+            const allPassed = !emp.is_absent && emp.responses.every(r => r.response);
+            emp.overall_pass = allPassed;
+            
+            const badge = document.getElementById(`status-${empIndex}`);
+            badge.className = `status-badge ${emp.is_absent ? 'absent' : (allPassed ? 'pass' : 'fail')}`;
+            badge.textContent = emp.is_absent ? 'Absent' : (allPassed ? 'Pass' : 'Fail');
+        }
+        
+        async function saveChanges() {
+            const saveBtn = document.getElementById('save-changes-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<div class="loading-spinner" style="width: 18px; height: 18px; margin: 0;"></div> Saving...';
+            
+            try {
+                const payload = {
+                    employees: currentDoc.employees.map(emp => ({
+                        checklist_id: emp.id,
+                        is_absent: emp.is_absent,
+                        responses: emp.responses.map(r => ({
+                            item_id: r.item_id,
+                            response: r.response,
+                            corrective_action: r.corrective_action || null
+                        }))
+                    }))
+                };
+                
+                const res = await fetch(`/hygiene-checklist/api/hygiene-checklists/sessions/${currentDoc.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    closeModal();
+                    await loadHistory();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to save changes');
+                }
+            } catch (e) {
+                console.error('Failed to save:', e);
+                alert('Failed to save changes');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Save Changes
+                `;
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'short',
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function formatShortDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function canVerify() {
+            if (!currentUser) return false;
+            const role = (currentUser.role || '').toLowerCase();
+            return role === 'superauditor' || role === 'admin';
+        }
+        
+        async function verifyDocument(event, sessionId) {
+            event.stopPropagation(); // Prevent card click
+            
+            if (!confirm('Are you sure you want to verify this document? This will lock it from auditors.')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/hygiene-checklist/api/hygiene-checklists/sessions/${sessionId}/verify`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (res.ok) {
+                    // Refresh the list
+                    await loadHistory();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to verify document');
+                }
+            } catch (e) {
+                console.error('Failed to verify:', e);
+                alert('Failed to verify document');
+            }
+        }
+        
+        async function unverifyDocument(event, sessionId) {
+            event.stopPropagation(); // Prevent card click
+            
+            if (!confirm('Are you sure you want to unlock this document? Auditors will be able to modify it.')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/hygiene-checklist/api/hygiene-checklists/sessions/${sessionId}/unverify`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (res.ok) {
+                    // Refresh the list
+                    await loadHistory();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to unlock document');
+                }
+            } catch (e) {
+                console.error('Failed to unverify:', e);
+                alert('Failed to unlock document');
+            }
+        }
+        
+        // Close modal on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

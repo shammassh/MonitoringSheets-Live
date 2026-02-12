@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expiry Check History - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #be185d 0%, #db2777 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(190, 24, 93, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.85rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #be185d;
+        }
+
+        .history-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .history-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        .history-card.status-ok {
+            border-left-color: #10b981;
+        }
+
+        .history-card.status-expiring {
+            border-left-color: #f59e0b;
+        }
+
+        .history-card.status-expired {
+            border-left-color: #ef4444;
+        }
+
+        .card-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 1.5rem;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .doc-number {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.ok {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-badge.expiring {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        .status-badge.expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-badge.verified {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .card-details {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .card-details span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-details i {
+            color: #be185d;
+        }
+
+        .products-summary {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.25rem;
+        }
+
+        .product-pill {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .product-pill.ok {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .product-pill.expiring {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        .product-pill.expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .more-products {
+            color: #6b7280;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+
+        .btn-edit {
+            background: #fdf2f8;
+            color: #be185d;
+        }
+
+        .btn-edit:hover {
+            background: #fce7f3;
+        }
+
+        .btn-verify {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .btn-verify:hover {
+            background: #bfdbfe;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            color: #6b7280;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        /* Image Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .history-card {
+                grid-template-columns: 1fr;
+            }
+
+            .card-image {
+                width: 100%;
+                height: 150px;
+            }
+
+            .card-actions {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-history"></i> Expiry Check History</h1>
+            <a href="/dry-store-expiry" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Products Expiry
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="filters-card">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="filterDate">Filter by Date</label>
+                    <input type="date" id="filterDate">
+                </div>
+                <div class="filter-group">
+                    <label for="filterSection">Filter by Section</label>
+                    <select id="filterSection">
+                        <option value="">All Sections</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterStatus">Filter by Status</label>
+                    <select id="filterStatus">
+                        <option value="">All Statuses</option>
+                        <option value="OK">OK</option>
+                        <option value="Expiring">Expiring Soon</option>
+                        <option value="Expired">Expired</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-grid" id="historyGrid">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <span class="modal-close">&times;</span>
+        <img id="modalImage" src="" alt="Full size image">
+    </div>
+
+    <script>
+        let readings = [];
+        let currentUser = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                loadSections(),
+                loadCurrentUser()
+            ]);
+            await loadReadings();
+            
+            // Add filter listeners
+            document.getElementById('filterDate').addEventListener('change', loadReadings);
+            document.getElementById('filterSection').addEventListener('change', loadReadings);
+            document.getElementById('filterStatus').addEventListener('change', loadReadings);
+        });
+
+        async function loadSections() {
+            try {
+                const response = await fetch('/dry-store-expiry/api/sections');
+                const sections = await response.json();
+                
+                const select = document.getElementById('filterSection');
+                sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section.name;
+                    option.textContent = section.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading sections:', error);
+            }
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/dry-store-expiry/api/current-user');
+                currentUser = await response.json();
+            } catch (error) {
+                console.error('Error loading current user:', error);
+            }
+        }
+
+        async function loadReadings() {
+            const container = document.getElementById('historyGrid');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i></div>';
+            
+            try {
+                const params = new URLSearchParams();
+                const date = document.getElementById('filterDate').value;
+                const section = document.getElementById('filterSection').value;
+                const status = document.getElementById('filterStatus').value;
+                
+                if (date) params.append('date', date);
+                if (section) params.append('section', section);
+                if (status) params.append('status', status);
+                
+                const response = await fetch(`/dry-store-expiry/api/readings?${params}`);
+                readings = await response.json();
+                
+                renderReadings();
+            } catch (error) {
+                console.error('Error loading readings:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Data</h3>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Expired': return 'expired';
+                case 'Expiring': return 'expiring';
+                default: return 'ok';
+            }
+        }
+
+        function getStatusLabel(status) {
+            switch (status) {
+                case 'Expired': return 'EXPIRED';
+                case 'Expiring': return 'EXPIRING';
+                default: return 'OK';
+            }
+        }
+
+        function canEdit(reading) {
+            // Can't edit if verified
+            if (reading.verified_by) return false;
+            
+            // Admins and Super Auditors can edit any
+            if (['Admin', 'Super Auditor'].includes(currentUser.role)) return true;
+            
+            // Others can only edit their own
+            return reading.filled_by === currentUser.name;
+        }
+
+        function canVerify(reading) {
+            // Already verified
+            if (reading.verified_by) return false;
+            
+            // Only Admins and Super Auditors can verify
+            return ['Admin', 'Super Auditor'].includes(currentUser.role);
+        }
+
+        function canDelete(reading) {
+            // Can't delete if verified
+            if (reading.verified_by) return false;
+            
+            // Only Admins can delete
+            return currentUser.role === 'Admin';
+        }
+
+        function renderReadings() {
+            const container = document.getElementById('historyGrid');
+            
+            if (readings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No Records Found</h3>
+                        <p>Try adjusting your filters or create a new expiry check.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = readings.map(reading => {
+                const statusClass = getStatusClass(reading.overall_status);
+                const items = reading.items || [];
+                const displayItems = items.slice(0, 3);
+                const moreCount = items.length - 3;
+                
+                return `
+                    <div class="history-card status-${statusClass}">
+                        <div class="card-image">
+                            ${reading.image_path 
+                                ? `<img src="/dry-store-expiry/uploads/${reading.image_path}" alt="Check image" onclick="showImage('/dry-store-expiry/uploads/${reading.image_path}')">`
+                                : '<i class="fas fa-image"></i>'}
+                        </div>
+                        
+                        <div class="card-content">
+                            <div class="card-header">
+                                <span class="doc-number">${reading.document_number}</span>
+                                <span class="status-badge ${statusClass}">${getStatusLabel(reading.overall_status)}</span>
+                                ${reading.verified_by ? '<span class="status-badge verified"><i class="fas fa-check"></i> Verified</span>' : ''}
+                            </div>
+                            
+                            <div class="card-details">
+                                <span><i class="fas fa-calendar"></i> ${new Date(reading.log_date).toLocaleDateString()}</span>
+                                <span><i class="fas fa-building"></i> ${reading.branch}</span>
+                                <span><i class="fas fa-warehouse"></i> ${reading.section}</span>
+                                <span><i class="fas fa-user"></i> ${reading.filled_by}</span>
+                            </div>
+                            
+                            <div class="products-summary">
+                                ${displayItems.map(item => `
+                                    <span class="product-pill ${getStatusClass(item.status)}">
+                                        ${item.product_name} (${new Date(item.expiry_date).toLocaleDateString()})
+                                    </span>
+                                `).join('')}
+                                ${moreCount > 0 ? `<span class="more-products">+${moreCount} more</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="card-actions">
+                            <button class="btn btn-edit" onclick="editReading(${reading.id})" ${!canEdit(reading) ? 'disabled' : ''}>
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-verify" onclick="verifyReading(${reading.id})" ${!canVerify(reading) ? 'disabled' : ''}>
+                                <i class="fas fa-check-circle"></i> Verify
+                            </button>
+                            <button class="btn btn-delete" onclick="deleteReading(${reading.id})" ${!canDelete(reading) ? 'disabled' : ''}>
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editReading(id) {
+            window.location.href = `/dry-store-expiry/form?edit=${id}`;
+        }
+
+        async function verifyReading(id) {
+            if (!confirm('Are you sure you want to verify this reading? This action cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`/dry-store-expiry/api/readings/${id}/verify`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Failed to verify');
+                
+                showToast('Reading verified successfully!', 'success');
+                await loadReadings();
+            } catch (error) {
+                console.error('Error verifying reading:', error);
+                showToast('Failed to verify reading', 'error');
+            }
+        }
+
+        async function deleteReading(id) {
+            if (!confirm('Are you sure you want to delete this reading? This action cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`/dry-store-expiry/api/readings/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete');
+                
+                showToast('Reading deleted successfully!', 'success');
+                await loadReadings();
+            } catch (error) {
+                console.error('Error deleting reading:', error);
+                showToast('Failed to delete reading', 'error');
+            }
+        }
+
+        function showImage(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.add('show');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('show');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Keyboard handler for modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeImageModal();
+        });
+    </script>
+</body>
+</html>

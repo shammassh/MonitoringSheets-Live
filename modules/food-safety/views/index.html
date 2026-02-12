@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#059669">
+    <title>Food Safety Verification - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .menu-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .menu-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-desc {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        .alert-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            min-width: 24px;
+            text-align: center;
+            display: none;
+        }
+        
+        .alert-badge.show {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .menu-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+            .menu-card { padding: 1rem; }
+            .menu-icon { width: 48px; height: 48px; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/home" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Home
+            </a>
+            <span class="header-title">🔬 Food Safety Verification</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="menu-grid">
+            <a href="/food-safety/references" class="menu-card">
+                <div class="menu-icon">📋</div>
+                <div class="menu-title">Procedures</div>
+                <div class="menu-desc">Manage verification procedures and references</div>
+            </a>
+            
+            <a href="/food-safety/form" class="menu-card">
+                <div class="menu-icon">✏️</div>
+                <div class="menu-title">New Verification</div>
+                <div class="menu-desc">Record new food safety verification</div>
+            </a>
+            
+            <a href="/food-safety/history" class="menu-card">
+                <div class="menu-icon">📜</div>
+                <div class="menu-title">Verification History</div>
+                <div class="menu-desc">View past verification records</div>
+            </a>
+            
+            <a href="/food-safety/schedule" class="menu-card">
+                <div class="menu-icon">📅</div>
+                <div class="menu-title">Schedule</div>
+                <div class="menu-desc">View verification due dates</div>
+                <span class="alert-badge" id="alert-badge">0</span>
+            </a>
+            
+            <a href="/food-safety/settings" class="menu-card">
+                <div class="menu-icon">⚙️</div>
+                <div class="menu-title">Settings</div>
+                <div class="menu-desc">Configure branches and preferences</div>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/food-safety/api/alerts/count?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                const data = await res.json();
+                
+                if (data.count > 0) {
+                    const badge = document.getElementById('alert-badge');
+                    badge.textContent = data.count;
+                    badge.classList.add('show');
+                }
+            } catch (e) {
+                console.error('Error loading alerts:', e);
+            }
+        });
+    </script>
+</body>
+</html>

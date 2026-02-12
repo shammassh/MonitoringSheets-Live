@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0891b2">
+    <title>New Reading - Water Quality Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+        }
+        
+        .card-header h2 {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .reference-note {
+            background: #cffafe;
+            border-left: 4px solid #0891b2;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .reference-note h4 {
+            color: #0e7490;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reference-note p {
+            color: #164e63;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .required {
+            color: #ef4444;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0891b2;
+        }
+        
+        .form-group input[readonly] {
+            background: #f9fafb;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .reading-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .reading-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f9fafb;
+        }
+        
+        .reading-item.fail {
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+        
+        .reading-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .reading-item-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        
+        .reading-item-ref {
+            font-size: 0.75rem;
+            color: #6b7280;
+            background: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .value-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .value-input-wrapper input,
+        .value-input-wrapper select {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .value-input-wrapper input:focus,
+        .value-input-wrapper select:focus {
+            outline: none;
+            border-color: #0891b2;
+        }
+        
+        .unit {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 45px;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .salt-options {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .salt-option {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .salt-option:hover {
+            border-color: #0891b2;
+        }
+        
+        .salt-option.selected.yes {
+            background: #d1fae5;
+            border-color: #059669;
+            color: #065f46;
+        }
+        
+        .salt-option.selected.no {
+            background: #fee2e2;
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+        
+        .corrective-section {
+            display: none;
+        }
+        
+        .corrective-section.show {
+            display: block;
+        }
+        
+        .corrective-section textarea {
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+        
+        .corrective-section label {
+            color: #dc2626;
+        }
+        
+        .submit-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 50;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .reading-grid { grid-template-columns: 1fr; }
+            .submit-bar { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/dashboard" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">💧 New Reading</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="reference-note">
+            <h4>📋 Reference Standards</h4>
+            <p>
+                TDS: 100-750 mg/L | TH: &lt; 500 mg/L | pH: 6.5-8.5<br>
+                Chlorine (30 min): &gt; 0.5 mg/L | Chlorine (POU): 0.2-0.5 mg/L
+            </p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>📍 Basic Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reading-date">Date <span class="required">*</span></label>
+                        <input type="date" id="reading-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="section">Section <span class="required">*</span></label>
+                        <select id="section" required>
+                            <option value="">Select section...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="filled-by">Filled By</label>
+                    <input type="text" id="filled-by" readonly>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>🧪 Water Quality Readings</h2>
+            </div>
+            <div class="card-body">
+                <div class="reading-grid">
+                    <!-- TH -->
+                    <div class="reading-item" id="th-item">
+                        <div class="reading-item-header">
+                            <span class="reading-item-label">TH (Total Hardness)</span>
+                            <span class="reading-item-ref">&lt; 500 mg/L</span>
+                        </div>
+                        <div class="value-input-wrapper">
+                            <input type="number" step="0.01" id="th-value" placeholder="0.00" oninput="checkTH()">
+                            <span class="unit">mg/L</span>
+                            <span class="status-badge pass" id="th-status">Pass</span>
+                        </div>
+                    </div>
+                    
+                    <!-- TDS -->
+                    <div class="reading-item" id="tds-item">
+                        <div class="reading-item-header">
+                            <span class="reading-item-label">TDS (Total Dissolved Solids)</span>
+                            <span class="reading-item-ref">100-750 mg/L</span>
+                        </div>
+                        <div class="value-input-wrapper">
+                            <input type="number" step="0.01" id="tds-value" placeholder="0.00" oninput="checkTDS()">
+                            <span class="unit">mg/L</span>
+                            <span class="status-badge pass" id="tds-status">Pass</span>
+                        </div>
+                    </div>
+                    
+                    <!-- pH -->
+                    <div class="reading-item" id="ph-item">
+                        <div class="reading-item-header">
+                            <span class="reading-item-label">pH Level</span>
+                            <span class="reading-item-ref">6.5 - 8.5</span>
+                        </div>
+                        <div class="value-input-wrapper">
+                            <input type="number" step="0.01" id="ph-value" placeholder="0.00" oninput="checkPH()">
+                            <span class="unit"></span>
+                            <span class="status-badge pass" id="ph-status">Pass</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Salt -->
+                    <div class="reading-item" id="salt-item">
+                        <div class="reading-item-header">
+                            <span class="reading-item-label">Salt Level</span>
+                            <span class="reading-item-ref">Enough / Refill</span>
+                        </div>
+                        <div class="salt-options">
+                            <div class="salt-option" id="salt-yes" onclick="selectSalt(true)">✓ Enough</div>
+                            <div class="salt-option" id="salt-no" onclick="selectSalt(false)">⚠ Refill Needed</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chlorine 30 min -->
+                    <div class="reading-item" id="chlorine-30-item">
+                        <div class="reading-item-header">
+                            <span class="reading-item-label">Free Chlorine (30 min after filling)</span>
+                            <span class="reading-item-ref">&gt; 0.5 mg/L</span>
+                        </div>
+                        <div class="value-input-wrapper">
+                            <input type="number" step="0.01" id="chlorine-30-value" placeholder="0.00" oninput="checkChlorine30()">
+                            <span class="unit">mg/L</span>
+                            <span class="status-badge pass" id="chlorine-30-status">Pass</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Chlorine Point of Use -->
+                    <div class="reading-item" id="chlorine-pou-item">
+                        <div class="reading-item-header">
+                            <span class="reading-item-label">Free Chlorine (Point of Use)</span>
+                            <span class="reading-item-ref">0.2-0.5 mg/L</span>
+                        </div>
+                        <div class="value-input-wrapper">
+                            <input type="number" step="0.01" id="chlorine-pou-value" placeholder="0.00" oninput="checkChlorinePOU()">
+                            <span class="unit">mg/L</span>
+                            <span class="status-badge pass" id="chlorine-pou-status">Pass</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card corrective-section" id="corrective-section">
+            <div class="card-header" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);">
+                <h2>⚠️ Corrective Action Required</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="corrective-action">Describe the corrective action taken <span class="required">*</span></label>
+                    <textarea id="corrective-action" rows="4" placeholder="Describe the corrective action taken for failed parameters..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="submit-bar">
+        <button class="btn btn-secondary" onclick="window.location.href='/water-quality'">Cancel</button>
+        <button class="btn btn-primary" id="submit-btn" onclick="submitReading()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Reading
+        </button>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let settings = {
+            tds_min: 100, tds_max: 750,
+            th_max: 500,
+            ph_min: 6.5, ph_max: 8.5,
+            chlorine_30min_min: 0.5,
+            chlorine_pou_min: 0.2, chlorine_pou_max: 0.5
+        };
+        let currentUser = null;
+        let saltOk = null;
+        let editingId = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reading-date').value = today;
+            document.getElementById('reading-date').min = today;
+            await loadSettings();
+            await loadSections();
+            await loadCurrentUser();
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            editingId = urlParams.get('edit');
+            if (editingId) {
+                await loadReadingForEdit(editingId);
+            }
+        });
+        
+        async function loadSettings() {
+            try {
+                const res = await fetch('/water-quality/api/settings');
+                const data = await res.json();
+                settings.tds_min = parseFloat(data.tds_min) || 100;
+                settings.tds_max = parseFloat(data.tds_max) || 750;
+                settings.th_max = parseFloat(data.th_max) || 500;
+                settings.ph_min = parseFloat(data.ph_min) || 6.5;
+                settings.ph_max = parseFloat(data.ph_max) || 8.5;
+                settings.chlorine_30min_min = parseFloat(data.chlorine_30min_min) || 0.5;
+                settings.chlorine_pou_min = parseFloat(data.chlorine_pou_min) || 0.2;
+                settings.chlorine_pou_max = parseFloat(data.chlorine_pou_max) || 0.5;
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+        
+        async function loadSections() {
+            try {
+                const res = await fetch('/water-quality/api/sections');
+                const sections = await res.json();
+                
+                const select = document.getElementById('section');
+                sections.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s.name;
+                    option.textContent = s.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading sections:', e);
+            }
+        }
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/water-quality/api/current-user');
+                currentUser = await res.json();
+                document.getElementById('filled-by').value = currentUser.name;
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        async function loadReadingForEdit(id) {
+            try {
+                const res = await fetch(`/water-quality/api/readings/${id}`);
+                if (!res.ok) throw new Error('Reading not found');
+                
+                const r = await res.json();
+                
+                document.getElementById('reading-date').value = r.reading_date.split('T')[0];
+                document.getElementById('section').value = r.section;
+                document.getElementById('filled-by').value = r.filled_by || '';
+                document.getElementById('th-value').value = r.th_value || '';
+                document.getElementById('tds-value').value = r.tds_value || '';
+                document.getElementById('ph-value').value = r.ph_value || '';
+                document.getElementById('chlorine-30-value').value = r.chlorine_30min || '';
+                document.getElementById('chlorine-pou-value').value = r.chlorine_point_of_use || '';
+                document.getElementById('corrective-action').value = r.corrective_action || '';
+                
+                if (r.salt_ok !== null) {
+                    selectSalt(r.salt_ok);
+                }
+                
+                checkTH();
+                checkTDS();
+                checkPH();
+                checkChlorine30();
+                checkChlorinePOU();
+                
+                document.querySelector('.header-title').textContent = '💧 Edit Reading';
+                document.getElementById('submit-btn').innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Update Reading
+                `;
+            } catch (e) {
+                console.error('Error loading reading:', e);
+                showToast('Failed to load reading', 'error');
+            }
+        }
+        
+        function checkTH() {
+            const value = parseFloat(document.getElementById('th-value').value);
+            const statusBadge = document.getElementById('th-status');
+            const item = document.getElementById('th-item');
+            
+            if (isNaN(value) || value === '') {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            } else if (value >= settings.th_max) {
+                statusBadge.textContent = 'Fail';
+                statusBadge.className = 'status-badge fail';
+                item.classList.add('fail');
+            } else {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            }
+            checkCorrective();
+        }
+        
+        function checkTDS() {
+            const value = parseFloat(document.getElementById('tds-value').value);
+            const statusBadge = document.getElementById('tds-status');
+            const item = document.getElementById('tds-item');
+            
+            if (isNaN(value) || value === '') {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            } else if (value < settings.tds_min || value > settings.tds_max) {
+                statusBadge.textContent = 'Fail';
+                statusBadge.className = 'status-badge fail';
+                item.classList.add('fail');
+            } else {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            }
+            checkCorrective();
+        }
+        
+        function checkPH() {
+            const value = parseFloat(document.getElementById('ph-value').value);
+            const statusBadge = document.getElementById('ph-status');
+            const item = document.getElementById('ph-item');
+            
+            if (isNaN(value) || value === '') {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            } else if (value < settings.ph_min || value > settings.ph_max) {
+                statusBadge.textContent = 'Fail';
+                statusBadge.className = 'status-badge fail';
+                item.classList.add('fail');
+            } else {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            }
+            checkCorrective();
+        }
+        
+        function checkChlorine30() {
+            const value = parseFloat(document.getElementById('chlorine-30-value').value);
+            const statusBadge = document.getElementById('chlorine-30-status');
+            const item = document.getElementById('chlorine-30-item');
+            
+            if (isNaN(value) || value === '') {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            } else if (value < settings.chlorine_30min_min) {
+                statusBadge.textContent = 'Fail';
+                statusBadge.className = 'status-badge fail';
+                item.classList.add('fail');
+            } else {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            }
+            checkCorrective();
+        }
+        
+        function checkChlorinePOU() {
+            const value = parseFloat(document.getElementById('chlorine-pou-value').value);
+            const statusBadge = document.getElementById('chlorine-pou-status');
+            const item = document.getElementById('chlorine-pou-item');
+            
+            if (isNaN(value) || value === '') {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            } else if (value < settings.chlorine_pou_min || value > settings.chlorine_pou_max) {
+                statusBadge.textContent = 'Fail';
+                statusBadge.className = 'status-badge fail';
+                item.classList.add('fail');
+            } else {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                item.classList.remove('fail');
+            }
+            checkCorrective();
+        }
+        
+        function selectSalt(ok) {
+            saltOk = ok;
+            const yesBtn = document.getElementById('salt-yes');
+            const noBtn = document.getElementById('salt-no');
+            const item = document.getElementById('salt-item');
+            
+            yesBtn.classList.remove('selected', 'yes');
+            noBtn.classList.remove('selected', 'no');
+            item.classList.remove('fail');
+            
+            if (ok) {
+                yesBtn.classList.add('selected', 'yes');
+            } else {
+                noBtn.classList.add('selected', 'no');
+                item.classList.add('fail');
+            }
+            checkCorrective();
+        }
+        
+        function checkCorrective() {
+            const hasFailures = 
+                document.getElementById('th-status').textContent === 'Fail' ||
+                document.getElementById('tds-status').textContent === 'Fail' ||
+                document.getElementById('ph-status').textContent === 'Fail' ||
+                document.getElementById('chlorine-30-status').textContent === 'Fail' ||
+                document.getElementById('chlorine-pou-status').textContent === 'Fail' ||
+                saltOk === false;
+            
+            const section = document.getElementById('corrective-section');
+            if (hasFailures) {
+                section.classList.add('show');
+            } else {
+                section.classList.remove('show');
+            }
+        }
+        
+        async function submitReading() {
+            const reading_date = document.getElementById('reading-date').value;
+            const section = document.getElementById('section').value;
+            
+            if (!reading_date || !section) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (saltOk === null) {
+                showToast('Please select salt level status', 'error');
+                return;
+            }
+            
+            const hasFailures = 
+                document.getElementById('th-status').textContent === 'Fail' ||
+                document.getElementById('tds-status').textContent === 'Fail' ||
+                document.getElementById('ph-status').textContent === 'Fail' ||
+                document.getElementById('chlorine-30-status').textContent === 'Fail' ||
+                document.getElementById('chlorine-pou-status').textContent === 'Fail' ||
+                saltOk === false;
+            
+            const corrective_action = document.getElementById('corrective-action').value.trim();
+            
+            if (hasFailures && !corrective_action) {
+                showToast('Please enter corrective action for failed parameters', 'error');
+                return;
+            }
+            
+            const data = {
+                reading_date,
+                section,
+                th_value: parseFloat(document.getElementById('th-value').value) || null,
+                th_status: document.getElementById('th-status').textContent,
+                tds_value: parseFloat(document.getElementById('tds-value').value) || null,
+                tds_status: document.getElementById('tds-status').textContent,
+                salt_ok: saltOk,
+                salt_status: saltOk ? 'Pass' : 'Fail',
+                ph_value: parseFloat(document.getElementById('ph-value').value) || null,
+                ph_status: document.getElementById('ph-status').textContent,
+                chlorine_30min: parseFloat(document.getElementById('chlorine-30-value').value) || null,
+                chlorine_30min_status: document.getElementById('chlorine-30-status').textContent,
+                chlorine_point_of_use: parseFloat(document.getElementById('chlorine-pou-value').value) || null,
+                chlorine_point_of_use_status: document.getElementById('chlorine-pou-status').textContent,
+                corrective_action: corrective_action || null,
+                filled_by: document.getElementById('filled-by').value
+            };
+            
+            try {
+                document.getElementById('submit-btn').disabled = true;
+                
+                const url = editingId 
+                    ? `/water-quality/api/readings/${editingId}` 
+                    : '/water-quality/api/readings';
+                
+                const res = await fetch(url, {
+                    method: editingId ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    showToast(editingId ? 'Reading updated!' : 'Reading saved!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/water-quality/history';
+                    }, 1000);
+                } else {
+                    const errorData = await res.json().catch(() => ({}));
+                    const errorMsg = errorData.error || errorData.message || 'Failed to save';
+                    throw new Error(errorMsg);
+                }
+            } catch (e) {
+                console.error('Submit error:', e);
+                showToast(e.message || 'Failed to save reading', 'error');
+                document.getElementById('submit-btn').disabled = false;
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

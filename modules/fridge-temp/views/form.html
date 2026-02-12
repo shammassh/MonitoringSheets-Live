@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Fridge Temperature Recording - FS Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #4f46e5;
+        }
+        
+        .btn-primary:hover {
+            background: #eef2ff;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .document-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .document-info .info-item {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .document-info .label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+        
+        .document-info .value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+        
+        th, td {
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #4f46e5;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+        }
+        
+        th.fridge-col {
+            text-align: left;
+            min-width: 150px;
+        }
+        
+        th.action-col {
+            min-width: 180px;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        tr:hover {
+            background: #eef2ff;
+        }
+        
+        .fridge-name {
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        .temp-range {
+            font-size: 0.7rem;
+            color: #6b7280;
+            display: block;
+        }
+        
+        .temp-input {
+            width: 70px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .temp-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        
+        .temp-input.pass {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .temp-input.fail {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .action-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            resize: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1001;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .content-wrapper {
+            padding-bottom: 80px;
+        }
+        
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-group {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>❄️ Record Fridge Temperatures</h1>
+            <div class="header-actions">
+                <a href="/fridge-temp/settings" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83"/>
+                    </svg>
+                    Settings
+                </a>
+                <a href="/fridge-temp" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container content-wrapper">
+        <!-- Filter/Selection Card -->
+        <div class="card">
+            <div class="filter-bar">
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" id="log-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Filter by Section</label>
+                    <select id="section-select">
+                        <option value="">All Sections</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="loadForm()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4 17 10 11 4 5"/>
+                        <line x1="12" y1="19" x2="20" y2="19"/>
+                    </svg>
+                    Load Form
+                </button>
+            </div>
+            <div class="document-info" id="document-info" style="display: none;">
+                <div class="info-item">
+                    <span class="label">Document:</span>
+                    <span class="value" id="doc-number">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Filled By:</span>
+                    <span class="value" id="filled-by">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temperature Table -->
+        <div class="card" id="form-card" style="display: none;">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="fridge-col">Fridge</th>
+                            <th>1 AM</th>
+                            <th>4 AM</th>
+                            <th>7 AM</th>
+                            <th>10 AM</th>
+                            <th>1 PM</th>
+                            <th>4 PM</th>
+                            <th>7 PM</th>
+                            <th>10 PM</th>
+                            <th class="action-col">Corrective Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="readings-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="card" id="empty-card">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                    <line x1="4" y1="10" x2="20" y2="10"/>
+                    <line x1="10" y1="14" x2="14" y2="14"/>
+                    <line x1="10" y1="18" x2="14" y2="18"/>
+                </svg>
+                <h3>Select a Date</h3>
+                <p>Choose a date above and click "Load Form" to start recording temperatures.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem;">
+                    Use the section filter to show only specific fridges. All fridges are saved under one document per day.
+                </p>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem;">
+                    <a href="/fridge-temp/settings">Set up your fridges first</a> if you haven't already.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Bar -->
+    <div class="save-bar" id="save-bar" style="display: none;">
+        <button class="btn btn-secondary" onclick="window.location.reload()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M8 16H3v5"/>
+            </svg>
+            Reset
+        </button>
+        <button class="btn btn-success" onclick="saveReadings()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Readings
+        </button>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_BASE = '/fridge-temp/api';
+        
+        let TIME_SLOTS = [];
+        let TIME_LABELS = {};
+        let TIME_HOURS = {}; // Map slot to hour (0-23)
+        let currentUser = null;
+        let fridges = [];
+        let existingReadings = {};
+        let documentId = null;
+        let documentNumber = null;
+        
+        // Get today's date in local timezone (YYYY-MM-DD format)
+        function getLocalToday() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Time slot to hour mapping
+        const SLOT_HOURS = {
+            '01am': 1, '04am': 4, '07am': 7, '10am': 10,
+            '01pm': 13, '04pm': 16, '07pm': 19, '10pm': 22
+        };
+        
+        // Check if a time slot is within allowed window
+        // Rule: Can ONLY enter data FROM slot time TO slot time + 30 minutes
+        // After 30 minutes, the slot is disabled
+        function isSlotEditable(slot) {
+            const selectedDate = document.getElementById('log-date').value;
+            const today = getLocalToday();
+            
+            // If not today, no slots are editable (view only)
+            if (selectedDate !== today) {
+                return false;
+            }
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTotalMinutes = currentHour * 60 + currentMinutes;
+            
+            const slotHour = SLOT_HOURS[slot];
+            if (slotHour === undefined) {
+                console.warn('Unknown slot:', slot);
+                return false;
+            }
+            
+            const slotStartMinutes = slotHour * 60;        // e.g., 1:00 AM = 60 minutes
+            const slotEndMinutes = slotStartMinutes + 30;  // e.g., 1:30 AM = 90 minutes
+            
+            // Can edit ONLY if: current time >= slot time AND current time <= slot time + 30 mins
+            return currentTotalMinutes >= slotStartMinutes && currentTotalMinutes <= slotEndMinutes;
+        }
+        
+        // Check if slot is past the 30-minute window (for warning purposes)
+        function isSlotLate(slot) {
+            const slotHour = SLOT_HOURS[slot];
+            const slotEndMinutes = slotHour * 60 + 30;
+            
+            const now = new Date();
+            const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+            
+            return currentTotalMinutes > slotEndMinutes;
+        }
+        
+        // Check if any slot has a failing temperature
+        function hasFailingTemp(row) {
+            const min = parseFloat(row.dataset.min);
+            const max = parseFloat(row.dataset.max);
+            const inputs = row.querySelectorAll('input[data-slot]');
+            
+            for (const input of inputs) {
+                const value = input.value.trim();
+                if (value !== '') {
+                    const temp = parseFloat(value);
+                    if (!isNaN(temp) && (temp < min || temp > max)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check for date parameter in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const dateParam = urlParams.get('date');
+            
+            if (dateParam) {
+                document.getElementById('log-date').value = dateParam;
+            } else {
+                // Set today's date
+                document.getElementById('log-date').valueAsDate = new Date();
+            }
+            
+            // Load time slots first
+            await loadTimeSlots();
+            
+            // Load current user
+            try {
+                const response = await fetch(`${API_BASE}/current-user`);
+                currentUser = await response.json();
+            } catch (err) {
+                console.error('Error loading user:', err);
+            }
+            
+            // Load sections
+            await loadSections();
+            
+            // If date was passed, auto-load the form
+            if (dateParam) {
+                loadForm();
+            }
+            
+            // Auto-load the form with today's date
+            await loadForm();
+        });
+        
+        // Load time slots from database
+        async function loadTimeSlots() {
+            try {
+                const response = await fetch(`${API_BASE}/time-slots?_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+                TIME_SLOTS = data.slots || [];
+                TIME_LABELS = data.labels || {};
+                
+                // Update table headers dynamically
+                updateTableHeaders();
+            } catch (err) {
+                console.error('Error loading time slots:', err);
+                // Fallback to defaults
+                TIME_SLOTS = ['01am', '04am', '07am', '10am', '01pm', '04pm', '07pm', '10pm'];
+                TIME_LABELS = {
+                    '01am': '1:00 AM', '04am': '4:00 AM', '07am': '7:00 AM', '10am': '10:00 AM',
+                    '01pm': '1:00 PM', '04pm': '4:00 PM', '07pm': '7:00 PM', '10pm': '10:00 PM'
+                };
+            }
+        }
+        
+        // Update table headers based on time slots
+        function updateTableHeaders() {
+            const thead = document.querySelector('#form-card table thead tr');
+            if (!thead) return;
+            
+            let headerHtml = '<th class="fridge-col">Fridge</th>';
+            TIME_SLOTS.forEach(slot => {
+                headerHtml += `<th>${TIME_LABELS[slot] || slot}</th>`;
+            });
+            headerHtml += '<th class="action-col">Corrective Action</th>';
+            thead.innerHTML = headerHtml;
+        }
+        
+        // Show toast
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // Load sections
+        async function loadSections() {
+            try {
+                const response = await fetch(`${API_BASE}/sections?_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const sections = await response.json();
+                
+                const select = document.getElementById('section-select');
+                select.innerHTML = '<option value="">All Sections</option>' +
+                    sections.map(s => `<option value="${s}">${s}</option>`).join('');
+            } catch (err) {
+                console.error('Error loading sections:', err);
+                showToast('Failed to load sections', true);
+            }
+        }
+        
+        // Load form
+        async function loadForm() {
+            const date = document.getElementById('log-date').value;
+            const section = document.getElementById('section-select').value;
+            
+            if (!date) {
+                showToast('Please select a date', true);
+                return;
+            }
+            
+            try {
+                // Load fridges (filter by section if selected)
+                let fridgesUrl = `${API_BASE}/fridges?_t=${Date.now()}`;
+                if (section) {
+                    fridgesUrl += `&section=${encodeURIComponent(section)}`;
+                }
+                const fridgesResponse = await fetch(fridgesUrl, {
+                    cache: 'no-store'
+                });
+                fridges = await fridgesResponse.json();
+                
+                if (fridges.length === 0) {
+                    showToast('No fridges found. Add fridges in Settings.', true);
+                    return;
+                }
+                
+                // Check for existing document (one per date)
+                const checkResponse = await fetch(`${API_BASE}/documents/check?date=${date}`);
+                const checkData = await checkResponse.json();
+                
+                existingReadings = {};
+                
+                if (checkData.exists) {
+                    documentId = checkData.document.id;
+                    documentNumber = checkData.document.document_number;
+                    
+                    // Load existing readings
+                    const docResponse = await fetch(`${API_BASE}/documents/${documentId}`);
+                    const docData = await docResponse.json();
+                    
+                    docData.readings.forEach(r => {
+                        existingReadings[r.fridge_id] = r;
+                    });
+                    
+                    document.getElementById('doc-number').textContent = documentNumber;
+                    document.getElementById('filled-by').textContent = checkData.document.filled_by;
+                    document.getElementById('document-info').style.display = 'flex';
+                } else {
+                    documentId = null;
+                    documentNumber = 'New Document';
+                    document.getElementById('doc-number').textContent = 'Will be generated on save';
+                    document.getElementById('filled-by').textContent = currentUser?.name || 'Unknown';
+                    document.getElementById('document-info').style.display = 'flex';
+                }
+                
+                renderTable();
+                
+                document.getElementById('empty-card').style.display = 'none';
+                document.getElementById('form-card').style.display = 'block';
+                document.getElementById('save-bar').style.display = 'flex';
+                
+            } catch (err) {
+                console.error('Error loading form:', err);
+                showToast('Failed to load form', true);
+            }
+        }
+        
+        // Render temperature table
+        function renderTable() {
+            const tbody = document.getElementById('readings-body');
+            const selectedDate = document.getElementById('log-date').value;
+            const today = getLocalToday();
+            const isToday = selectedDate === today;
+            
+            tbody.innerHTML = fridges.map(f => {
+                const existing = existingReadings[f.id] || {};
+                const existingAction = existing.corrective_action || '';
+                
+                return `
+                    <tr data-fridge-id="${f.id}" data-min="${f.min_temp}" data-max="${f.max_temp}">
+                        <td class="fridge-name">
+                            ${escapeHtml(f.fridge_name)}
+                            <span class="temp-range">${f.min_temp}°C to ${f.max_temp}°C</span>
+                        </td>
+                        ${TIME_SLOTS.map(slot => {
+                            const existingValue = existing[`temp_${slot}`];
+                            const hasValue = existingValue !== null && existingValue !== undefined && existingValue !== '';
+                            const editable = isToday ? isSlotEditable(slot) : false;
+                            // Disable if not today OR not within the 30-min window
+                            const disabled = !isToday || !editable ? 'disabled' : '';
+                            
+                            let title = '';
+                            if (!isToday) {
+                                title = 'Past date - view only';
+                            } else if (!editable) {
+                                const slotHour = SLOT_HOURS[slot];
+                                const now = new Date();
+                                const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+                                const slotStartMinutes = slotHour * 60;
+                                if (currentTotalMinutes < slotStartMinutes) {
+                                    title = 'Not yet - wait until slot time';
+                                } else {
+                                    title = 'Window closed - 30 min limit passed';
+                                }
+                            }
+                            
+                            return `
+                            <td>
+                                <input type="number" 
+                                       class="temp-input ${getInputClass(existingValue, f.min_temp, f.max_temp)}" 
+                                       data-slot="${slot}"
+                                       value="${existingValue ?? ''}"
+                                       step="0.1"
+                                       ${disabled}
+                                       title="${title}"
+                                       onchange="updateTempClass(this, ${f.min_temp}, ${f.max_temp}); checkCorrectiveAction(this)">
+                            </td>
+                        `}).join('')}
+                        <td>
+                            <textarea class="action-input" 
+                                      data-action="true"
+                                      rows="2"
+                                      ${!isToday ? 'disabled' : ''}
+                                      placeholder="Required if temp fails">${existingAction}</textarea>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Get input class based on value
+        function getInputClass(value, min, max) {
+            if (value === null || value === undefined || value === '') return '';
+            const num = parseFloat(value);
+            if (isNaN(num)) return '';
+            return (num >= min && num <= max) ? 'pass' : 'fail';
+        }
+        
+        // Update temp input class
+        function updateTempClass(input, min, max) {
+            const value = input.value;
+            input.classList.remove('pass', 'fail');
+            if (value !== '') {
+                const num = parseFloat(value);
+                if (!isNaN(num)) {
+                    input.classList.add((num >= min && num <= max) ? 'pass' : 'fail');
+                }
+            }
+        }
+        
+        // Check if corrective action is needed when temp changes
+        function checkCorrectiveAction(input) {
+            const row = input.closest('tr');
+            const actionInput = row.querySelector('textarea[data-action="true"]');
+            
+            if (hasFailingTemp(row)) {
+                actionInput.style.borderColor = '#ef4444';
+                actionInput.style.background = '#fef2f2';
+                actionInput.placeholder = 'REQUIRED - Enter corrective action';
+            } else {
+                actionInput.style.borderColor = '#d1d5db';
+                actionInput.style.background = '';
+                actionInput.placeholder = 'Enter if needed';
+            }
+        }
+        
+        // Save readings
+        async function saveReadings() {
+            const date = document.getElementById('log-date').value;
+            
+            if (!date) {
+                showToast('Please select a date', true);
+                return;
+            }
+            
+            // Validate corrective actions for failing temps
+            const rows = document.querySelectorAll('#readings-body tr');
+            const errors = [];
+            
+            rows.forEach(row => {
+                const fridgeName = row.querySelector('.fridge-name').textContent.trim().split('\n')[0].trim();
+                
+                if (hasFailingTemp(row)) {
+                    const actionInput = row.querySelector('textarea[data-action="true"]');
+                    if (!actionInput.value.trim()) {
+                        errors.push(fridgeName);
+                        actionInput.style.borderColor = '#ef4444';
+                        actionInput.style.background = '#fef2f2';
+                    }
+                }
+            });
+            
+            if (errors.length > 0) {
+                showToast(`Corrective action required for: ${errors.slice(0, 3).join(', ')}${errors.length > 3 ? ' and others' : ''}`, true);
+                return;
+            }
+            
+            const readings = [];
+            
+            rows.forEach(row => {
+                const fridgeId = parseInt(row.dataset.fridgeId);
+                const reading = { fridge_id: fridgeId };
+                
+                TIME_SLOTS.forEach(slot => {
+                    const input = row.querySelector(`input[data-slot="${slot}"]`);
+                    const value = input.value.trim();
+                    reading[`temp_${slot}`] = value === '' ? null : parseFloat(value);
+                });
+                
+                const actionInput = row.querySelector('textarea[data-action="true"]');
+                reading.corrective_action = actionInput.value.trim() || null;
+                
+                readings.push(reading);
+            });
+            
+            try {
+                const response = await fetch(`${API_BASE}/documents`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        log_date: date,
+                        filled_by: currentUser?.name || 'Unknown',
+                        readings: readings
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    documentNumber = result.document_number;
+                    documentId = result.document_id;
+                    
+                    document.getElementById('doc-number').textContent = documentNumber;
+                    document.getElementById('filled-by').textContent = currentUser?.name || 'Unknown';
+                    
+                    showToast('Readings saved successfully!');
+                } else {
+                    throw new Error('Failed to save readings');
+                }
+            } catch (err) {
+                console.error('Error saving readings:', err);
+                showToast('Failed to save readings', true);
+            }
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

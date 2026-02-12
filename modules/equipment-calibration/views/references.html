@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>Calibration References - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .add-btn {
+            background: white;
+            color: #1e40af;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .frequency-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .freq-daily { background: #fee2e2; color: #991b1b; }
+        .freq-weekly { background: #fef3c7; color: #92400e; }
+        .freq-monthly { background: #d1fae5; color: #065f46; }
+        .freq-other { background: #e0e7ff; color: #3730a3; }
+        
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-edit, .btn-delete {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+        
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.1rem;
+        }
+        
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            background: #f9fafb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .form-row { grid-template-columns: 1fr; }
+            th, td { padding: 0.75rem 0.5rem; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/equipment-calibration" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">📋 Calibration References</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    Equipment / Tools to Calibrate
+                </h2>
+                <button class="add-btn" onclick="openModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Reference
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Frequency</th>
+                                <th>Reference</th>
+                                <th>Ref. Value</th>
+                                <th>Acceptable Error</th>
+                                <th>Method</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="references-table">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">Loading...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Add Calibration Reference</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reference-form">
+                    <input type="hidden" id="reference-id">
+                    
+                    <div class="form-group">
+                        <label for="name">Equipment/Tool Name *</label>
+                        <input type="text" id="name" name="name" required placeholder="e.g., Digital Thermometer, pH Meter">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="frequency">Calibration Frequency *</label>
+                            <select id="frequency" name="frequency" required>
+                                <option value="">Select frequency...</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Every 3 Days">Every 3 Days</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Biweekly">Biweekly</option>
+                                <option value="Every 3 Weeks">Every 3 Weeks</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Every 6 Months">Every 6 Months</option>
+                                <option value="Yearly">Yearly</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reference">Reference Standard</label>
+                            <input type="text" id="reference" name="reference" placeholder="e.g., Ice Bath, Buffer Solution">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reference_value">Reference Value</label>
+                            <input type="text" id="reference_value" name="reference_value" placeholder="e.g., 0°C, pH 7.0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="acceptable_error">Acceptable Error</label>
+                            <input type="text" id="acceptable_error" name="acceptable_error" placeholder="e.g., ±0.5°C, ±0.1 pH">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="method_used">Method Used</label>
+                        <textarea id="method_used" name="method_used" placeholder="Describe the calibration method..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveReference()">Save Reference</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let references = [];
+        let editingId = null;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReferences();
+        });
+        
+        async function loadReferences() {
+            try {
+                const res = await fetch('/equipment-calibration/api/references?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                const data = await res.json();
+                console.log('Loaded references:', data);
+                references = Array.isArray(data) ? data : [];
+                renderTable();
+            } catch (e) {
+                console.error('Error loading references:', e);
+                showToast('Failed to load references: ' + e.message, 'error');
+            }
+        }
+        
+        function renderTable() {
+            const tbody = document.getElementById('references-table');
+            console.log('Rendering table with', references.length, 'references');
+            
+            if (!references || references.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                </svg>
+                                <h3>No Calibration References</h3>
+                                <p>Click "Add Reference" to add your first equipment.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = references.map(ref => `
+                <tr>
+                    <td><strong>${ref.name}</strong></td>
+                    <td><span class="frequency-badge ${getFrequencyClass(ref.frequency)}">${ref.frequency}</span></td>
+                    <td>${ref.reference || '-'}</td>
+                    <td>${ref.reference_value || '-'}</td>
+                    <td>${ref.acceptable_error || '-'}</td>
+                    <td>${ref.method_used ? ref.method_used.substring(0, 50) + (ref.method_used.length > 50 ? '...' : '') : '-'}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-edit" onclick="editReference(${ref.id})">Edit</button>
+                            <button class="btn-delete" onclick="deleteReference(${ref.id})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function getFrequencyClass(freq) {
+            if (freq === 'Daily' || freq === 'Every 3 Days') return 'freq-daily';
+            if (freq === 'Weekly' || freq === 'Every 3 Weeks') return 'freq-weekly';
+            if (freq === 'Monthly') return 'freq-monthly';
+            return 'freq-other';
+        }
+        
+        function openModal(id = null) {
+            editingId = id;
+            document.getElementById('modal-title').textContent = id ? 'Edit Calibration Reference' : 'Add Calibration Reference';
+            document.getElementById('reference-form').reset();
+            
+            if (id) {
+                const ref = references.find(r => r.id === id);
+                if (ref) {
+                    document.getElementById('reference-id').value = ref.id;
+                    document.getElementById('name').value = ref.name;
+                    document.getElementById('frequency').value = ref.frequency;
+                    document.getElementById('reference').value = ref.reference || '';
+                    document.getElementById('reference_value').value = ref.reference_value || '';
+                    document.getElementById('acceptable_error').value = ref.acceptable_error || '';
+                    document.getElementById('method_used').value = ref.method_used || '';
+                }
+            }
+            
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            editingId = null;
+        }
+        
+        function editReference(id) {
+            openModal(id);
+        }
+        
+        async function saveReference() {
+            const form = document.getElementById('reference-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const data = {
+                name: document.getElementById('name').value,
+                frequency: document.getElementById('frequency').value,
+                reference: document.getElementById('reference').value,
+                reference_value: document.getElementById('reference_value').value,
+                acceptable_error: document.getElementById('acceptable_error').value,
+                method_used: document.getElementById('method_used').value
+            };
+            
+            try {
+                const url = editingId 
+                    ? `/equipment-calibration/api/references/${editingId}?_=${Date.now()}`
+                    : `/equipment-calibration/api/references?_=${Date.now()}`;
+                
+                const res = await fetch(url, {
+                    method: editingId ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    cache: 'no-store'
+                });
+                
+                if (!res.ok) throw new Error('Failed to save');
+                
+                showToast(editingId ? 'Reference updated!' : 'Reference added!', 'success');
+                closeModal();
+                loadReferences();
+            } catch (e) {
+                console.error('Error saving:', e);
+                showToast('Failed to save reference', 'error');
+            }
+        }
+        
+        async function deleteReference(id) {
+            if (!confirm('Are you sure you want to delete this reference?')) return;
+            
+            try {
+                const res = await fetch(`/equipment-calibration/api/references/${id}?_=${Date.now()}`, {
+                    method: 'DELETE',
+                    cache: 'no-store'
+                });
+                
+                if (!res.ok) throw new Error('Failed to delete');
+                
+                showToast('Reference deleted', 'success');
+                loadReferences();
+            } catch (e) {
+                console.error('Error deleting:', e);
+                showToast('Failed to delete reference', 'error');
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        // Close modal on outside click
+        document.getElementById('modal-overlay').addEventListener('click', (e) => {
+            if (e.target.id === 'modal-overlay') closeModal();
+        });
+    </script>
+</body>
+</html>

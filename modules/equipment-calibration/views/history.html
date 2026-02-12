@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>Calibration History - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filters input,
+        .filters select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .filters input:focus,
+        .filters select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .doc-number {
+            font-weight: 600;
+            color: #1e40af;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-mixed {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .view-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .view-btn:hover {
+            background: #2563eb;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        
+        /* Detail Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.1rem;
+        }
+        
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-item label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-item span {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .records-table th,
+        .records-table td {
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .records-table th {
+            background: #f3f4f6;
+        }
+        
+        .corrective-action-text {
+            color: #b45309;
+            font-size: 0.85rem;
+            background: #fef3c7;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+        
+        .verify-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-left: 0.5rem;
+        }
+        
+        .verify-btn:hover {
+            background: #059669;
+        }
+        
+        .verify-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .edit-btn {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-left: 0.5rem;
+        }
+        
+        .edit-btn:hover {
+            background: #d97706;
+        }
+        
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: #059669;
+            font-size: 0.85rem;
+        }
+        
+        .verified-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .filters { flex-direction: column; align-items: stretch; }
+            th, td { padding: 0.75rem; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/equipment-calibration" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">📋 Calibration History</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Filters -->
+        <div class="filters">
+            <input type="date" id="filter-date-from" placeholder="From Date">
+            <input type="date" id="filter-date-to" placeholder="To Date">
+            <select id="filter-status">
+                <option value="">All Status</option>
+                <option value="Pass">Pass Only</option>
+                <option value="Fail">Fail Only</option>
+            </select>
+            <button class="view-btn" onclick="applyFilters()">Apply Filters</button>
+        </div>
+        
+        <!-- History Table -->
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Calibration Records
+                </h2>
+                <span id="record-count">0 records</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Document #</th>
+                            <th>Date</th>
+                            <th>Equipment</th>
+                            <th>Status</th>
+                            <th>Verified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table">
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">Loading...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Calibration Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let calibrations = [];
+        let currentUser = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCurrentUser();
+            loadHistory();
+        });
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/equipment-calibration/api/me?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                currentUser = await res.json();
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        function canEdit() {
+            if (!currentUser) return false;
+            const role = currentUser.role || '';
+            return role === 'Admin' || role === 'Super Auditor';
+        }
+        
+        async function loadHistory() {
+            try {
+                const res = await fetch('/equipment-calibration/api/calibrations?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                calibrations = await res.json();
+                renderTable();
+            } catch (e) {
+                console.error('Error loading history:', e);
+                document.getElementById('history-table').innerHTML = `
+                    <tr><td colspan="7"><div class="empty-state">Failed to load history</div></td></tr>
+                `;
+            }
+        }
+        
+        function renderTable(data = calibrations) {
+            const tbody = document.getElementById('history-table');
+            document.getElementById('record-count').textContent = `${data.length} records`;
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <h3>No Calibration Records</h3>
+                                <p>Start by recording a calibration.</p>
+                                <a href="/equipment-calibration/form">New Calibration →</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = data.map(cal => {
+                const date = new Date(cal.calibration_date).toLocaleDateString('en-GB', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+                
+                const passCount = cal.pass_count || 0;
+                const failCount = cal.fail_count || 0;
+                const totalCount = cal.total_count || 0;
+                
+                let statusClass = 'status-pass';
+                let statusText = 'All Pass';
+                if (failCount > 0 && passCount > 0) {
+                    statusClass = 'status-mixed';
+                    statusText = 'Mixed';
+                } else if (failCount > 0) {
+                    statusClass = 'status-fail';
+                    statusText = 'Fail';
+                }
+                
+                return `
+                    <tr>
+                        <td><span class="doc-number">${cal.document_number}</span></td>
+                        <td>${date}</td>
+                        <td>${cal.equipment_name || 'Equipment'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            ${cal.verified 
+                                ? `<span class="verified-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    ${cal.verified_by || 'Verified'}
+                                   </span>`
+                                : '<span style="color: #9ca3af;">Not Verified</span>'
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="view-btn" onclick="viewDetails(${cal.id})">View</button>
+                                ${canEdit() 
+                                    ? `<button class="edit-btn" onclick="editCalibration(${cal.id})">✎ Edit</button>`
+                                    : ''
+                                }
+                                ${!cal.verified 
+                                    ? `<button class="verify-btn" onclick="verifyCalibration(${cal.id})">✓ Verify</button>`
+                                    : ''
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function applyFilters() {
+            const dateFrom = document.getElementById('filter-date-from').value;
+            const dateTo = document.getElementById('filter-date-to').value;
+            const status = document.getElementById('filter-status').value;
+            
+            let filtered = [...calibrations];
+            
+            if (dateFrom) {
+                filtered = filtered.filter(c => c.calibration_date >= dateFrom);
+            }
+            if (dateTo) {
+                filtered = filtered.filter(c => c.calibration_date <= dateTo);
+            }
+            if (status === 'Pass') {
+                filtered = filtered.filter(c => c.fail_count === 0);
+            } else if (status === 'Fail') {
+                filtered = filtered.filter(c => c.fail_count > 0);
+            }
+            
+            renderTable(filtered);
+        }
+        
+        async function viewDetails(id) {
+            try {
+                const res = await fetch(`/equipment-calibration/api/calibrations/${id}?_=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const data = await res.json();
+                
+                const session = data.session;
+                const records = data.records;
+                
+                const date = new Date(session.calibration_date).toLocaleDateString('en-GB', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+                
+                document.getElementById('modal-title').textContent = session.document_number;
+                
+                let recordsHtml = records.map(r => `
+                    <tr>
+                        <td><strong>${r.equipment_name}</strong></td>
+                        <td>${r.reference_value || '-'}</td>
+                        <td>${r.measured_value || '-'}</td>
+                        <td>${r.deviation || '-'}</td>
+                        <td><span class="status-badge ${r.status === 'Pass' ? 'status-pass' : 'status-fail'}">${r.status}</span></td>
+                    </tr>
+                    ${r.corrective_action ? `
+                        <tr>
+                            <td colspan="5">
+                                <div class="corrective-action-text">
+                                    <strong>⚠️ Corrective Action:</strong> ${r.corrective_action}
+                                </div>
+                            </td>
+                        </tr>
+                    ` : ''}
+                `).join('');
+                
+                document.getElementById('modal-body').innerHTML = `
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Date</label>
+                            <span>${date}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Verified</label>
+                            <span>${session.verified ? '✓ Yes by ' + (session.verified_by || '') : '✗ Not Verified'}</span>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 1rem;">Calibration Record</h4>
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>Equipment</th>
+                                <th>Reference Value</th>
+                                <th>Tested Value</th>
+                                <th>Difference</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${recordsHtml}
+                        </tbody>
+                    </table>
+                    
+                    ${session.remarks ? `<p style="margin-top: 1rem; color: #6b7280;"><strong>Remarks:</strong> ${session.remarks}</p>` : ''}
+                `;
+                
+                document.getElementById('detail-modal').classList.add('active');
+            } catch (e) {
+                console.error('Error loading details:', e);
+                alert('Failed to load details');
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+        
+        async function verifyCalibration(id) {
+            if (!confirm('Are you sure you want to verify this calibration record?')) return;
+            
+            try {
+                const res = await fetch(`/equipment-calibration/api/calibrations/${id}/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (res.ok) {
+                    alert('Calibration verified successfully!');
+                    loadHistory();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to verify');
+                }
+            } catch (e) {
+                console.error('Error verifying:', e);
+                alert('Failed to verify calibration');
+            }
+        }
+        
+        function editCalibration(id) {
+            // Redirect to form page with edit mode
+            window.location.href = `/equipment-calibration/form?edit=${id}`;
+        }
+        
+        // Close modal on outside click
+        document.getElementById('detail-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'detail-modal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

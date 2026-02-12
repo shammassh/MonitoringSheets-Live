@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Cooking & Cooling Form - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(13, 148, 136, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-title i {
+            color: #0d9488;
+        }
+
+        .form-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title.cooking {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .section-title.cooling {
+            background: #cffafe;
+            color: #0891b2;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .form-group label .required {
+            color: #dc2626;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Status indicators */
+        .temp-input-group {
+            position: relative;
+        }
+
+        .status-badge {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-badge.pass {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-badge.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-badge.na {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        /* Cooling temps section */
+        .cooling-temps {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .cooling-temps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .cooling-temp-item {
+            text-align: center;
+        }
+
+        .cooling-temp-item label {
+            display: block;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .cooling-temp-item .time-display {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-bottom: 0.25rem;
+        }
+
+        .cooling-temp-item input {
+            width: 100%;
+            text-align: center;
+            padding: 0.75rem;
+        }
+
+        .cooling-temp-item .temp-status {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 600;
+        }
+
+        .temp-status.pass {
+            color: #059669;
+        }
+
+        .temp-status.fail {
+            color: #dc2626;
+        }
+
+        .temp-status.pending {
+            color: #d97706;
+        }
+
+        .temp-status.na {
+            color: #9ca3af;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f3f4f6;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(13, 148, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-draft {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+        }
+
+        .btn-draft:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .cooling-temps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-fire-burner"></i> Temperature Record</h1>
+            <a href="/cooking-cooling" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Cooking & Cooling
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-card">
+            <h2 class="form-title">
+                <i class="fas fa-plus-circle"></i>
+                <span id="formTitle">New Temperature Record</span>
+            </h2>
+            <p class="form-subtitle" id="formSubtitle">Record cooking and cooling temperatures</p>
+
+            <form id="tempForm">
+                <input type="hidden" id="readingId">
+                
+                <!-- Basic Info -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="logDate">Date <span class="required">*</span></label>
+                        <input type="date" id="logDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filledBy">Filled By <span class="required">*</span></label>
+                        <input type="text" id="filledBy" readonly>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="productName">Product Name <span class="required">*</span></label>
+                        <input type="text" id="productName" placeholder="Enter product name" required>
+                    </div>
+                </div>
+
+                <!-- Cooking Section -->
+                <div class="form-section">
+                    <h3 class="section-title cooking">
+                        <i class="fas fa-fire"></i>
+                        Cooking Temperature
+                    </h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cookingCoreTemp">Core Temperature (°C) <span class="required">*</span></label>
+                            <div class="temp-input-group">
+                                <input type="number" id="cookingCoreTemp" step="0.1" placeholder="e.g., 75" required>
+                                <span class="status-badge" id="cookingStatus">--</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="correctiveActionCooking">Corrective Action (if needed)</label>
+                            <input type="text" id="correctiveActionCooking" placeholder="Enter corrective action">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cooling Section -->
+                <div class="form-section">
+                    <h3 class="section-title cooling">
+                        <i class="fas fa-snowflake"></i>
+                        Cooling Process <span style="font-size: 0.8rem; font-weight: 400; color: #6b7280;">(Optional for draft)</span>
+                    </h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="coolingMethod">Method of Cooling</label>
+                            <select id="coolingMethod">
+                                <option value="">Select Method</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="startCoolingTime">Start Cooling Time</label>
+                            <input type="time" id="startCoolingTime">
+                        </div>
+                        <div class="form-group">
+                            <label for="startCoolingTemp">Start Cooling Temp (°C)</label>
+                            <input type="number" id="startCoolingTemp" step="0.1" placeholder="e.g., 70">
+                        </div>
+                        <div class="form-group">
+                            <label for="correctiveActionCooling">Corrective Action (if needed)</label>
+                            <input type="text" id="correctiveActionCooling" placeholder="Enter corrective action">
+                        </div>
+                    </div>
+
+                    <div class="cooling-temps">
+                        <div class="cooling-temps-grid">
+                            <div class="cooling-temp-item">
+                                <label>After 1 Hour</label>
+                                <div class="time-display" id="time1h">--:--</div>
+                                <input type="number" id="tempAfter1h" step="0.1" placeholder="°C">
+                                <div class="temp-status" id="status1h">Enter temp</div>
+                            </div>
+                            <div class="cooling-temp-item">
+                                <label>After 1.5 Hours</label>
+                                <div class="time-display" id="time1h30">--:--</div>
+                                <input type="number" id="tempAfter1h30" step="0.1" placeholder="°C">
+                                <div class="temp-status" id="status1h30">Enter temp</div>
+                            </div>
+                            <div class="cooling-temp-item">
+                                <label>After 2 Hours</label>
+                                <div class="time-display" id="time2h">--:--</div>
+                                <input type="number" id="tempAfter2h" step="0.1" placeholder="°C">
+                                <div class="temp-status" id="status2h">Enter temp</div>
+                            </div>
+                            <div class="cooling-temp-item">
+                                <label>Overall Status</label>
+                                <div class="time-display">&nbsp;</div>
+                                <div style="padding: 0.75rem; font-size: 1.1rem; font-weight: 700;" id="overallCoolingStatus">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="form-grid" style="margin-top: 1.5rem;">
+                    <div class="form-group full-width">
+                        <label for="comments">Comments</label>
+                        <textarea id="comments" placeholder="Enter any additional comments..."></textarea>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </button>
+                    <button type="button" class="btn btn-draft" id="saveDraftBtn" onclick="saveDraft()">
+                        <i class="fas fa-file-export"></i>
+                        Save Draft
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i>
+                        Submit Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        let editMode = false;
+        let currentUser = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([
+                loadCoolingMethods(),
+                loadCurrentUser()
+            ]);
+            
+            // Set default date to today
+            document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+            if (editId) {
+                await loadReading(editId);
+            }
+
+            // Add event listeners
+            document.getElementById('cookingCoreTemp').addEventListener('input', updateCookingStatus);
+            document.getElementById('startCoolingTime').addEventListener('change', updateCoolingTimes);
+            document.getElementById('tempAfter1h').addEventListener('input', updateCoolingStatuses);
+            document.getElementById('tempAfter1h30').addEventListener('input', updateCoolingStatuses);
+            document.getElementById('tempAfter2h').addEventListener('input', updateCoolingStatuses);
+        });
+
+        async function loadCoolingMethods() {
+            try {
+                const response = await fetch('/cooking-cooling/api/methods');
+                const methods = await response.json();
+                
+                const select = document.getElementById('coolingMethod');
+                methods.forEach(method => {
+                    const option = document.createElement('option');
+                    option.value = method.name;
+                    option.textContent = method.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading cooling methods:', error);
+            }
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/cooking-cooling/api/current-user');
+                currentUser = await response.json();
+                document.getElementById('filledBy').value = currentUser.name;
+            } catch (error) {
+                console.error('Error loading current user:', error);
+                document.getElementById('filledBy').value = 'Unknown User';
+            }
+        }
+
+        async function loadReading(id) {
+            try {
+                const response = await fetch(`/cooking-cooling/api/readings/${id}`);
+                if (!response.ok) throw new Error('Reading not found');
+                
+                const reading = await response.json();
+                
+                editMode = true;
+                document.getElementById('readingId').value = reading.id;
+                document.getElementById('formTitle').textContent = 'Edit Temperature Record';
+                document.getElementById('formSubtitle').textContent = `Editing: ${reading.document_number}`;
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Record';
+                
+                document.getElementById('logDate').value = reading.log_date.split('T')[0];
+                document.getElementById('productName').value = reading.product_name;
+                document.getElementById('cookingCoreTemp').value = reading.cooking_core_temp;
+                
+                // Set cooling method - ensure dropdown option exists
+                const coolingMethodSelect = document.getElementById('coolingMethod');
+                if (reading.cooling_method) {
+                    // Check if option exists, if not add it temporarily
+                    let optionExists = Array.from(coolingMethodSelect.options).some(opt => opt.value === reading.cooling_method);
+                    if (!optionExists) {
+                        const option = document.createElement('option');
+                        option.value = reading.cooling_method;
+                        option.textContent = reading.cooling_method;
+                        coolingMethodSelect.appendChild(option);
+                    }
+                    coolingMethodSelect.value = reading.cooling_method;
+                }
+                
+                document.getElementById('startCoolingTime').value = reading.start_cooling_time?.substring(0, 5) || '';
+                document.getElementById('startCoolingTemp').value = reading.start_cooling_temp || '';
+                document.getElementById('tempAfter1h').value = reading.temp_after_1h || '';
+                document.getElementById('tempAfter1h30').value = reading.temp_after_1h30 || '';
+                document.getElementById('tempAfter2h').value = reading.temp_after_2h || '';
+                document.getElementById('correctiveActionCooking').value = reading.corrective_action_cooking || '';
+                document.getElementById('correctiveActionCooling').value = reading.corrective_action_cooling || '';
+                document.getElementById('comments').value = reading.comments || '';
+                document.getElementById('filledBy').value = reading.filled_by;
+                
+                updateCookingStatus();
+                updateCoolingTimes();
+                updateCoolingStatuses();
+            } catch (error) {
+                console.error('Error loading reading:', error);
+                showToast('Failed to load reading', 'error');
+            }
+        }
+
+        function updateCookingStatus() {
+            const temp = parseFloat(document.getElementById('cookingCoreTemp').value);
+            const badge = document.getElementById('cookingStatus');
+            
+            if (isNaN(temp)) {
+                badge.textContent = '--';
+                badge.className = 'status-badge';
+                return;
+            }
+            
+            if (temp >= 75) {
+                badge.textContent = 'PASS';
+                badge.className = 'status-badge pass';
+            } else {
+                badge.textContent = 'FAIL';
+                badge.className = 'status-badge fail';
+            }
+        }
+
+        function updateCoolingTimes() {
+            const startTime = document.getElementById('startCoolingTime').value;
+            if (!startTime) {
+                document.getElementById('time1h').textContent = '--:--';
+                document.getElementById('time1h30').textContent = '--:--';
+                document.getElementById('time2h').textContent = '--:--';
+                return;
+            }
+            
+            const start = new Date(`2000-01-01T${startTime}`);
+            
+            const time1h = new Date(start.getTime() + 60 * 60 * 1000);
+            const time1h30 = new Date(start.getTime() + 90 * 60 * 1000);
+            const time2h = new Date(start.getTime() + 120 * 60 * 1000);
+            
+            document.getElementById('time1h').textContent = time1h.toTimeString().slice(0, 5);
+            document.getElementById('time1h30').textContent = time1h30.toTimeString().slice(0, 5);
+            document.getElementById('time2h').textContent = time2h.toTimeString().slice(0, 5);
+        }
+
+        function updateCoolingStatuses() {
+            const temp1h = document.getElementById('tempAfter1h').value;
+            const temp1h30 = document.getElementById('tempAfter1h30').value;
+            const temp2h = document.getElementById('tempAfter2h').value;
+            
+            const status1h = document.getElementById('status1h');
+            const status1h30 = document.getElementById('status1h30');
+            const status2h = document.getElementById('status2h');
+            const overall = document.getElementById('overallCoolingStatus');
+            
+            const input1h30 = document.getElementById('tempAfter1h30');
+            const input2h = document.getElementById('tempAfter2h');
+            
+            // Reset
+            input1h30.disabled = false;
+            input2h.disabled = false;
+            
+            // Check temp after 1h
+            if (temp1h === '') {
+                status1h.textContent = 'Enter temp';
+                status1h.className = 'temp-status';
+            } else if (parseFloat(temp1h) < 20) {
+                status1h.textContent = 'PASS ✓';
+                status1h.className = 'temp-status pass';
+                
+                // If 1h is <20, rest are N/A
+                input1h30.value = '';
+                input1h30.disabled = true;
+                input2h.value = '';
+                input2h.disabled = true;
+                status1h30.textContent = 'N/A';
+                status1h30.className = 'temp-status na';
+                status2h.textContent = 'N/A';
+                status2h.className = 'temp-status na';
+                
+                overall.textContent = 'PASS';
+                overall.style.color = '#059669';
+                return;
+            } else {
+                status1h.textContent = parseFloat(temp1h) + '°C';
+                status1h.className = 'temp-status pending';
+            }
+            
+            // Check temp after 1h30
+            if (temp1h30 === '') {
+                status1h30.textContent = 'Enter temp';
+                status1h30.className = 'temp-status';
+            } else if (parseFloat(temp1h30) < 20) {
+                status1h30.textContent = 'PASS ✓';
+                status1h30.className = 'temp-status pass';
+                
+                // If 1h30 is <20, 2h is N/A
+                input2h.value = '';
+                input2h.disabled = true;
+                status2h.textContent = 'N/A';
+                status2h.className = 'temp-status na';
+                
+                overall.textContent = 'PASS';
+                overall.style.color = '#059669';
+                return;
+            } else {
+                status1h30.textContent = parseFloat(temp1h30) + '°C';
+                status1h30.className = 'temp-status pending';
+            }
+            
+            // Check temp after 2h
+            if (temp2h === '') {
+                status2h.textContent = 'Enter temp';
+                status2h.className = 'temp-status';
+                overall.textContent = 'PENDING';
+                overall.style.color = '#d97706';
+            } else if (parseFloat(temp2h) < 20) {
+                status2h.textContent = 'PASS ✓';
+                status2h.className = 'temp-status pass';
+                overall.textContent = 'PASS';
+                overall.style.color = '#059669';
+            } else {
+                status2h.textContent = 'FAIL ✗';
+                status2h.className = 'temp-status fail';
+                overall.textContent = 'FAIL';
+                overall.style.color = '#dc2626';
+            }
+        }
+
+        // Form submission
+        document.getElementById('tempForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validate cooling fields are filled for final submission
+            const coolingMethod = document.getElementById('coolingMethod').value;
+            const startCoolingTime = document.getElementById('startCoolingTime').value;
+            const startCoolingTemp = document.getElementById('startCoolingTemp').value;
+            
+            if (!coolingMethod || !startCoolingTime || !startCoolingTemp) {
+                showToast('Please fill in all Cooling Process fields to submit, or use Save Draft', 'error');
+                return;
+            }
+            
+            await saveRecord('submitted');
+        });
+        
+        async function saveDraft() {
+            // Validate minimum required fields for draft (cooking step only)
+            const logDate = document.getElementById('logDate').value;
+            const productName = document.getElementById('productName').value;
+            const cookingCoreTemp = document.getElementById('cookingCoreTemp').value;
+            
+            if (!logDate || !productName || !cookingCoreTemp) {
+                showToast('Please fill in Date, Product Name, and Cooking Temperature to save draft', 'error');
+                return;
+            }
+            
+            await saveRecord('draft');
+        }
+        
+        async function saveRecord(status) {
+            const submitBtn = document.getElementById('submitBtn');
+            const saveDraftBtn = document.getElementById('saveDraftBtn');
+            submitBtn.disabled = true;
+            saveDraftBtn.disabled = true;
+            
+            const data = {
+                log_date: document.getElementById('logDate').value,
+                product_name: document.getElementById('productName').value,
+                cooking_core_temp: document.getElementById('cookingCoreTemp').value,
+                cooling_method: document.getElementById('coolingMethod').value || null,
+                start_cooling_time: document.getElementById('startCoolingTime').value || null,
+                start_cooling_temp: document.getElementById('startCoolingTemp').value || null,
+                temp_after_1h: document.getElementById('tempAfter1h').value || null,
+                temp_after_1h30: document.getElementById('tempAfter1h30').value || null,
+                temp_after_2h: document.getElementById('tempAfter2h').value || null,
+                corrective_action_cooking: document.getElementById('correctiveActionCooking').value,
+                corrective_action_cooling: document.getElementById('correctiveActionCooling').value,
+                comments: document.getElementById('comments').value,
+                filled_by: document.getElementById('filledBy').value,
+                status: status
+            };
+            
+            try {
+                const id = document.getElementById('readingId').value;
+                const url = id ? `/cooking-cooling/api/readings/${id}` : '/cooking-cooling/api/readings';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Failed to save');
+                
+                const msg = status === 'draft' 
+                    ? 'Draft saved! You can complete it later.' 
+                    : (id ? 'Record updated successfully!' : 'Record submitted successfully!');
+                showToast(msg, 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '/cooking-cooling/history';
+                }, 1500);
+            } catch (error) {
+                console.error('Error saving record:', error);
+                showToast('Failed to save record', 'error');
+                submitBtn.disabled = false;
+                saveDraftBtn.disabled = false;
+            }
+        }
+
+        function resetForm() {
+            if (editMode) {
+                window.location.href = '/cooking-cooling/form';
+                return;
+            }
+            
+            document.getElementById('tempForm').reset();
+            document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('filledBy').value = currentUser.name;
+            
+            document.getElementById('cookingStatus').textContent = '--';
+            document.getElementById('cookingStatus').className = 'status-badge';
+            document.getElementById('time1h').textContent = '--:--';
+            document.getElementById('time1h30').textContent = '--:--';
+            document.getElementById('time2h').textContent = '--:--';
+            document.getElementById('status1h').textContent = 'Enter temp';
+            document.getElementById('status1h').className = 'temp-status';
+            document.getElementById('status1h30').textContent = 'Enter temp';
+            document.getElementById('status1h30').className = 'temp-status';
+            document.getElementById('status2h').textContent = 'Enter temp';
+            document.getElementById('status2h').className = 'temp-status';
+            document.getElementById('overallCoolingStatus').textContent = '--';
+            document.getElementById('overallCoolingStatus').style.color = '';
+            
+            document.getElementById('tempAfter1h30').disabled = false;
+            document.getElementById('tempAfter2h').disabled = false;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

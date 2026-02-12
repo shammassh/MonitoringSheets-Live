@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#059669">
+    <title>Verification Schedule - FS Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-dot.overdue { background: #dc2626; }
+        .legend-dot.today { background: #f59e0b; }
+        .legend-dot.upcoming { background: #10b981; }
+        .legend-dot.none { background: #9ca3af; }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        .stat-card.overdue .stat-value { color: #dc2626; }
+        .stat-card.today .stat-value { color: #f59e0b; }
+        .stat-card.upcoming .stat-value { color: #10b981; }
+        
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .schedule-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        
+        .schedule-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .schedule-card.overdue {
+            border-left-color: #dc2626;
+            background: linear-gradient(to right, #fef2f2, white);
+        }
+        
+        .schedule-card.today {
+            border-left-color: #f59e0b;
+            background: linear-gradient(to right, #fffbeb, white);
+        }
+        
+        .schedule-card.upcoming {
+            border-left-color: #10b981;
+            background: linear-gradient(to right, #ecfdf5, white);
+        }
+        
+        .schedule-card.none {
+            border-left-color: #9ca3af;
+        }
+        
+        .schedule-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .schedule-card.overdue .schedule-icon {
+            background: #fee2e2;
+        }
+        
+        .schedule-card.today .schedule-icon {
+            background: #fef3c7;
+        }
+        
+        .schedule-card.upcoming .schedule-icon {
+            background: #d1fae5;
+        }
+        
+        .schedule-card.none .schedule-icon {
+            background: #f3f4f6;
+        }
+        
+        .schedule-info {
+            flex: 1;
+        }
+        
+        .schedule-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .schedule-details {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        
+        .schedule-due {
+            text-align: right;
+        }
+        
+        .due-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .due-date {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .schedule-card.overdue .due-date {
+            color: #dc2626;
+        }
+        
+        .schedule-card.today .due-date {
+            color: #f59e0b;
+        }
+        
+        .schedule-card.upcoming .due-date {
+            color: #10b981;
+        }
+        
+        .schedule-card.none .due-date {
+            color: #9ca3af;
+        }
+        
+        .due-diff {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        .btn-verify {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-verify:hover {
+            transform: scale(1.02);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: #6b7280;
+        }
+        
+        .empty-state a {
+            color: #059669;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .schedule-card { flex-wrap: wrap; }
+            .schedule-due { 
+                width: 100%; 
+                text-align: left;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 0.5rem;
+                padding-top: 0.5rem;
+                border-top: 1px solid #f3f4f6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/food-safety" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">📅 Verification Schedule</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot overdue"></div>
+                <span>Overdue</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot today"></div>
+                <span>Due Today</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot upcoming"></div>
+                <span>Upcoming</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot none"></div>
+                <span>Not Scheduled</span>
+            </div>
+        </div>
+        
+        <!-- Summary Stats -->
+        <div class="summary-stats">
+            <div class="stat-card overdue">
+                <div class="stat-value" id="stat-overdue">0</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+            <div class="stat-card today">
+                <div class="stat-value" id="stat-today">0</div>
+                <div class="stat-label">Due Today</div>
+            </div>
+            <div class="stat-card upcoming">
+                <div class="stat-value" id="stat-upcoming">0</div>
+                <div class="stat-label">Upcoming (7 days)</div>
+            </div>
+        </div>
+        
+        <!-- Schedule List -->
+        <div id="schedule-list" class="schedule-list">
+            <!-- Populated by JS -->
+        </div>
+        
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <h3>No Procedures Configured</h3>
+            <p>Add verification procedures to start tracking schedules.</p>
+            <a href="/food-safety/references">Add Procedures →</a>
+        </div>
+    </div>
+    
+    <script>
+        let scheduleData = [];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadSchedule();
+        });
+        
+        async function loadSchedule() {
+            try {
+                const res = await fetch('/food-safety/api/schedule?_=' + Date.now(), {
+                    cache: 'no-store'
+                });
+                scheduleData = await res.json();
+                
+                renderStats();
+                renderSchedule();
+            } catch (e) {
+                console.error('Error loading schedule:', e);
+            }
+        }
+        
+        function renderStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const sevenDaysFromNow = new Date(today);
+            sevenDaysFromNow.setDate(today.getDate() + 7);
+            
+            let overdueCount = 0;
+            let todayCount = 0;
+            let upcomingCount = 0;
+            
+            scheduleData.forEach(item => {
+                if (!item.next_due_date) return;
+                
+                const dueDate = new Date(item.next_due_date);
+                dueDate.setHours(0, 0, 0, 0);
+                
+                if (dueDate < today) {
+                    overdueCount++;
+                } else if (dueDate.getTime() === today.getTime()) {
+                    todayCount++;
+                } else if (dueDate <= sevenDaysFromNow) {
+                    upcomingCount++;
+                }
+            });
+            
+            document.getElementById('stat-overdue').textContent = overdueCount;
+            document.getElementById('stat-today').textContent = todayCount;
+            document.getElementById('stat-upcoming').textContent = upcomingCount;
+        }
+        
+        function renderSchedule() {
+            const container = document.getElementById('schedule-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (scheduleData.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Sort by due date (overdue first, then by date)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const sorted = [...scheduleData].sort((a, b) => {
+                if (!a.next_due_date && !b.next_due_date) return 0;
+                if (!a.next_due_date) return 1;
+                if (!b.next_due_date) return -1;
+                
+                const dateA = new Date(a.next_due_date);
+                const dateB = new Date(b.next_due_date);
+                
+                return dateA - dateB;
+            });
+            
+            container.innerHTML = sorted.map(item => {
+                let statusClass = 'none';
+                let dueText = 'Not scheduled';
+                let dueDiff = '';
+                let icon = '🔬';
+                
+                if (item.next_due_date) {
+                    const dueDate = new Date(item.next_due_date);
+                    dueDate.setHours(0, 0, 0, 0);
+                    
+                    const diffDays = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    dueText = dueDate.toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    if (diffDays < 0) {
+                        statusClass = 'overdue';
+                        dueDiff = `${Math.abs(diffDays)} day(s) overdue`;
+                        icon = '⚠️';
+                    } else if (diffDays === 0) {
+                        statusClass = 'today';
+                        dueDiff = 'Due today';
+                        icon = '🔔';
+                    } else {
+                        statusClass = 'upcoming';
+                        dueDiff = `In ${diffDays} day(s)`;
+                        icon = '✅';
+                    }
+                }
+                
+                return `
+                    <div class="schedule-card ${statusClass}">
+                        <div class="schedule-icon">${icon}</div>
+                        <div class="schedule-info">
+                            <div class="schedule-name">${item.name}</div>
+                            <div class="schedule-details">${item.frequency} • ${item.reference || 'No reference'}</div>
+                        </div>
+                        <div class="schedule-due">
+                            <div class="due-label">Next Due</div>
+                            <div class="due-date">${dueText}</div>
+                            <div class="due-diff">${dueDiff}</div>
+                        </div>
+                        <a href="/food-safety/form" class="btn-verify">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            Verify
+                        </a>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

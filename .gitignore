@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Certificates and sensitive files
+certs/
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/

@@ -1,0 +1,12 @@
+﻿<service>
+  <id>fsmonitoringlive</id>
+  <name>FS Monitoring Live</name>
+  <description>FS Monitoring Application - Live Environment</description>
+  <executable>node</executable>
+  <arguments>app.js</arguments>
+  <workingdirectory>F:\MonitoringSheets-Live</workingdirectory>
+  <logpath>F:\MonitoringSheets-Live\daemon</logpath>
+  <logmode>rotate</logmode>
+  <onfailure action="restart" delay="5 sec"/>
+  <env name="NODE_ENV" value="production"/>
+</service>

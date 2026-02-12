@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#d97706">
+    <title>New Reading - Dry Store Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .reference-note {
+            background: #fef3c7;
+            border-left: 4px solid #d97706;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .reference-note h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .reference-note p {
+            color: #78350f;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .required {
+            color: #ef4444;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d97706;
+        }
+        
+        .form-group input[readonly] {
+            background: #f9fafb;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .reading-section {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .reading-section.am {
+            border-color: #fcd34d;
+            background: #fffbeb;
+        }
+        
+        .reading-section.pm {
+            border-color: #a78bfa;
+            background: #f5f3ff;
+        }
+        
+        .section-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title.am {
+            color: #b45309;
+        }
+        
+        .section-title.pm {
+            color: #7c3aed;
+        }
+        
+        .reading-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .reading-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .reading-input-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        
+        .value-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .value-input-wrapper input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .value-input-wrapper input:focus {
+            outline: none;
+            border-color: #d97706;
+        }
+        
+        .unit {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 30px;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .corrective-action {
+            margin-top: 0.75rem;
+        }
+        
+        .corrective-action label {
+            font-size: 0.85rem;
+            color: #dc2626;
+        }
+        
+        .corrective-action textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #fca5a5;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #fef2f2;
+        }
+        
+        .corrective-action textarea:focus {
+            outline: none;
+            border-color: #dc2626;
+        }
+        
+        .submit-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 50;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .form-row, .form-row-3, .reading-row { grid-template-columns: 1fr; }
+            .submit-bar { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/dashboard" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">🌡️ New Reading</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="reference-note">
+            <h4>📋 Reference Standards</h4>
+            <p>Temperature: &lt; <span id="ref-temp">25</span>°C &nbsp;|&nbsp; Humidity: &lt; <span id="ref-humidity">65</span>%</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>📍 Location Details</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="branch">Branch <span class="required">*</span></label>
+                        <select id="branch" required>
+                            <option value="">Select branch...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dry-store">Dry Store <span class="required">*</span></label>
+                        <select id="dry-store" required>
+                            <option value="">Select store...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reading-date">Reading Date <span class="required">*</span></label>
+                        <input type="date" id="reading-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="filled-by">Filled By</label>
+                        <input type="text" id="filled-by" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AM Reading -->
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                <h2>☀️ AM Reading</h2>
+            </div>
+            <div class="card-body">
+                <div class="reading-section am">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Time <span class="required">*</span></label>
+                        <input type="time" id="time-am" style="width: auto; padding: 0.5rem 1rem;">
+                    </div>
+                    <div class="reading-row">
+                        <div class="reading-input-group">
+                            <label>Temperature</label>
+                            <div class="value-input-wrapper">
+                                <input type="number" step="0.1" min="-50" max="100" id="temp-am" placeholder="0.0" oninput="checkValue('temp', 'am')">
+                                <span class="unit">°C</span>
+                                <span class="status-badge pass" id="temp-am-status">Pass</span>
+                            </div>
+                            <div class="corrective-action" id="temp-am-ca" style="display: none;">
+                                <label>Corrective Action Required</label>
+                                <textarea id="temp-am-corrective" rows="2" placeholder="Describe corrective action taken..."></textarea>
+                            </div>
+                        </div>
+                        <div class="reading-input-group">
+                            <label>Humidity</label>
+                            <div class="value-input-wrapper">
+                                <input type="number" step="0.1" min="0" max="100" id="humidity-am" placeholder="0.0" oninput="checkValue('humidity', 'am')">
+                                <span class="unit">%</span>
+                                <span class="status-badge pass" id="humidity-am-status">Pass</span>
+                            </div>
+                            <div class="corrective-action" id="humidity-am-ca" style="display: none;">
+                                <label>Corrective Action Required</label>
+                                <textarea id="humidity-am-corrective" rows="2" placeholder="Describe corrective action taken..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PM Reading -->
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">
+                <h2>🌙 PM Reading</h2>
+            </div>
+            <div class="card-body">
+                <div class="reading-section pm">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Time <span class="required">*</span></label>
+                        <input type="time" id="time-pm" style="width: auto; padding: 0.5rem 1rem;">
+                    </div>
+                    <div class="reading-row">
+                        <div class="reading-input-group">
+                            <label>Temperature</label>
+                            <div class="value-input-wrapper">
+                                <input type="number" step="0.1" min="-50" max="100" id="temp-pm" placeholder="0.0" oninput="checkValue('temp', 'pm')">
+                                <span class="unit">°C</span>
+                                <span class="status-badge pass" id="temp-pm-status">Pass</span>
+                            </div>
+                            <div class="corrective-action" id="temp-pm-ca" style="display: none;">
+                                <label>Corrective Action Required</label>
+                                <textarea id="temp-pm-corrective" rows="2" placeholder="Describe corrective action taken..."></textarea>
+                            </div>
+                        </div>
+                        <div class="reading-input-group">
+                            <label>Humidity</label>
+                            <div class="value-input-wrapper">
+                                <input type="number" step="0.1" min="0" max="100" id="humidity-pm" placeholder="0.0" oninput="checkValue('humidity', 'pm')">
+                                <span class="unit">%</span>
+                                <span class="status-badge pass" id="humidity-pm-status">Pass</span>
+                            </div>
+                            <div class="corrective-action" id="humidity-pm-ca" style="display: none;">
+                                <label>Corrective Action Required</label>
+                                <textarea id="humidity-pm-corrective" rows="2" placeholder="Describe corrective action taken..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="submit-bar">
+        <button class="btn btn-secondary" onclick="window.location.href='/dry-store'">Cancel</button>
+        <button class="btn btn-primary" id="submit-btn" onclick="submitReading()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Reading
+        </button>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let settings = { temp_max: 25, humidity_max: 65 };
+        let currentUser = null;
+        let editingId = null;
+        
+        function updateTimeRestrictions() {
+            const selectedDate = document.getElementById('reading-date').value;
+            const today = new Date().toISOString().split('T')[0];
+            const timeAm = document.getElementById('time-am');
+            const timePm = document.getElementById('time-pm');
+            
+            if (selectedDate === today) {
+                const now = new Date();
+                const currentTime = now.toTimeString().slice(0, 5);
+                timeAm.min = currentTime;
+                timePm.min = currentTime;
+                
+                // Add change listeners to validate time
+                timeAm.addEventListener('change', validateTime);
+                timePm.addEventListener('change', validateTime);
+            } else {
+                timeAm.removeAttribute('min');
+                timePm.removeAttribute('min');
+                timeAm.removeEventListener('change', validateTime);
+                timePm.removeEventListener('change', validateTime);
+            }
+        }
+        
+        function validateTime(event) {
+            const selectedDate = document.getElementById('reading-date').value;
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (selectedDate === today) {
+                const now = new Date();
+                const currentTime = now.toTimeString().slice(0, 5);
+                const enteredTime = event.target.value;
+                
+                if (enteredTime && enteredTime < currentTime) {
+                    alert('Cannot select a past time for today. Please select current or future time.');
+                    event.target.value = '';
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reading-date').value = today;
+            document.getElementById('reading-date').min = today;
+            
+            // Update time restriction when date changes
+            document.getElementById('reading-date').addEventListener('change', updateTimeRestrictions);
+            updateTimeRestrictions();
+            
+            await loadSettings();
+            await loadBranches();
+            await loadLocations();
+            await loadCurrentUser();
+            
+            // Check for edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            editingId = urlParams.get('edit');
+            if (editingId) {
+                await loadReadingForEdit(editingId);
+            }
+        });
+        
+        async function loadReadingForEdit(id) {
+            try {
+                const res = await fetch(`/dry-store/api/readings/${id}`);
+                if (!res.ok) throw new Error('Reading not found');
+                
+                const reading = await res.json();
+                
+                document.getElementById('branch').value = reading.branch || '';
+                document.getElementById('dry-store').value = reading.dry_store || '';
+                document.getElementById('reading-date').value = reading.reading_date.split('T')[0];
+                document.getElementById('filled-by').value = reading.filled_by || '';
+                
+                // AM values
+                document.getElementById('time-am').value = reading.time_am || '';
+                document.getElementById('temp-am').value = reading.temp_am || '';
+                document.getElementById('humidity-am').value = reading.humidity_am || '';
+                document.getElementById('temp-am-corrective').value = reading.temp_am_corrective_action || '';
+                document.getElementById('humidity-am-corrective').value = reading.humidity_am_corrective_action || '';
+                
+                // PM values
+                document.getElementById('time-pm').value = reading.time_pm || '';
+                document.getElementById('temp-pm').value = reading.temp_pm || '';
+                document.getElementById('humidity-pm').value = reading.humidity_pm || '';
+                document.getElementById('temp-pm-corrective').value = reading.temp_pm_corrective_action || '';
+                document.getElementById('humidity-pm-corrective').value = reading.humidity_pm_corrective_action || '';
+                
+                // Check all values to update status badges
+                checkValue('temp', 'am');
+                checkValue('humidity', 'am');
+                checkValue('temp', 'pm');
+                checkValue('humidity', 'pm');
+                
+                // Update header and button
+                document.querySelector('.header-title').textContent = '🌡️ Edit Reading';
+                document.getElementById('submit-btn').innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Update Reading
+                `;
+            } catch (e) {
+                console.error('Error loading reading:', e);
+                showToast('Failed to load reading', 'error');
+            }
+        }
+        
+        async function loadSettings() {
+            try {
+                const res = await fetch('/dry-store/api/settings');
+                const data = await res.json();
+                settings.temp_max = parseFloat(data.temp_max) || 25;
+                settings.humidity_max = parseFloat(data.humidity_max) || 65;
+                
+                document.getElementById('ref-temp').textContent = settings.temp_max;
+                document.getElementById('ref-humidity').textContent = settings.humidity_max;
+                
+                if (data.branch) {
+                    document.getElementById('branch').value = data.branch;
+                }
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+        
+        async function loadBranches() {
+            try {
+                const res = await fetch('/dry-store/api/branches?_=' + Date.now(), { cache: 'no-store' });
+                const branches = await res.json();
+                
+                const select = document.getElementById('branch');
+                branches.forEach(branch => {
+                    const option = document.createElement('option');
+                    option.value = branch.name;
+                    option.textContent = branch.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading branches:', e);
+            }
+        }
+        
+        async function loadLocations() {
+            try {
+                const res = await fetch('/dry-store/api/locations?_=' + Date.now(), { cache: 'no-store' });
+                const locations = await res.json();
+                
+                const select = document.getElementById('dry-store');
+                // Clear existing options except the first one
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                locations.forEach(loc => {
+                    const option = document.createElement('option');
+                    option.value = loc.name;
+                    option.textContent = loc.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading locations:', e);
+            }
+        }
+        
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/dry-store/api/current-user');
+                currentUser = await res.json();
+                document.getElementById('filled-by').value = currentUser.name;
+            } catch (e) {
+                console.error('Error loading user:', e);
+            }
+        }
+        
+        function checkValue(type, period) {
+            const input = document.getElementById(`${type}-${period}`);
+            const statusBadge = document.getElementById(`${type}-${period}-status`);
+            const caDiv = document.getElementById(`${type}-${period}-ca`);
+            const caTextarea = document.getElementById(`${type}-${period}-corrective`);
+            
+            const value = parseFloat(input.value);
+            const max = type === 'temp' ? settings.temp_max : settings.humidity_max;
+            
+            if (isNaN(value) || value === '') {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                caDiv.style.display = 'none';
+                caTextarea.removeAttribute('required');
+                return;
+            }
+            
+            if (value >= max) {
+                statusBadge.textContent = 'Fail';
+                statusBadge.className = 'status-badge fail';
+                caDiv.style.display = 'block';
+                caTextarea.setAttribute('required', 'required');
+            } else {
+                statusBadge.textContent = 'Pass';
+                statusBadge.className = 'status-badge pass';
+                caDiv.style.display = 'none';
+                caTextarea.removeAttribute('required');
+            }
+        }
+        
+        async function submitReading() {
+            const branch = document.getElementById('branch').value.trim();
+            const dry_store = document.getElementById('dry-store').value;
+            const reading_date = document.getElementById('reading-date').value;
+            
+            if (!branch || !dry_store || !reading_date) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Check if corrective actions are required and filled
+            if (document.getElementById('temp-am-status').textContent === 'Fail' && 
+                !document.getElementById('temp-am-corrective').value.trim()) {
+                showToast('Please provide corrective action for AM Temperature', 'error');
+                return;
+            }
+            if (document.getElementById('humidity-am-status').textContent === 'Fail' && 
+                !document.getElementById('humidity-am-corrective').value.trim()) {
+                showToast('Please provide corrective action for AM Humidity', 'error');
+                return;
+            }
+            if (document.getElementById('temp-pm-status').textContent === 'Fail' && 
+                !document.getElementById('temp-pm-corrective').value.trim()) {
+                showToast('Please provide corrective action for PM Temperature', 'error');
+                return;
+            }
+            if (document.getElementById('humidity-pm-status').textContent === 'Fail' && 
+                !document.getElementById('humidity-pm-corrective').value.trim()) {
+                showToast('Please provide corrective action for PM Humidity', 'error');
+                return;
+            }
+            
+            // Helper to safely parse float values
+            function safeParseFloat(value) {
+                const parsed = parseFloat(value);
+                return isNaN(parsed) ? null : parsed;
+            }
+            
+            const data = {
+                branch,
+                dry_store,
+                reading_date,
+                time_am: document.getElementById('time-am').value || null,
+                temp_am: safeParseFloat(document.getElementById('temp-am').value),
+                humidity_am: safeParseFloat(document.getElementById('humidity-am').value),
+                temp_am_status: document.getElementById('temp-am-status').textContent,
+                humidity_am_status: document.getElementById('humidity-am-status').textContent,
+                temp_am_corrective_action: document.getElementById('temp-am-corrective').value.trim() || null,
+                humidity_am_corrective_action: document.getElementById('humidity-am-corrective').value.trim() || null,
+                time_pm: document.getElementById('time-pm').value || null,
+                temp_pm: safeParseFloat(document.getElementById('temp-pm').value),
+                humidity_pm: safeParseFloat(document.getElementById('humidity-pm').value),
+                temp_pm_status: document.getElementById('temp-pm-status').textContent,
+                humidity_pm_status: document.getElementById('humidity-pm-status').textContent,
+                temp_pm_corrective_action: document.getElementById('temp-pm-corrective').value.trim() || null,
+                humidity_pm_corrective_action: document.getElementById('humidity-pm-corrective').value.trim() || null,
+                filled_by: document.getElementById('filled-by').value
+            };
+            
+            console.log('Submitting data:', JSON.stringify(data, null, 2));
+            
+            try {
+                document.getElementById('submit-btn').disabled = true;
+                
+                const url = editingId 
+                    ? `/dry-store/api/readings/${editingId}` 
+                    : '/dry-store/api/readings';
+                
+                const res = await fetch(url, {
+                    method: editingId ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const responseData = await res.json().catch(() => ({}));
+                console.log('Response:', res.status, responseData);
+                
+                if (res.ok) {
+                    showToast(editingId ? 'Reading updated!' : 'Reading saved successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dry-store/history';
+                    }, 1000);
+                } else {
+                    throw new Error(responseData.error || 'Failed to save');
+                }
+            } catch (e) {
+                console.error('Submit error:', e);
+                showToast('Failed to save reading', 'error');
+                document.getElementById('submit-btn').disabled = false;
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

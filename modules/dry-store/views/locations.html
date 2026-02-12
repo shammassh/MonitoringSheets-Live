@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#d97706">
+    <title>Store Locations - Dry Store Monitoring</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+        }
+        
+        .card-header h2 {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .add-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .add-form input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .add-form input:focus {
+            outline: none;
+            border-color: #d97706;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.02);
+        }
+        
+        .location-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .location-name {
+            font-weight: 500;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .location-name svg {
+            color: #d97706;
+        }
+        
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+        
+        .settings-section {
+            margin-top: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #d97706;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .add-form { flex-direction: column; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/dry-store" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <span class="header-title">📍 Store Locations</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>🏪 Dry Store Locations</h2>
+            </div>
+            <div class="card-body">
+                <div class="add-form">
+                    <input type="text" id="new-location" placeholder="Enter new store location name...">
+                    <button class="btn btn-primary" onclick="addLocation()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add
+                    </button>
+                </div>
+                
+                <div id="location-list" class="location-list">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    No locations added yet.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card settings-section">
+            <div class="card-header">
+                <h2>⚙️ Reference Settings</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="temp-max">Max Temperature (°C)</label>
+                        <input type="number" id="temp-max" step="0.1" placeholder="25">
+                    </div>
+                    <div class="form-group">
+                        <label for="humidity-max">Max Humidity (%)</label>
+                        <input type="number" id="humidity-max" step="0.1" placeholder="65">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="branch">Default Branch Name</label>
+                    <input type="text" id="branch" placeholder="Main Branch">
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let locations = [];
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLocations();
+            loadSettings();
+            
+            document.getElementById('new-location').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addLocation();
+            });
+        });
+        
+        async function loadLocations() {
+            try {
+                const res = await fetch('/dry-store/api/locations?_=' + Date.now(), { cache: 'no-store' });
+                locations = await res.json();
+                renderLocations();
+            } catch (e) {
+                console.error('Error loading locations:', e);
+            }
+        }
+        
+        async function loadSettings() {
+            try {
+                const res = await fetch('/dry-store/api/settings');
+                const settings = await res.json();
+                
+                document.getElementById('temp-max').value = settings.temp_max || '25';
+                document.getElementById('humidity-max').value = settings.humidity_max || '65';
+                document.getElementById('branch').value = settings.branch || '';
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+        
+        function renderLocations() {
+            const container = document.getElementById('location-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (locations.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            container.innerHTML = locations.map(loc => `
+                <div class="location-item">
+                    <span class="location-name">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        ${loc.name}
+                    </span>
+                    <button class="btn-delete" onclick="deleteLocation(${loc.id})" title="Delete">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        async function addLocation() {
+            const input = document.getElementById('new-location');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showToast('Please enter a location name', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/dry-store/api/locations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                
+                if (res.ok) {
+                    input.value = '';
+                    showToast('Location added', 'success');
+                    loadLocations();
+                } else {
+                    showToast('Failed to add location', 'error');
+                }
+            } catch (e) {
+                console.error('Add error:', e);
+                showToast('Network error', 'error');
+            }
+        }
+        
+        async function deleteLocation(id) {
+            if (!confirm('Delete this location?')) return;
+            
+            try {
+                const res = await fetch(`/dry-store/api/locations/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (res.ok) {
+                    showToast('Location deleted', 'success');
+                    loadLocations();
+                } else {
+                    showToast('Failed to delete', 'error');
+                }
+            } catch (e) {
+                console.error('Delete error:', e);
+                showToast('Network error', 'error');
+            }
+        }
+        
+        async function saveSettings() {
+            const temp_max = document.getElementById('temp-max').value;
+            const humidity_max = document.getElementById('humidity-max').value;
+            const branch = document.getElementById('branch').value.trim();
+            
+            try {
+                const res = await fetch('/dry-store/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ temp_max, humidity_max, branch })
+                });
+                
+                if (res.ok) {
+                    showToast('Settings saved', 'success');
+                } else {
+                    showToast('Failed to save settings', 'error');
+                }
+            } catch (e) {
+                console.error('Save error:', e);
+                showToast('Network error', 'error');
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

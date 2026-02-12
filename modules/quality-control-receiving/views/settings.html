@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>QC Receiving Settings - Form 13 - FS Monitoring</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #059669;
+        }
+        
+        .btn-primary:hover {
+            background: #ecfdf5;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+        
+        .suppliers-list {
+            list-style: none;
+        }
+        
+        .supplier-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .supplier-item:last-child {
+            border-bottom: none;
+        }
+        
+        .supplier-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .supplier-info p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .supplier-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .supplier-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <h1>⚙️ QC Receiving Settings</h1>
+            </div>
+            <div class="header-actions">
+                <a href="/quality-control-receiving" class="btn btn-secondary">← Back</a>
+                <a href="/dashboard" class="btn btn-secondary">🏠 Dashboard</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+        
+        <!-- Document Information Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📄 Document Information</h2>
+                <button class="btn btn-success" onclick="saveDocumentInfo()">💾 Save</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 1rem 0;">
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Creation Date</label>
+                    <input type="date" id="creation_date" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Last Revision Date</label>
+                    <input type="date" id="last_revision_date" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Edition</label>
+                    <input type="text" id="edition" placeholder="e.g., 1.0" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Reference (Company)</label>
+                    <input type="text" id="company_name" placeholder="e.g., SSFC" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Suppliers Management Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🏢 Suppliers Management</h2>
+                <button class="btn btn-success" onclick="showAddSupplierModal()">➕ Add Supplier</button>
+            </div>
+            
+            <ul class="suppliers-list" id="suppliersList">
+                <li class="empty-state">Loading suppliers...</li>
+            </ul>
+        </div>
+        
+        <!-- Food Categories Management Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🍽️ Food Categories Management</h2>
+                <button class="btn btn-success" onclick="showAddCategoryModal()">➕ Add Category</button>
+            </div>
+            
+            <div class="table-container" style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f9fafb;">
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e5e7eb;">Category Name</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e5e7eb;">Min Temp (°C)</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e5e7eb;">Max Temp (°C)</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e5e7eb;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriesList">
+                        <tr><td colspan="4" class="empty-state">Loading categories...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Quick Info Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>ℹ️ Form 13 Information</h2>
+            </div>
+            <div style="color: #374151; line-height: 1.7;">
+                <p><strong>Quality Control Receiving Checklist (Form 13)</strong> is used to track and verify:</p>
+                <ul style="margin: 1rem 0 1rem 1.5rem;">
+                    <li>Product receiving quality and condition</li>
+                    <li>Temperature monitoring at receiving</li>
+                    <li>Inspection for physical hazards</li>
+                    <li>Proper storage and transfer times</li>
+                    <li>Quality controller verification and signature</li>
+                </ul>
+                <p><strong>Key Points:</strong></p>
+                <ul style="margin: 1rem 0 1rem 1.5rem;">
+                    <li>Duration between receiving and storage should ideally be under 30 minutes</li>
+                    <li>All products should pass physical hazard inspection</li>
+                    <li>Temperature readings should be within acceptable ranges</li>
+                    <li>Each entry must be signed by a quality controller</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Supplier Modal -->
+    <div class="modal" id="supplierModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="supplierModalTitle">➕ Add Supplier</h3>
+                <button class="modal-close" onclick="closeSupplierModal()">&times;</button>
+            </div>
+            <form id="supplierForm" onsubmit="saveSupplier(event)">
+                <input type="hidden" id="supplierId">
+                
+                <div class="form-group">
+                    <label for="supplierName">Supplier Name *</label>
+                    <input type="text" id="supplierName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactInfo">Contact Information</label>
+                    <textarea id="contactInfo" rows="3" placeholder="Phone, email, address..."></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">💾 Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Food Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">➕ Add Food Category</h3>
+                <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+            </div>
+            <form id="categoryForm" onsubmit="saveCategory(event)">
+                <input type="hidden" id="categoryId">
+                
+                <div class="form-group">
+                    <label for="categoryName">Category Name *</label>
+                    <input type="text" id="categoryName" required placeholder="e.g., Fresh Meat, Frozen Products">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="minTemp">Min Temperature (°C) *</label>
+                        <input type="number" id="minTemp" required step="0.1" placeholder="e.g., 0">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxTemp">Max Temperature (°C) *</label>
+                        <input type="number" id="maxTemp" required step="0.1" placeholder="e.g., 5">
+                    </div>
+                </div>
+                
+                <div style="background: #fef3c7; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem; font-size: 0.875rem; color: #92400e;">
+                    ⚠️ If product temperature is outside this range, corrective action will be required.
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">💾 Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let suppliers = [];
+        let foodCategories = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDocumentInfo();
+            loadSuppliers();
+            loadFoodCategories();
+        });
+
+        // Document Info functions
+        async function loadDocumentInfo() {
+            try {
+                const response = await fetch('/quality-control-receiving/api/settings');
+                const settings = await response.json();
+                document.getElementById('creation_date').value = settings.creation_date || '';
+                document.getElementById('last_revision_date').value = settings.last_revision_date || '';
+                document.getElementById('edition').value = settings.edition || '';
+                document.getElementById('company_name').value = settings.company_name || '';
+            } catch (error) {
+                console.error('Error loading document info:', error);
+            }
+        }
+
+        async function saveDocumentInfo() {
+            try {
+                const data = {
+                    creation_date: document.getElementById('creation_date').value,
+                    last_revision_date: document.getElementById('last_revision_date').value,
+                    edition: document.getElementById('edition').value,
+                    company_name: document.getElementById('company_name').value
+                };
+                const response = await fetch('/quality-control-receiving/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error('Failed to save');
+                showAlert('Document info saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving document info:', error);
+                showAlert('Failed to save document info', 'error');
+            }
+        }
+        
+        // ==========================================
+        // Suppliers Functions
+        // ==========================================
+        
+        // Load suppliers
+        async function loadSuppliers() {
+            try {
+                const response = await fetch('/quality-control-receiving/api/suppliers');
+                suppliers = await response.json();
+                renderSuppliers();
+            } catch (err) {
+                console.error('Error loading suppliers:', err);
+                document.getElementById('suppliersList').innerHTML = 
+                    '<li class="empty-state">Failed to load suppliers</li>';
+            }
+        }
+        
+        // Render suppliers list
+        function renderSuppliers() {
+            const list = document.getElementById('suppliersList');
+            
+            if (suppliers.length === 0) {
+                list.innerHTML = '<li class="empty-state">No suppliers found. Add your first supplier.</li>';
+                return;
+            }
+            
+            list.innerHTML = suppliers.map(supplier => `
+                <li class="supplier-item">
+                    <div class="supplier-info">
+                        <h4>${supplier.supplier_name}</h4>
+                        <p>${supplier.contact_info || 'No contact info'}</p>
+                    </div>
+                    <div class="supplier-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editSupplier(${supplier.id})">✏️ Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSupplier(${supplier.id})">🗑️ Delete</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+        
+        // Show add supplier modal
+        function showAddSupplierModal() {
+            document.getElementById('supplierModalTitle').textContent = '➕ Add Supplier';
+            document.getElementById('supplierForm').reset();
+            document.getElementById('supplierId').value = '';
+            document.getElementById('supplierModal').classList.add('active');
+        }
+        
+        // Edit supplier
+        function editSupplier(id) {
+            const supplier = suppliers.find(s => s.id === id);
+            if (!supplier) return;
+            
+            document.getElementById('supplierModalTitle').textContent = '✏️ Edit Supplier';
+            document.getElementById('supplierId').value = supplier.id;
+            document.getElementById('supplierName').value = supplier.supplier_name;
+            document.getElementById('contactInfo').value = supplier.contact_info || '';
+            document.getElementById('supplierModal').classList.add('active');
+        }
+        
+        // Save supplier
+        async function saveSupplier(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('supplierId').value;
+            const data = {
+                supplier_name: document.getElementById('supplierName').value,
+                contact_info: document.getElementById('contactInfo').value
+            };
+            
+            try {
+                const url = id ? `/quality-control-receiving/api/suppliers/${id}` : '/quality-control-receiving/api/suppliers';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeSupplierModal();
+                    await loadSuppliers();
+                    showAlert(id ? 'Supplier updated successfully' : 'Supplier added successfully', 'success');
+                } else {
+                    showAlert('Failed to save supplier', 'error');
+                }
+            } catch (err) {
+                console.error('Error saving supplier:', err);
+                showAlert('Failed to save supplier', 'error');
+            }
+        }
+        
+        // Delete supplier
+        async function deleteSupplier(id) {
+            if (!confirm('Are you sure you want to delete this supplier?')) return;
+            
+            try {
+                const response = await fetch(`/quality-control-receiving/api/suppliers/${id}`, { method: 'DELETE' });
+                
+                if (response.ok) {
+                    await loadSuppliers();
+                    showAlert('Supplier deleted successfully', 'success');
+                } else {
+                    showAlert('Failed to delete supplier', 'error');
+                }
+            } catch (err) {
+                console.error('Error deleting supplier:', err);
+                showAlert('Failed to delete supplier', 'error');
+            }
+        }
+        
+        // Close supplier modal
+        function closeSupplierModal() {
+            document.getElementById('supplierModal').classList.remove('active');
+        }
+        
+        // ==========================================
+        // Food Categories Functions
+        // ==========================================
+        
+        // Load food categories
+        async function loadFoodCategories() {
+            try {
+                const response = await fetch('/quality-control-receiving/api/food-categories');
+                foodCategories = await response.json();
+                renderFoodCategories();
+            } catch (err) {
+                console.error('Error loading food categories:', err);
+                document.getElementById('categoriesList').innerHTML = 
+                    '<tr><td colspan="4" class="empty-state">Failed to load categories</td></tr>';
+            }
+        }
+        
+        // Render food categories table
+        function renderFoodCategories() {
+            const tbody = document.getElementById('categoriesList');
+            
+            if (foodCategories.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No food categories found. Add your first category.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = foodCategories.map(cat => `
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 1rem;"><strong>${cat.category_name}</strong></td>
+                    <td style="padding: 1rem; text-align: center;">${cat.min_temp}°C</td>
+                    <td style="padding: 1rem; text-align: center;">${cat.max_temp}°C</td>
+                    <td style="padding: 1rem; text-align: center;">
+                        <button class="btn btn-primary btn-sm" onclick="editCategory(${cat.id})">✏️ Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCategory(${cat.id})">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Show add category modal
+        function showAddCategoryModal() {
+            document.getElementById('categoryModalTitle').textContent = '➕ Add Food Category';
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryModal').classList.add('active');
+        }
+        
+        // Edit category
+        function editCategory(id) {
+            const cat = foodCategories.find(c => c.id === id);
+            if (!cat) return;
+            
+            document.getElementById('categoryModalTitle').textContent = '✏️ Edit Food Category';
+            document.getElementById('categoryId').value = cat.id;
+            document.getElementById('categoryName').value = cat.category_name;
+            document.getElementById('minTemp').value = cat.min_temp;
+            document.getElementById('maxTemp').value = cat.max_temp;
+            document.getElementById('categoryModal').classList.add('active');
+        }
+        
+        // Save category
+        async function saveCategory(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('categoryId').value;
+            const minTemp = parseFloat(document.getElementById('minTemp').value);
+            const maxTemp = parseFloat(document.getElementById('maxTemp').value);
+            
+            if (minTemp >= maxTemp) {
+                showAlert('Min temperature must be less than max temperature', 'error');
+                return;
+            }
+            
+            const data = {
+                category_name: document.getElementById('categoryName').value,
+                min_temp: minTemp,
+                max_temp: maxTemp
+            };
+            
+            try {
+                const url = id ? `/quality-control-receiving/api/food-categories/${id}` : '/quality-control-receiving/api/food-categories';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeCategoryModal();
+                    await loadFoodCategories();
+                    showAlert(id ? 'Category updated successfully' : 'Category added successfully', 'success');
+                } else {
+                    showAlert('Failed to save category', 'error');
+                }
+            } catch (err) {
+                console.error('Error saving category:', err);
+                showAlert('Failed to save category', 'error');
+            }
+        }
+        
+        // Delete category
+        async function deleteCategory(id) {
+            if (!confirm('Are you sure you want to delete this food category?')) return;
+            
+            try {
+                const response = await fetch(`/quality-control-receiving/api/food-categories/${id}`, { method: 'DELETE' });
+                
+                if (response.ok) {
+                    await loadFoodCategories();
+                    showAlert('Category deleted successfully', 'success');
+                } else {
+                    showAlert('Failed to delete category', 'error');
+                }
+            } catch (err) {
+                console.error('Error deleting category:', err);
+                showAlert('Failed to delete category', 'error');
+            }
+        }
+        
+        // Close category modal
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('active');
+        }
+        
+        // ==========================================
+        // Utility Functions
+        // ==========================================
+        
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+        
+        // Close modals on outside click
+        document.getElementById('supplierModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('supplierModal')) {
+                closeSupplierModal();
+            }
+        });
+        
+        document.getElementById('categoryModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('categoryModal')) {
+                closeCategoryModal();
+            }
+        });
+    </script>
+</body>
+</html>

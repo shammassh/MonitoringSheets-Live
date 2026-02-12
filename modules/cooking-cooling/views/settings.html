@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cooking & Cooling Settings - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(13, 148, 136, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            color: #0d9488;
+        }
+
+        .card-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-form input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-form input:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(13, 148, 136, 0.4);
+        }
+
+        .methods-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .method-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+
+        .method-item:hover {
+            border-color: #0d9488;
+            background: #f0fdfa;
+        }
+
+        .method-name {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .method-name i {
+            color: #0d9488;
+        }
+
+        .btn-delete {
+            padding: 0.5rem 0.75rem;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        .access-denied {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .access-denied i {
+            font-size: 4rem;
+            color: #dc2626;
+            margin-bottom: 1rem;
+        }
+
+        .access-denied h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .access-denied p {
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .add-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-cog"></i> Settings</h1>
+            <a href="/cooking-cooling" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Cooking & Cooling
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Document Information Card -->
+        <div class="settings-card" style="margin-bottom: 2rem;">
+            <h2 class="card-title">
+                <i class="fas fa-file-alt"></i>
+                Document Information
+            </h2>
+            <p class="card-subtitle">Document metadata displayed on the dashboard</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Creation Date</label>
+                    <input type="date" id="creation_date" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Last Revision Date</label>
+                    <input type="date" id="last_revision_date" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Edition</label>
+                    <input type="text" id="edition" placeholder="e.g., 1.0" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 500; color: #374151; display: block; margin-bottom: 0.5rem;">Reference (Company)</label>
+                    <input type="text" id="company_name" placeholder="e.g., SSFC" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveDocumentInfo()" style="margin-top: 1rem;">
+                <i class="fas fa-save"></i>
+                Save Document Info
+            </button>
+        </div>
+
+        <div class="settings-card">
+            <h2 class="card-title">
+                <i class="fas fa-wind"></i>
+                Manage Cooling Methods
+            </h2>
+            <p class="card-subtitle">Add or remove cooling methods for temperature records</p>
+
+            <div id="settingsContent">
+                <div class="add-form">
+                    <input type="text" id="newMethodName" placeholder="Enter new cooling method...">
+                    <button class="btn btn-primary" onclick="addMethod()">
+                        <i class="fas fa-plus"></i>
+                        Add Method
+                    </button>
+                </div>
+
+                <div class="methods-list" id="methodsList">
+                    <!-- Methods loaded dynamically -->
+                </div>
+            </div>
+
+            <div id="accessDenied" class="access-denied" style="display: none;">
+                <i class="fas fa-lock"></i>
+                <h3>Access Denied</h3>
+                <p>Only Administrators can manage settings.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        let methods = [];
+        let currentUser = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCurrentUser();
+            
+            // Check access
+            if (currentUser.role !== 'Admin') {
+                document.getElementById('settingsContent').style.display = 'none';
+                document.getElementById('accessDenied').style.display = 'block';
+                return;
+            }
+            
+            await loadDocumentInfo();
+            await loadMethods();
+            
+            // Enter key handler
+            document.getElementById('newMethodName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addMethod();
+            });
+        });
+
+        async function loadDocumentInfo() {
+            try {
+                const response = await fetch('/cooking-cooling/api/settings', {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                const settings = await response.json();
+                document.getElementById('creation_date').value = settings.creation_date || '';
+                document.getElementById('last_revision_date').value = settings.last_revision_date || '';
+                document.getElementById('edition').value = settings.edition || '';
+                document.getElementById('company_name').value = settings.company_name || '';
+            } catch (error) {
+                console.error('Error loading document info:', error);
+            }
+        }
+
+        async function saveDocumentInfo() {
+            try {
+                const data = {
+                    creation_date: document.getElementById('creation_date').value,
+                    last_revision_date: document.getElementById('last_revision_date').value,
+                    edition: document.getElementById('edition').value,
+                    company_name: document.getElementById('company_name').value
+                };
+                const response = await fetch('/cooking-cooling/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error('Failed to save');
+                showToast('Document info saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving document info:', error);
+                showToast('Failed to save document info', 'error');
+            }
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/cooking-cooling/api/current-user');
+                currentUser = await response.json();
+            } catch (error) {
+                console.error('Error loading current user:', error);
+            }
+        }
+
+        async function loadMethods() {
+            try {
+                const response = await fetch('/cooking-cooling/api/methods');
+                methods = await response.json();
+                renderMethods();
+            } catch (error) {
+                console.error('Error loading methods:', error);
+                showToast('Failed to load cooling methods', 'error');
+            }
+        }
+
+        function renderMethods() {
+            const container = document.getElementById('methodsList');
+            
+            if (methods.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-wind"></i>
+                        <p>No cooling methods defined yet. Add your first method above.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = methods.map(method => `
+                <div class="method-item">
+                    <span class="method-name">
+                        <i class="fas fa-snowflake"></i>
+                        ${method.name}
+                    </span>
+                    <button class="btn-delete" onclick="deleteMethod(${method.id}, '${method.name}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function addMethod() {
+            const input = document.getElementById('newMethodName');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showToast('Please enter a method name', 'error');
+                return;
+            }
+            
+            // Check for duplicate
+            if (methods.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+                showToast('Method already exists', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/cooking-cooling/api/methods', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                
+                if (!response.ok) throw new Error('Failed to add method');
+                
+                input.value = '';
+                await loadMethods();
+                showToast('Cooling method added successfully!', 'success');
+            } catch (error) {
+                console.error('Error adding method:', error);
+                showToast('Failed to add method', 'error');
+            }
+        }
+
+        async function deleteMethod(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+            
+            try {
+                const response = await fetch(`/cooking-cooling/api/methods/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete method');
+                
+                await loadMethods();
+                showToast('Cooling method deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting method:', error);
+                showToast('Failed to delete method', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

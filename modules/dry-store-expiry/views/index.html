@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products Expiry Check - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #be185d 0%, #db2777 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(190, 24, 93, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 i {
+            font-size: 1.5rem;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .reference-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 5px solid #be185d;
+        }
+
+        .reference-card h3 {
+            color: #be185d;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reference-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .reference-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            border-radius: 10px;
+        }
+
+        .reference-item .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .reference-item .icon.expired {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        .reference-item .icon.expiring {
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+        }
+
+        .reference-item .icon.ok {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .reference-item .text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reference-item .label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reference-item .value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .reference-item .value.expired {
+            color: #dc2626;
+        }
+
+        .reference-item .value.expiring {
+            color: #ea580c;
+        }
+
+        .reference-item .value.ok {
+            color: #059669;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(190, 24, 93, 0.2);
+            border-color: #be185d;
+        }
+
+        .menu-card .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #be185d 0%, #db2777 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 20px rgba(190, 24, 93, 0.3);
+        }
+
+        .menu-card .icon-wrapper i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .menu-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .reference-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .reference-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-calendar-check"></i> Products Expiry Check</h1>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="reference-card">
+            <h3><i class="fas fa-info-circle"></i> Expiry Status Reference</h3>
+            <div class="reference-info">
+                <div class="reference-item">
+                    <div class="icon expired">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="text">
+                        <span class="label">Expired (RED)</span>
+                        <span class="value expired">Before log date</span>
+                    </div>
+                </div>
+                <div class="reference-item">
+                    <div class="icon expiring">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="text">
+                        <span class="label">Expiring Soon (ORANGE)</span>
+                        <span class="value expiring">Within 1 month</span>
+                    </div>
+                </div>
+                <div class="reference-item">
+                    <div class="icon ok">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="text">
+                        <span class="label">OK (GREEN)</span>
+                        <span class="value ok">More than 1 month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <a href="/dry-store-expiry/form" class="menu-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3>New Check</h3>
+                <p>Record a new products expiry check with products and expiry dates</p>
+            </a>
+
+            <a href="/dry-store-expiry/history" class="menu-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3>View History</h3>
+                <p>Browse, edit, verify and manage all expiry check records</p>
+            </a>
+
+            <a href="/dry-store-expiry/settings" class="menu-card">
+                <div class="icon-wrapper">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <h3>Settings</h3>
+                <p>Manage sections and storage areas</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
