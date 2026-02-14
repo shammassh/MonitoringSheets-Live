@@ -922,12 +922,18 @@
         // Format time for display
         function formatTime(timeValue) {
             if (!timeValue) return '-';
-            // If it's a Date object or ISO string
+            // If it's a Date object
             if (timeValue instanceof Date) {
                 return timeValue.toTimeString().substring(0, 5);
             }
-            // If it's a string like "18:54:00.0000000" or "18:54:00"
+            // If it's a string
             if (typeof timeValue === 'string') {
+                // Handle ISO date strings like "1970-01-01T16:54:00.000Z"
+                if (timeValue.includes('T')) {
+                    const timePart = timeValue.split('T')[1];
+                    return timePart ? timePart.substring(0, 5) : '-';
+                }
+                // Handle time strings like "18:54:00.0000000" or "18:54:00"
                 return timeValue.substring(0, 5);
             }
             return '-';
