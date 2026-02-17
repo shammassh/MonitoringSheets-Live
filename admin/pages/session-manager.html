@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Manager - FS Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo i {
+            color: #60a5fa;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.active .stat-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .stat-card.duplicates .stat-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .stat-card.expired .stat-icon {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .stat-card.total .stat-icon {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Filters */
+        .filters-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.6rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            min-width: 150px;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Sessions Table */
+        .sessions-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .sessions-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sessions-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sessions-title i {
+            color: #3b82f6;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f9fafb;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .token-cell {
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            background: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .token-cell:hover {
+            background: #e5e7eb;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-badge.expired {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-badge.duplicate {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .role-badge.admin {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .role-badge.superauditor {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .role-badge.auditor {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .role-badge.user {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .time-cell {
+            white-space: nowrap;
+        }
+
+        .time-relative {
+            font-size: 0.7rem;
+            color: #9ca3af;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.75rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .action-btn.terminate {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .action-btn.terminate:hover {
+            background: #fecaca;
+        }
+
+        .action-btn.view {
+            background: #dbeafe;
+            color: #1d4ed8;
+            margin-right: 0.5rem;
+        }
+
+        .action-btn.view:hover {
+            background: #bfdbfe;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        .toast.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-label {
+            width: 140px;
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #1f2937;
+            font-size: 0.875rem;
+            word-break: break-all;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .filters-row {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-group input,
+            .filter-group select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/dashboard" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Dashboard
+            </a>
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                Session Manager
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="refresh-btn" onclick="loadSessions()">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card active">
+                <div class="stat-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-value" id="activeCount">-</div>
+                <div class="stat-label">Active Sessions</div>
+            </div>
+            <div class="stat-card duplicates">
+                <div class="stat-icon">
+                    <i class="fas fa-clone"></i>
+                </div>
+                <div class="stat-value" id="duplicateCount">-</div>
+                <div class="stat-label">Duplicate Sessions</div>
+            </div>
+            <div class="stat-card expired">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value" id="expiringCount">-</div>
+                <div class="stat-label">Expiring Soon (1hr)</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-value" id="uniqueUsers">-</div>
+                <div class="stat-label">Unique Users Online</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>Search User</label>
+                    <input type="text" id="searchUser" placeholder="Name or email..." oninput="filterSessions()">
+                </div>
+                <div class="filter-group">
+                    <label>Role</label>
+                    <select id="filterRole" onchange="filterSessions()">
+                        <option value="">All Roles</option>
+                        <option value="Admin">Admin</option>
+                        <option value="SuperAuditor">SuperAuditor</option>
+                        <option value="Auditor">Auditor</option>
+                        <option value="User">User</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filterStatus" onchange="filterSessions()">
+                        <option value="">All</option>
+                        <option value="active">Active</option>
+                        <option value="duplicate">Duplicates Only</option>
+                        <option value="expiring">Expiring Soon</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="margin-left: auto;">
+                    <label>&nbsp;</label>
+                    <button class="action-btn terminate" onclick="terminateAllDuplicates()" style="padding: 0.6rem 1rem;">
+                        <i class="fas fa-broom"></i> Cleanup Duplicates
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Table -->
+        <div class="sessions-card">
+            <div class="sessions-header">
+                <h2 class="sessions-title">
+                    <i class="fas fa-list"></i>
+                    Active Sessions
+                </h2>
+                <span id="sessionCount" style="color: #6b7280; font-size: 0.875rem;"></span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Session Token</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Last Activity</th>
+                            <th>Expires</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsTable">
+                        <tr>
+                            <td colspan="8">
+                                <div class="loading">
+                                    <i class="fas fa-spinner"></i>
+                                    <p>Loading sessions...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Detail Modal -->
+    <div class="modal-overlay" id="sessionModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Session Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="sessionDetails">
+                <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script>
+        let allSessions = [];
+        let filteredSessions = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSessions();
+            // Auto-refresh every 30 seconds
+            setInterval(loadSessions, 30000);
+        });
+
+        async function loadSessions() {
+            try {
+                const response = await fetch('/admin/api/sessions', {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        showToast('Access denied. Admin only.', 'error');
+                        return;
+                    }
+                    throw new Error('Failed to load sessions');
+                }
+                
+                const data = await response.json();
+                allSessions = data.sessions;
+                updateStats(data.stats);
+                filterSessions();
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                showToast('Failed to load sessions', 'error');
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('activeCount').textContent = stats.active;
+            document.getElementById('duplicateCount').textContent = stats.duplicates;
+            document.getElementById('expiringCount').textContent = stats.expiringSoon;
+            document.getElementById('uniqueUsers').textContent = stats.uniqueUsers;
+        }
+
+        function filterSessions() {
+            const searchTerm = document.getElementById('searchUser').value.toLowerCase();
+            const roleFilter = document.getElementById('filterRole').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            filteredSessions = allSessions.filter(session => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    session.display_name.toLowerCase().includes(searchTerm) ||
+                    session.email.toLowerCase().includes(searchTerm);
+
+                // Role filter
+                const matchesRole = !roleFilter || session.role === roleFilter;
+
+                // Status filter
+                let matchesStatus = true;
+                if (statusFilter === 'duplicate') {
+                    matchesStatus = session.is_duplicate;
+                } else if (statusFilter === 'expiring') {
+                    matchesStatus = session.expires_in_minutes <= 60;
+                }
+
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+
+            renderSessions();
+        }
+
+        function renderSessions() {
+            const tbody = document.getElementById('sessionsTable');
+            document.getElementById('sessionCount').textContent = `${filteredSessions.length} session(s)`;
+
+            if (filteredSessions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-user-slash"></i>
+                                <p>No sessions found</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredSessions.map(session => {
+                const initials = getInitials(session.display_name);
+                const roleClass = session.role.toLowerCase();
+                const statusClass = session.is_duplicate ? 'duplicate' : 'active';
+                const statusText = session.is_duplicate ? 'Duplicate' : 'Active';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">
+                                    ${session.photo_url ? `<img src="${session.photo_url}" alt="">` : initials}
+                                </div>
+                                <div class="user-info">
+                                    <span class="user-name">${escapeHtml(session.display_name)}</span>
+                                    <span class="user-email">${escapeHtml(session.email)}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="role-badge ${roleClass}">${session.role}</span>
+                        </td>
+                        <td>
+                            <span class="token-cell" onclick="copyToken('${session.session_token}')" title="Click to copy">
+                                ${session.session_token}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                <i class="fas fa-${session.is_duplicate ? 'clone' : 'check-circle'}"></i>
+                                ${statusText}
+                            </span>
+                            ${session.session_count > 1 ? `<br><small style="color:#d97706;">(${session.session_count} sessions)</small>` : ''}
+                        </td>
+                        <td class="time-cell">
+                            ${formatDate(session.created_at)}
+                            <div class="time-relative">${timeAgo(session.created_at)}</div>
+                        </td>
+                        <td class="time-cell">
+                            ${formatDate(session.last_activity)}
+                            <div class="time-relative">${timeAgo(session.last_activity)}</div>
+                        </td>
+                        <td class="time-cell">
+                            ${formatDate(session.expires_at)}
+                            <div class="time-relative" style="color: ${session.expires_in_minutes <= 60 ? '#dc2626' : '#10b981'}">
+                                ${session.expires_in_minutes <= 60 ? '⚠️ ' : ''}${formatMinutes(session.expires_in_minutes)}
+                            </div>
+                        </td>
+                        <td>
+                            <button class="action-btn view" onclick="viewSession('${session.session_id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn terminate" onclick="terminateSession('${session.session_token}', '${escapeHtml(session.display_name)}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewSession(sessionId) {
+            const session = allSessions.find(s => s.session_id == sessionId);
+            if (!session) return;
+
+            const details = document.getElementById('sessionDetails');
+            details.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">User</span>
+                    <span class="detail-value">${escapeHtml(session.display_name)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">${escapeHtml(session.email)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Role</span>
+                    <span class="detail-value">${session.role}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">User ID</span>
+                    <span class="detail-value">${session.user_id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Session ID</span>
+                    <span class="detail-value">${session.session_id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Session Token</span>
+                    <span class="detail-value" style="font-family: monospace; font-size: 0.75rem;">${session.session_token}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Token Metadata</span>
+                    <span class="detail-value">
+                        ${session.token_metadata ? `
+                            Created: ${new Date(session.token_metadata.createdAt).toLocaleString()}<br>
+                            User ID in Token: ${session.token_metadata.userId}
+                        ` : 'Legacy token format'}
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Created At</span>
+                    <span class="detail-value">${new Date(session.created_at).toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Last Activity</span>
+                    <span class="detail-value">${new Date(session.last_activity).toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Expires At</span>
+                    <span class="detail-value">${new Date(session.expires_at).toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Session Count</span>
+                    <span class="detail-value">${session.session_count} active session(s) for this user</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Department</span>
+                    <span class="detail-value">${session.department || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Assigned Stores</span>
+                    <span class="detail-value">${session.assigned_stores || '-'}</span>
+                </div>
+            `;
+
+            document.getElementById('sessionModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('sessionModal').classList.remove('show');
+        }
+
+        async function terminateSession(token, userName) {
+            if (!confirm(`Terminate session for ${userName}? They will be logged out.`)) return;
+
+            try {
+                const response = await fetch('/admin/api/sessions/terminate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionToken: token })
+                });
+
+                if (!response.ok) throw new Error('Failed to terminate session');
+
+                showToast(`Session terminated for ${userName}`, 'success');
+                loadSessions();
+            } catch (error) {
+                console.error('Error terminating session:', error);
+                showToast('Failed to terminate session', 'error');
+            }
+        }
+
+        async function terminateAllDuplicates() {
+            const duplicateCount = allSessions.filter(s => s.is_duplicate).length;
+            if (duplicateCount === 0) {
+                showToast('No duplicate sessions to clean up', 'info');
+                return;
+            }
+
+            if (!confirm(`Remove ${duplicateCount} duplicate session(s)? Users with multiple sessions will keep their most recent session.`)) return;
+
+            try {
+                const response = await fetch('/admin/api/sessions/cleanup-duplicates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) throw new Error('Failed to cleanup duplicates');
+
+                const result = await response.json();
+                showToast(`Cleaned up ${result.removed} duplicate session(s)`, 'success');
+                loadSessions();
+            } catch (error) {
+                console.error('Error cleaning up duplicates:', error);
+                showToast('Failed to cleanup duplicates', 'error');
+            }
+        }
+
+        function copyToken(token) {
+            navigator.clipboard.writeText(token).then(() => {
+                showToast('Token copied to clipboard', 'info');
+            });
+        }
+
+        // Utility functions
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function timeAgo(dateStr) {
+            const seconds = Math.floor((new Date() - new Date(dateStr)) / 1000);
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        function formatMinutes(minutes) {
+            if (minutes < 60) return `${minutes}m left`;
+            if (minutes < 1440) return `${Math.floor(minutes / 60)}h left`;
+            return `${Math.floor(minutes / 1440)}d left`;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 
+                            type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Close modal on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Close modal on overlay click
+        document.getElementById('sessionModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) closeModal();
+        });
+    </script>
+</body>
+</html>

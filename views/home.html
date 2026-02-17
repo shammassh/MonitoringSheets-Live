@@ -404,6 +404,11 @@
             margin-top: 0.25rem;
         }
         
+        .admin-dropdown {
+            position: relative;
+            display: none;
+        }
+        
         .admin-btn {
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -429,6 +434,73 @@
             height: 16px;
         }
         
+        .admin-btn .arrow {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.2s;
+        }
+        
+        .admin-dropdown.open .admin-btn .arrow {
+            transform: rotate(180deg);
+        }
+        
+        .admin-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .admin-dropdown.open .admin-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .admin-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .admin-menu a:hover {
+            background: #f3f4f6;
+        }
+        
+        .admin-menu a svg {
+            width: 18px;
+            height: 18px;
+            color: #6b7280;
+        }
+        
+        .admin-menu a:first-child {
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .admin-menu .menu-label {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.75rem 1rem 0.5rem;
+            font-weight: 600;
+        }
+        
         @media (max-width: 640px) {
             .welcome-title {
                 font-size: 1.5rem;
@@ -452,13 +524,36 @@
     <header class="header">
         <div class="logo">🍽️ FS Monitoring</div>
         <div class="user-info">
-            <a href="/admin/users" class="admin-btn" id="admin-btn" style="display: none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-                <span>Admin</span>
-            </a>
+            <div class="admin-dropdown" id="admin-dropdown">
+                <button class="admin-btn" onclick="toggleAdminMenu(event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span>Admin</span>
+                    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="admin-menu">
+                    <div class="menu-label">Administration</div>
+                    <a href="/admin/users">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/sessions">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        Session Manager
+                    </a>
+                </div>
+            </div>
             <div class="user-avatar" id="user-avatar">?</div>
             <div>
                 <div class="user-name" id="user-name">Loading...</div>
@@ -860,10 +955,17 @@
                     document.getElementById('user-role').textContent = user.role || 'User';
                     document.getElementById('user-avatar').textContent = (user.display_name || user.email || 'U').charAt(0).toUpperCase();
                     
-                    // Show admin button and settings icons for Admin and SuperAuditor roles
+                    // Show admin dropdown for Admin role only (Session Manager is Admin-only)
                     const role = (user.role || '').toLowerCase();
-                    if (role === 'admin' || role === 'superauditor') {
-                        document.getElementById('admin-btn').style.display = 'flex';
+                    if (role === 'admin') {
+                        document.getElementById('admin-dropdown').style.display = 'block';
+                        addSettingsIconsToCards();
+                    } else if (role === 'superauditor') {
+                        // SuperAuditor can see User Management but not Session Manager
+                        document.getElementById('admin-dropdown').style.display = 'block';
+                        // Hide session manager link for non-admin
+                        const sessionLink = document.querySelector('.admin-menu a[href="/admin/sessions"]');
+                        if (sessionLink) sessionLink.style.display = 'none';
                         addSettingsIconsToCards();
                     }
                 } else {
@@ -1043,6 +1145,21 @@
                 }
             }
         }
+        
+        // Admin dropdown toggle
+        function toggleAdminMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('admin-dropdown');
+            dropdown.classList.toggle('open');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('admin-dropdown');
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
     </script>
 </body>
 </html>

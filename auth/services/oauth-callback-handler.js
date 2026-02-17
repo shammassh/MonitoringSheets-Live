@@ -8,6 +8,7 @@
 const msal = require('@azure/msal-node');
 const sql = require('mssql');
 const config = require('../../config/default');
+const SessionManager = require('./session-manager');
 
 class OAuthCallbackHandler {
     constructor() {
@@ -221,40 +222,13 @@ class OAuthCallbackHandler {
     
     /**
      * Create session for user (24 hours)
+     * Uses SessionManager for consistent session handling
      */
     async createSession(user, tokenResponse) {
-        const pool = await sql.connect(config.database);
-        
-        const sessionToken = this.generateSessionToken();
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-        
-        const result = await pool.request()
-            .input('sessionToken', sql.NVarChar, sessionToken)
-            .input('userId', sql.Int, user.id)
-            .input('accessToken', sql.NVarChar, tokenResponse.accessToken)
-            .input('refreshToken', sql.NVarChar, tokenResponse.refreshToken || null)
-            .input('expiresAt', sql.DateTime, expiresAt)
-            .query(`
-                INSERT INTO Sessions (
-                    session_token, user_id, azure_access_token,
-                    azure_refresh_token, expires_at
-                )
-                OUTPUT INSERTED.*
-                VALUES (
-                    @sessionToken, @userId, @accessToken,
-                    @refreshToken, @expiresAt
-                )
-            `);
-        
-        return result.recordset[0];
-    }
-    
-    /**
-     * Generate random session token
-     */
-    generateSessionToken() {
-        const crypto = require('crypto');
-        return crypto.randomBytes(32).toString('hex');
+        return await SessionManager.createSession(user.id, {
+            accessToken: tokenResponse.accessToken,
+            refreshToken: tokenResponse.refreshToken || null
+        });
     }
     
     /**

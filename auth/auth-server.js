@@ -49,6 +49,22 @@ class AuthServer {
         // Cookie parser for session tokens
         this.app.use(cookieParser());
         
+        // Prevent caching for all admin API routes
+        this.app.use('/admin/api', (req, res, next) => {
+            res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.set('Pragma', 'no-cache');
+            res.set('Expires', '0');
+            next();
+        });
+        
+        // Prevent caching for auth routes
+        this.app.use('/auth', (req, res, next) => {
+            res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.set('Pragma', 'no-cache');
+            res.set('Expires', '0');
+            next();
+        });
+        
         // Serve static files (CSS, JS)
         this.app.use('/auth/styles', express.static(path.join(__dirname, 'styles')));
         this.app.use('/auth/scripts', express.static(path.join(__dirname, 'scripts')));
@@ -168,6 +184,156 @@ class AuthServer {
             } catch (error) {
                 console.error('❌ Error in notification history route:', error);
                 res.status(500).send('Internal server error');
+            }
+        });
+
+        // ==========================================
+        // Session Manager Routes (Admin Only)
+        // ==========================================
+
+        // Session Manager page
+        this.app.get('/admin/sessions', requireAuth, requireRole('Admin'), (req, res) => {
+            // Prevent caching
+            res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.set('Pragma', 'no-cache');
+            res.set('Expires', '0');
+            
+            const filePath = path.join(__dirname, '../admin/pages/session-manager.html');
+            res.sendFile(filePath, (err) => {
+                if (err) {
+                    console.error('❌ Error serving session manager page:', err);
+                    res.status(500).send('Error loading session manager page');
+                }
+            });
+        });
+
+        // API: Get all active sessions with stats
+        this.app.get('/admin/api/sessions', requireAuth, requireRole('Admin'), async (req, res) => {
+            // Prevent caching
+            res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.set('Pragma', 'no-cache');
+            res.set('Expires', '0');
+            
+            try {
+                const sql = require('mssql');
+                const config = require('../config/default');
+                const pool = await sql.connect(config.database);
+
+                // Get all active sessions with user info
+                const result = await pool.request().query(`
+                    SELECT 
+                        s.id AS session_id,
+                        s.session_token,
+                        s.user_id,
+                        s.created_at,
+                        s.last_activity,
+                        s.expires_at,
+                        DATEDIFF(MINUTE, GETDATE(), s.expires_at) AS expires_in_minutes,
+                        u.email,
+                        u.display_name,
+                        u.photo_url,
+                        u.role,
+                        u.department,
+                        u.assigned_stores,
+                        (SELECT COUNT(*) FROM Sessions s2 WHERE s2.user_id = s.user_id AND s2.expires_at > GETDATE()) AS session_count
+                    FROM Sessions s
+                    INNER JOIN Users u ON s.user_id = u.id
+                    WHERE s.expires_at > GETDATE()
+                    ORDER BY s.last_activity DESC
+                `);
+
+                const sessions = result.recordset.map(session => {
+                    // Parse token metadata if in new format
+                    let tokenMetadata = null;
+                    if (session.session_token && session.session_token.includes('_')) {
+                        const parts = session.session_token.split('_');
+                        if (parts.length === 3) {
+                            tokenMetadata = {
+                                timestamp: parseInt(parts[0], 36),
+                                userId: parseInt(parts[1], 36),
+                                createdAt: new Date(parseInt(parts[0], 36))
+                            };
+                        }
+                    }
+
+                    return {
+                        ...session,
+                        is_duplicate: session.session_count > 1,
+                        token_metadata: tokenMetadata
+                    };
+                });
+
+                // Calculate stats
+                const uniqueUserIds = [...new Set(sessions.map(s => s.user_id))];
+                const duplicateSessions = sessions.filter(s => s.is_duplicate);
+                const expiringSoon = sessions.filter(s => s.expires_in_minutes <= 60);
+
+                res.json({
+                    sessions,
+                    stats: {
+                        active: sessions.length,
+                        duplicates: duplicateSessions.length,
+                        expiringSoon: expiringSoon.length,
+                        uniqueUsers: uniqueUserIds.length
+                    }
+                });
+
+            } catch (error) {
+                console.error('❌ Error fetching sessions:', error);
+                res.status(500).json({ error: 'Failed to fetch sessions' });
+            }
+        });
+
+        // API: Terminate a specific session
+        this.app.post('/admin/api/sessions/terminate', requireAuth, requireRole('Admin'), async (req, res) => {
+            try {
+                const { sessionToken } = req.body;
+                if (!sessionToken) {
+                    return res.status(400).json({ error: 'Session token required' });
+                }
+
+                await SessionManager.deleteSession(sessionToken);
+                console.log(`🔴 Session terminated by admin: ${req.currentUser.email}`);
+
+                res.json({ success: true, message: 'Session terminated' });
+
+            } catch (error) {
+                console.error('❌ Error terminating session:', error);
+                res.status(500).json({ error: 'Failed to terminate session' });
+            }
+        });
+
+        // API: Cleanup duplicate sessions (keep most recent per user)
+        this.app.post('/admin/api/sessions/cleanup-duplicates', requireAuth, requireRole('Admin'), async (req, res) => {
+            try {
+                const sql = require('mssql');
+                const config = require('../config/default');
+                const pool = await sql.connect(config.database);
+
+                // Delete older sessions for users with multiple sessions, keeping the most recent
+                const result = await pool.request().query(`
+                    WITH RankedSessions AS (
+                        SELECT 
+                            id,
+                            user_id,
+                            ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY last_activity DESC) AS rn
+                        FROM Sessions
+                        WHERE expires_at > GETDATE()
+                    )
+                    DELETE FROM Sessions
+                    WHERE id IN (
+                        SELECT id FROM RankedSessions WHERE rn > 1
+                    )
+                `);
+
+                const removed = result.rowsAffected[0];
+                console.log(`🧹 Cleaned up ${removed} duplicate session(s) by admin: ${req.currentUser.email}`);
+
+                res.json({ success: true, removed });
+
+            } catch (error) {
+                console.error('❌ Error cleaning up duplicates:', error);
+                res.status(500).json({ error: 'Failed to cleanup duplicates' });
             }
         });
 
