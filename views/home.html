@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>FS Monitoring - Home</title>
     <link rel="manifest" href="/manifest.json">
     <style>
@@ -1021,18 +1022,18 @@
         async function loadStats() {
             try {
                 // Get employees count
-                const empRes = await fetch('/api/employees');
+                const empRes = await fetch('/hygiene-checklist/api/employees');
                 const employees = await empRes.json();
                 document.getElementById('stat-employees').textContent = employees.length;
                 
                 // Get stores count
-                const storesRes = await fetch('/api/stores');
+                const storesRes = await fetch('/hygiene-checklist/api/stores');
                 const stores = await storesRes.json();
                 document.getElementById('stat-stores').textContent = stores.length;
                 
                 // Get today's stats
                 const today = new Date().toISOString().split('T')[0];
-                const statsRes = await fetch(`/api/hygiene-checklists/stats/summary?date_from=${today}&date_to=${today}`);
+                const statsRes = await fetch(`/hygiene-checklist/api/hygiene-checklists/stats/summary?date_from=${today}&date_to=${today}`);
                 const stats = await statsRes.json();
                 
                 document.getElementById('stat-checks').textContent = stats.total_checks || 0;

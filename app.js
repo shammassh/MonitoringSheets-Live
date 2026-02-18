@@ -37,6 +37,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// CRITICAL: Prevent caching for all authenticated routes
+// This fixes the session sharing issue where one user sees another user's cached data
+app.use((req, res, next) => {
+    // Don't cache any pages that require authentication
+    const noCacheRoutes = ['/dashboard', '/home', '/admin', '/auditor', '/hygiene-checklist', 
+                           '/equipment-calibration', '/frying-oil', '/food-safety', '/dry-store',
+                           '/water-quality', '/atp-monitoring', '/hot-holding', '/dry-store-expiry',
+                           '/cooking-cooling', '/fridge-temp', '/veg-fruit-wash', '/quality-control-receiving'];
+    
+    const shouldNotCache = noCacheRoutes.some(route => req.path.startsWith(route));
+    
+    if (shouldNotCache) {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        res.set('Vary', 'Cookie'); // Vary by cookie to ensure proper cache separation
+    }
+    next();
+});
+
 // Initialize Authentication
 initializeAuth(app);
 

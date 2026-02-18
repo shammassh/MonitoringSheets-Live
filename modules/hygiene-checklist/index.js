@@ -26,10 +26,15 @@ router.use('/api/settings', settingsRoutes);
 // Get current user info
 const { requireAuth } = require(path.join(process.cwd(), 'auth', 'auth-server'));
 router.get('/api/me', requireAuth, (req, res) => {
+    // CRITICAL: Set no-cache headers for user-specific data
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     res.json({
         id: req.currentUser.id,
         email: req.currentUser.email,
-        display_name: req.currentUser.display_name,
+        display_name: req.currentUser.displayName, // Fix: was using wrong property name
         role: req.currentUser.role
     });
 });

@@ -1,7 +1,7 @@
 // Service Worker for FS Monitoring PWA
 // Enables offline functionality
 
-const CACHE_NAME = 'fs-monitoring-v3';
+const CACHE_NAME = 'fs-monitoring-v5';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache for offline use
@@ -20,12 +20,27 @@ const PAGES_TO_CACHE = [
 ];
 
 // API routes to cache responses
-const API_CACHE = 'fs-monitoring-api-v3';
+const API_CACHE = 'fs-monitoring-api-v5';
 const CACHEABLE_API_ROUTES = [
     '/hygiene-checklist/api/employees',
     '/hygiene-checklist/api/checklist-items',
-    '/hygiene-checklist/api/settings',
-    '/hygiene-checklist/api/me'
+    '/hygiene-checklist/api/settings'
+    // NOTE: /api/me should NEVER be cached - it's user-specific session data
+];
+
+// User-specific routes that should NEVER be cached
+const NON_CACHEABLE_USER_ROUTES = [
+    '/api/me',
+    '/auth/session'
+];
+
+// Pages that should NEVER be cached (contain user-specific data or require fresh auth)
+const NON_CACHEABLE_PAGES = [
+    '/dashboard',
+    '/home',
+    '/admin',
+    '/auditor',
+    '/auth'
 ];
 
 // Install event - cache static assets
@@ -91,19 +106,30 @@ self.addEventListener('fetch', (event) => {
 async function handlePageRequest(request) {
     const url = new URL(request.url);
     
+    // Check if this page should NEVER be cached (user-specific pages)
+    const isUserPage = NON_CACHEABLE_PAGES.some(page => url.pathname.startsWith(page));
+    
     try {
         const response = await fetch(request);
         
-        // Cache successful page responses
-        if (response.ok) {
+        // Only cache pages that are NOT user-specific
+        if (response.ok && !isUserPage) {
             const cache = await caches.open(CACHE_NAME);
             cache.put(request, response.clone());
             console.log('[SW] Cached page:', url.pathname);
+        } else if (isUserPage) {
+            console.log('[SW] NOT caching user page:', url.pathname);
         }
         
         return response;
     } catch (error) {
-        // Network failed, try cache
+        // For user-specific pages, return offline page immediately (no cache)
+        if (isUserPage) {
+            console.log('[SW] User page offline, showing offline page:', url.pathname);
+            return caches.match(OFFLINE_URL);
+        }
+        
+        // Network failed, try cache for non-user pages
         const cachedResponse = await caches.match(request);
         if (cachedResponse) {
             console.log('[SW] Serving page from cache:', url.pathname);
@@ -120,11 +146,14 @@ async function handlePageRequest(request) {
 async function handleApiRequest(request) {
     const url = new URL(request.url);
     
+    // NEVER cache user-specific routes - these must always come from the server
+    const isUserSpecific = NON_CACHEABLE_USER_ROUTES.some(route => url.pathname.includes(route));
+    
     try {
         const response = await fetch(request);
         
-        // Cache successful responses for cacheable routes
-        if (response.ok && CACHEABLE_API_ROUTES.some(route => url.pathname.includes(route))) {
+        // Cache successful responses for cacheable routes (but NEVER user-specific data)
+        if (response.ok && !isUserSpecific && CACHEABLE_API_ROUTES.some(route => url.pathname.includes(route))) {
             const cache = await caches.open(API_CACHE);
             cache.put(request, response.clone());
             console.log('[SW] Cached API:', url.pathname);
@@ -132,7 +161,15 @@ async function handleApiRequest(request) {
         
         return response;
     } catch (error) {
-        // Network failed, try cache
+        // For user-specific routes, never serve from cache - return error immediately
+        if (isUserSpecific) {
+            return new Response(
+                JSON.stringify({ offline: true, message: 'Cannot load user session while offline. Please reconnect.' }),
+                { status: 503, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+        
+        // Network failed, try cache for non-user-specific routes
         const cachedResponse = await caches.match(request);
         if (cachedResponse) {
             console.log('[SW] Serving API from cache:', url.pathname);
