@@ -22,13 +22,16 @@ router.get('/sessions', requireAuth, async (req, res) => {
         let query = `
             SELECT TOP (@limit)
                 s.id, s.document_number, s.check_date, s.shift,
-                s.total_employees, s.total_pass, s.total_fail, s.total_absent,
+                ISNULL(s.total_employees, 0) as total_employees, 
+                ISNULL(s.total_pass, 0) as total_pass, 
+                ISNULL(s.total_fail, 0) as total_fail, 
+                ISNULL(s.total_absent, 0) as total_absent,
                 s.notes, s.created_at,
                 ISNULL(s.verified, 0) as verified, s.verified_at,
-                u.display_name as checked_by_name,
+                COALESCE(u.display_name, s.filled_by) as checked_by_name,
                 v.display_name as verified_by_name
             FROM HygieneChecklistSessions s
-            JOIN Users u ON s.checked_by = u.id
+            LEFT JOIN Users u ON s.checked_by = u.id
             LEFT JOIN Users v ON s.verified_by = v.id
             WHERE 1=1
         `;
@@ -75,13 +78,16 @@ router.get('/sessions/:id', requireAuth, async (req, res) => {
             .query(`
                 SELECT 
                     s.id, s.document_number, s.check_date, s.shift,
-                    s.total_employees, s.total_pass, s.total_fail, s.total_absent,
+                    ISNULL(s.total_employees, 0) as total_employees, 
+                    ISNULL(s.total_pass, 0) as total_pass, 
+                    ISNULL(s.total_fail, 0) as total_fail, 
+                    ISNULL(s.total_absent, 0) as total_absent,
                     s.notes, s.created_at,
                     ISNULL(s.verified, 0) as verified, s.verified_at,
-                    u.display_name as checked_by_name, u.id as checked_by_id,
+                    COALESCE(u.display_name, s.filled_by) as checked_by_name, s.checked_by as checked_by_id,
                     v.display_name as verified_by_name, s.verified_by as verified_by_id
                 FROM HygieneChecklistSessions s
-                JOIN Users u ON s.checked_by = u.id
+                LEFT JOIN Users u ON s.checked_by = u.id
                 LEFT JOIN Users v ON s.verified_by = v.id
                 WHERE s.id = @id
             `);

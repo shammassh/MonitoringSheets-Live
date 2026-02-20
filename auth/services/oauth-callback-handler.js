@@ -265,7 +265,7 @@ class OAuthCallbackHandler {
                 break;
             
             case 'auditor':
-                res.redirect('/auditor/selection');
+                res.redirect('/dashboard');
                 break;
             
             case 'storemanager':
