@@ -306,15 +306,14 @@ router.post('/api/calibrations/batch', async (req, res) => {
             await pool.request()
                 .input('session_id', sql.Int, session_id)
                 .input('reference_id', sql.Int, record.reference_id)
-                .input('item_name', sql.NVarChar, record.item_name || null)
                 .input('measured_value', sql.NVarChar, record.measured_value || null)
                 .input('deviation', sql.NVarChar, record.deviation || null)
                 .input('status', sql.NVarChar, record.status)
                 .input('remarks', sql.NVarChar, record.remarks || null)
                 .input('corrective_action', sql.NVarChar, record.corrective_action || null)
                 .query(`
-                    INSERT INTO CalibrationRecords (session_id, reference_id, item_name, measured_value, deviation, status, remarks, corrective_action)
-                    VALUES (@session_id, @reference_id, @item_name, @measured_value, @deviation, @status, @remarks, @corrective_action)
+                    INSERT INTO CalibrationRecords (session_id, reference_id, measured_value, deviation, status, remarks, corrective_action)
+                    VALUES (@session_id, @reference_id, @measured_value, @deviation, @status, @remarks, @corrective_action)
                 `);
             
             // Update the reference with last calibration date and next due date
