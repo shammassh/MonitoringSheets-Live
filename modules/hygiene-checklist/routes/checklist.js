@@ -195,6 +195,7 @@ router.post('/batch', requireAuth, requireRole('SuperAuditor', 'Auditor', 'Admin
                 .input('check_date', sql.Date, checkDate)
                 .input('shift', sql.NVarChar, shift)
                 .input('checked_by', sql.Int, req.currentUser.id)
+                .input('filled_by', sql.NVarChar, req.currentUser.displayName || req.currentUser.name || req.currentUser.email || 'Unknown')
                 .input('total_employees', sql.Int, totalEmployees)
                 .input('total_pass', sql.Int, totalPass)
                 .input('total_fail', sql.Int, totalFail)
@@ -202,10 +203,10 @@ router.post('/batch', requireAuth, requireRole('SuperAuditor', 'Auditor', 'Admin
                 .input('notes', sql.NVarChar, notes || null)
                 .query(`
                     INSERT INTO HygieneChecklistSessions 
-                        (document_number, check_date, shift, checked_by, total_employees, total_pass, total_fail, total_absent, notes)
+                        (document_number, check_date, shift, checked_by, filled_by, total_employees, total_pass, total_fail, total_absent, notes)
                     OUTPUT INSERTED.id, INSERTED.document_number
                     VALUES 
-                        (@document_number, @check_date, @shift, @checked_by, @total_employees, @total_pass, @total_fail, @total_absent, @notes)
+                        (@document_number, @check_date, @shift, @checked_by, @filled_by, @total_employees, @total_pass, @total_fail, @total_absent, @notes)
                 `);
             
             const session_id = sessionResult.recordset[0].id;
