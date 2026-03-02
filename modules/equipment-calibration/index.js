@@ -292,7 +292,7 @@ router.post('/api/calibrations/batch', async (req, res) => {
             .input('shift', sql.NVarChar, shift)
             .input('branch', sql.NVarChar, branch || null)
             .input('document_number', sql.NVarChar, document_number)
-            .input('calibrated_by', sql.NVarChar, user.displayName || user.name || user.email)
+            .input('calibrated_by', sql.Int, user.id || null)
             .query(`
                 INSERT INTO CalibrationSessions (calibration_date, shift, branch, document_number, calibrated_by)
                 OUTPUT INSERTED.id
@@ -403,20 +403,19 @@ router.get('/api/calibrations/:id', async (req, res) => {
 // Verify calibration session
 router.post('/api/calibrations/:id/verify', async (req, res) => {
     try {
-        const user = req.currentUser || { displayName: 'Unknown', name: 'Unknown' };
-        const verifiedBy = user.displayName || user.name || 'Unknown';
+        const user = req.currentUser || { id: null, displayName: 'Unknown', name: 'Unknown' };
         
         const pool = await sql.connect(config.database);
         await pool.request()
             .input('id', sql.Int, req.params.id)
-            .input('verified_by', sql.NVarChar, verifiedBy)
+            .input('verified_by', sql.Int, user.id || null)
             .query(`
                 UPDATE CalibrationSessions 
                 SET verified = 1, verified_by = @verified_by, verified_at = GETDATE()
                 WHERE id = @id
             `);
         
-        res.json({ success: true, verified_by: verifiedBy });
+        res.json({ success: true, verified_by: user.displayName || user.name || 'Unknown' });
     } catch (error) {
         console.error('Error verifying calibration:', error);
         res.status(500).json({ error: error.message });
