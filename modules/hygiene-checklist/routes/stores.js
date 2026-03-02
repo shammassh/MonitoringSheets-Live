@@ -19,9 +19,9 @@ router.get('/', requireAuth, async (req, res) => {
         
         const result = await pool.request()
             .query(`
-                SELECT id, name, location, is_active, created_at
+                SELECT id, name, code, location, status, created_at
                 FROM Stores
-                WHERE is_active = 1
+                WHERE status = 'active'
                 ORDER BY name
             `);
         
@@ -42,7 +42,7 @@ router.get('/:id', requireAuth, async (req, res) => {
         const result = await pool.request()
             .input('id', sql.Int, req.params.id)
             .query(`
-                SELECT id, name, location, is_active, created_at
+                SELECT id, name, code, location, status, created_at
                 FROM Stores
                 WHERE id = @id
             `);
@@ -63,7 +63,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 // ==========================================
 router.post('/', requireAuth, requireRole('Admin'), async (req, res) => {
     try {
-        const { name, location } = req.body;
+        const { name, code, location } = req.body;
         
         if (!name) {
             return res.status(400).json({ error: 'Name is required' });
@@ -73,11 +73,12 @@ router.post('/', requireAuth, requireRole('Admin'), async (req, res) => {
         
         const result = await pool.request()
             .input('name', sql.NVarChar, name)
+            .input('code', sql.NVarChar, code || null)
             .input('location', sql.NVarChar, location || null)
             .query(`
-                INSERT INTO Stores (name, location)
+                INSERT INTO Stores (name, code, location)
                 OUTPUT INSERTED.*
-                VALUES (@name, @location)
+                VALUES (@name, @code, @location)
             `);
         
         res.status(201).json(result.recordset[0]);
@@ -92,18 +93,19 @@ router.post('/', requireAuth, requireRole('Admin'), async (req, res) => {
 // ==========================================
 router.put('/:id', requireAuth, requireRole('Admin'), async (req, res) => {
     try {
-        const { name, location, is_active } = req.body;
+        const { name, code, location, status } = req.body;
         
         const pool = await sql.connect(config.database);
         
         const result = await pool.request()
             .input('id', sql.Int, req.params.id)
             .input('name', sql.NVarChar, name)
+            .input('code', sql.NVarChar, code || null)
             .input('location', sql.NVarChar, location || null)
-            .input('is_active', sql.Bit, is_active !== undefined ? is_active : true)
+            .input('status', sql.NVarChar, status || 'active')
             .query(`
                 UPDATE Stores
-                SET name = @name, location = @location, is_active = @is_active
+                SET name = @name, code = @code, location = @location, status = @status
                 OUTPUT INSERTED.*
                 WHERE id = @id
             `);
@@ -128,7 +130,7 @@ router.delete('/:id', requireAuth, requireRole('Admin'), async (req, res) => {
         
         await pool.request()
             .input('id', sql.Int, req.params.id)
-            .query('UPDATE Stores SET is_active = 0 WHERE id = @id');
+            .query("UPDATE Stores SET status = 'inactive' WHERE id = @id");
         
         res.json({ success: true, message: 'Store deleted' });
     } catch (error) {
