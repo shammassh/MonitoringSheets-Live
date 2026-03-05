@@ -402,7 +402,7 @@
                 <div class="detail-table">
                     <table>
                         <thead>
-                            <tr>
+                            <tr id="modal-table-header">
                                 <th>Fridge</th>
                                 <th>1 AM</th>
                                 <th>4 AM</th>
@@ -428,11 +428,46 @@
 
     <script>
         const API_BASE = '/fridge-temp/api';
-        const TIME_SLOTS = ['01am', '04am', '07am', '10am', '01pm', '04pm', '07pm', '10pm'];
+        let TIME_SLOTS = ['01am', '04am', '07am', '10am', '01pm', '04pm', '07pm', '10pm'];
+        let TIME_LABELS = {
+            '01am': '1:00 AM', '04am': '4:00 AM', '07am': '7:00 AM', '10am': '10:00 AM',
+            '01pm': '1:00 PM', '04pm': '4:00 PM', '07pm': '7:00 PM', '10pm': '10:00 PM'
+        };
         let documents = [];
         
+        // Load time slots from settings
+        async function loadTimeSlots() {
+            try {
+                const response = await fetch(`${API_BASE}/time-slots?_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+                TIME_SLOTS = data.slots || TIME_SLOTS;
+                TIME_LABELS = data.labels || TIME_LABELS;
+                
+                // Update modal table header
+                updateModalTableHeader();
+            } catch (err) {
+                console.error('Error loading time slots:', err);
+            }
+        }
+        
+        // Update modal table header with dynamic time slots
+        function updateModalTableHeader() {
+            const headerRow = document.getElementById('modal-table-header');
+            if (!headerRow) return;
+            
+            let headerHtml = '<th>Fridge</th>';
+            TIME_SLOTS.forEach(slot => {
+                headerHtml += `<th>${TIME_LABELS[slot] || slot}</th>`;
+            });
+            headerHtml += '<th>Corrective Action</th>';
+            headerRow.innerHTML = headerHtml;
+        }
+        
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadTimeSlots();
             loadSections();
             loadDocuments();
         });

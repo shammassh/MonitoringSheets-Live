@@ -313,10 +313,36 @@
                 </div>
                 <div class="reference-item">
                     <div class="label">Time Slots</div>
-                    <div class="value">1AM, 4AM, 7AM, 10AM, 1PM, 4PM, 7PM, 10PM</div>
+                    <div class="value" id="time-slots-display">Loading...</div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        const API_BASE = '/fridge-temp/api';
+        
+        // Load time slots and display them
+        async function loadTimeSlots() {
+            try {
+                const response = await fetch(`${API_BASE}/time-slots?_t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+                const slots = data.slots || [];
+                const labels = data.labels || {};
+                
+                // Format time slots for display
+                const displayText = slots.map(slot => labels[slot] || slot).join(', ');
+                document.getElementById('time-slots-display').textContent = displayText || 'No time slots configured';
+            } catch (err) {
+                console.error('Error loading time slots:', err);
+                document.getElementById('time-slots-display').textContent = '1AM, 4AM, 7AM, 10AM, 1PM, 4PM, 7PM, 10PM';
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', loadTimeSlots);
+    </script>
 </body>
 </html>
